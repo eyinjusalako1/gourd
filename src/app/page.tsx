@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Calendar, Users, Heart, BookOpen } from 'lucide-react'
+import { Logo } from '@/components/Logo'
 
 export default function Home() {
   return (
@@ -8,8 +9,11 @@ export default function Home() {
       <div className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
+            <div className="flex justify-center mb-8">
+              <Logo size="lg" />
+            </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Welcome to Gourd
+              Welcome to Gathered
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-100">
               Your church community event management platform

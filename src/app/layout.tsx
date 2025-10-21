@@ -6,7 +6,7 @@ import { AuthProvider } from '@/lib/auth-context'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Gourd - Church Event Management',
+  title: 'Gathered - Church Event Management',
   description: 'A modern platform for managing church events and community engagement',
 }
 

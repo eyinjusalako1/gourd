@@ -10,10 +10,9 @@ import {
   Users, 
   Clock,
   BookOpen,
-  Prayer,
   Heart,
   Megaphone,
-  HandHeart,
+  Hand,
   Monitor
 } from 'lucide-react'
 
@@ -41,13 +40,13 @@ export default function EventsPage() {
       case 'bible_study':
         return <BookOpen className="w-5 h-5" />
       case 'prayer_meeting':
-        return <Prayer className="w-5 h-5" />
+        return <Heart className="w-5 h-5" />
       case 'worship':
         return <Heart className="w-5 h-5" />
       case 'evangelism':
         return <Megaphone className="w-5 h-5" />
       case 'community_service':
-        return <HandHeart className="w-5 h-5" />
+        return <Hand className="w-5 h-5" />
       default:
         return <Calendar className="w-5 h-5" />
     }

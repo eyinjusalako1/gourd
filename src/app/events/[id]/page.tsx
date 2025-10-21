@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { EventService } from '@/lib/event-service'
@@ -15,10 +15,9 @@ import {
   Globe,
   Tag,
   BookOpen,
-  Prayer,
   Heart,
   Megaphone,
-  HandHeart,
+  Hand,
   Settings,
   CheckCircle,
   UserPlus,
@@ -40,11 +39,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
   const [guestCount, setGuestCount] = useState(0)
   const [rsvpNotes, setRsvpNotes] = useState('')
 
-  useEffect(() => {
-    loadEventData()
-  }, [params.id, user])
-
-  const loadEventData = async () => {
+  const loadEventData = useCallback(async () => {
     try {
       const [eventData, rsvpsData] = await Promise.all([
         EventService.getEvent(params.id),
@@ -68,7 +63,11 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id, user])
+
+  useEffect(() => {
+    loadEventData()
+  }, [loadEventData])
 
   const handleRsvp = async () => {
     if (!user || !event) return
@@ -95,13 +94,13 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       case 'bible_study':
         return <BookOpen className="w-6 h-6" />
       case 'prayer_meeting':
-        return <Prayer className="w-6 h-6" />
+        return <Heart className="w-6 h-6" />
       case 'worship':
         return <Heart className="w-6 h-6" />
       case 'evangelism':
         return <Megaphone className="w-6 h-6" />
       case 'community_service':
-        return <HandHeart className="w-6 h-6" />
+        return <Hand className="w-6 h-6" />
       default:
         return <Calendar className="w-6 h-6" />
     }
@@ -170,7 +169,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Event Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">The event you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The event you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <button onClick={() => router.push('/events')} className="btn-primary">
             Back to Events
           </button>
@@ -356,7 +355,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
                 {userRsvp ? (
                   <div className="space-y-3">
                     <div className={`px-3 py-2 rounded-lg text-sm font-medium ${getRsvpStatusColor(userRsvp.status)}`}>
-                      You're {userRsvp.status === 'going' ? 'going' : userRsvp.status === 'maybe' ? 'maybe going' : 'not going'}
+                      You&apos;re {userRsvp.status === 'going' ? 'going' : userRsvp.status === 'maybe' ? 'maybe going' : 'not going'}
                     </div>
                     {userRsvp.guest_count && userRsvp.guest_count > 0 && (
                       <div className="text-sm text-gray-600 dark:text-gray-400">

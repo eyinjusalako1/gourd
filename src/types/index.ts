@@ -4,6 +4,8 @@ export interface User {
   user_metadata: {
     name?: string
     avatar_url?: string
+    denomination?: string
+    location?: string
   }
   created_at: string
   updated_at: string

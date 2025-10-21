@@ -34,8 +34,28 @@ export default function DashboardPage() {
     )
   }
 
-  if (!user) {
-    return null
+  // For demo purposes, let's show a dashboard even without authentication
+  // In production, you'd want proper authentication
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show demo dashboard for now
+  const displayUser = user || {
+    email: 'demo@example.com',
+    user_metadata: {
+      name: 'Demo User',
+      denomination: 'Christian',
+      location: 'Your City'
+    }
   }
 
   return (
@@ -50,7 +70,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Welcome back, {user.user_metadata?.name || 'Friend'}!</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Welcome back, {displayUser.user_metadata?.name || 'Friend'}!</p>
               </div>
             </div>
             
@@ -146,19 +166,19 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-              <p className="text-gray-900 dark:text-white">{user.user_metadata?.name || 'Not provided'}</p>
+              <p className="text-gray-900 dark:text-white">{displayUser.user_metadata?.name || 'Not provided'}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-              <p className="text-gray-900 dark:text-white">{user.email}</p>
+              <p className="text-gray-900 dark:text-white">{displayUser.email}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Denomination</label>
-              <p className="text-gray-900 dark:text-white">{user.user_metadata?.denomination || 'Not specified'}</p>
+              <p className="text-gray-900 dark:text-white">{displayUser.user_metadata?.denomination || 'Not specified'}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
-              <p className="text-gray-900 dark:text-white">{user.user_metadata?.location || 'Not specified'}</p>
+              <p className="text-gray-900 dark:text-white">{displayUser.user_metadata?.location || 'Not specified'}</p>
             </div>
           </div>
         </div>

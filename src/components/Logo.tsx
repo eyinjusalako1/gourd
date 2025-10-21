@@ -1,5 +1,5 @@
 import React from 'react'
-import { Heart } from 'lucide-react'
+import Image from 'next/image'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -15,8 +15,14 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
 
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
-      <div className={`${sizeClasses[size]} bg-primary-600 rounded-lg flex items-center justify-center`}>
-        <Heart className="w-6 h-6 text-white" />
+      <div className={`${sizeClasses[size]} relative`}>
+        <Image 
+          src="/logo.png.svg" 
+          alt="Gathered Logo" 
+          width={48} 
+          height={48}
+          className="w-full h-full object-contain"
+        />
       </div>
       <span className="font-bold text-gray-900 dark:text-white">
         Gathered

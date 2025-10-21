@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Heart, Users, BookOpen, Calendar, Settings, LogOut } from 'lucide-react'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export default function DashboardPage() {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()

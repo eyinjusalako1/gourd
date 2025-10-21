@@ -26,6 +26,9 @@ import {
   Copy
 } from 'lucide-react'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export default function EventDetailsPage({ params }: { params: { id: string } }) {
   const { user } = useAuth()
   const router = useRouter()

@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { EventService } from '@/lib/event-service'
 import type { Event, EventRSVP } from '@/types'
+import { Navigation } from '@/components/Navigation'
 import { 
   ArrowLeft, 
   MapPin, 

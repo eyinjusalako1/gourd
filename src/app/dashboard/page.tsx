@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Heart, Users, BookOpen, Calendar, Settings, LogOut } from 'lucide-react'
+import { Navigation } from '@/components/Navigation'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -60,6 +61,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation />
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

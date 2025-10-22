@@ -20,10 +20,6 @@ export default function DashboardPage() {
   const [userRole, setUserRole] = useState<'Member' | 'Leader' | 'Church Admin'>('Member')
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login')
-    }
-    
     // Determine user role from user metadata
     if (user?.user_metadata && 'role' in user.user_metadata) {
       setUserRole((user.user_metadata as any).role)
@@ -67,8 +63,16 @@ export default function DashboardPage() {
     )
   }
 
-  if (!user) {
-    return null
+  // Show demo dashboard for visitors
+  const displayUser = user || {
+    id: 'demo',
+    email: 'demo@gathered.com',
+    user_metadata: {
+      name: 'Demo User',
+      role: 'Member'
+    },
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   }
 
   const isLeader = userRole === 'Leader' || userRole === 'Church Admin'
@@ -88,7 +92,7 @@ export default function DashboardPage() {
                   Gathered
                 </h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Welcome back, {user.user_metadata?.name || 'Friend'}!
+                  Welcome back, {displayUser.user_metadata?.name || 'Friend'}!
                 </p>
               </div>
             </div>

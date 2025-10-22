@@ -90,7 +90,7 @@ export default function VerseCard() {
       {/* Verse Content */}
       <div className="mb-6">
         <blockquote className="text-lg leading-relaxed mb-3 font-serif">
-          "{currentVerse.text}"
+          &ldquo;{currentVerse.text}&rdquo;
         </blockquote>
         <cite className="text-sm text-gold-300">
           — {currentVerse.reference} ({currentVerse.translation})

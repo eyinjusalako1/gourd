@@ -25,8 +25,8 @@ export default function DashboardPage() {
     }
     
     // Determine user role from user metadata
-    if (user?.user_metadata?.role) {
-      setUserRole(user.user_metadata.role)
+    if (user?.user_metadata && 'role' in user.user_metadata) {
+      setUserRole((user.user_metadata as any).role)
     }
   }, [user, loading, router])
 

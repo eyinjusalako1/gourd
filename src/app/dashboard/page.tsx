@@ -1,4 +1,4 @@
-'use client'
+// Gathered Dashboard - Comprehensive faith community platform
 
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'

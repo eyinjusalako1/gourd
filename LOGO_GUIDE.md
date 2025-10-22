@@ -55,3 +55,5 @@ export function ChurchIcon({ className }: { className?: string }) {
 - Hero logo: 80x80px  
 - Favicon: 32x32px
 - Social media: 512x512px
+
+

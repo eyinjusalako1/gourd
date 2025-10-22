@@ -112,3 +112,5 @@ export class EventService {
     console.log('RSVP submitted:', { eventId, userId, status, guestCount, notes })
   }
 }
+
+

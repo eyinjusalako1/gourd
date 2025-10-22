@@ -97,7 +97,7 @@ export default function EventList() {
           isJoined: action === 'going',
           isInterested: action === 'interested',
           attendees: action === 'going' ? event.attendees + 1 : 
-                    (event.isJoined && action !== 'going') ? event.attendees - 1 : event.attendees
+                    (event.isJoined && (action === 'interested' || action === 'not-going')) ? event.attendees - 1 : event.attendees
         }
       }
       return event

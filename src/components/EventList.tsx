@@ -16,6 +16,9 @@ interface Event {
   description: string
   isJoined: boolean
   isInterested: boolean
+  isOnline: boolean
+  organizer: string
+  image?: string
 }
 
 const sampleEvents: Event[] = [
@@ -30,7 +33,9 @@ const sampleEvents: Event[] = [
     category: 'Bible Study',
     description: 'Join us for an in-depth study of the Book of Romans',
     isJoined: false,
-    isInterested: true
+    isInterested: true,
+    isOnline: false,
+    organizer: 'Pastor John Smith'
   },
   {
     id: '2',
@@ -41,8 +46,8 @@ const sampleEvents: Event[] = [
     attendees: 8,
     category: 'Prayer',
     description: 'Community prayer session for healing and guidance',
-    isJoined: true,
-    isInterested: false
+    isOnline: true,
+    organizer: 'Sarah Johnson'
   },
   {
     id: '3',
@@ -54,8 +59,8 @@ const sampleEvents: Event[] = [
     maxAttendees: 20,
     category: 'Outreach',
     description: 'Volunteer at the local homeless shelter',
-    isJoined: false,
-    isInterested: false
+    isOnline: false,
+    organizer: 'Mike Davis'
   },
   {
     id: '4',
@@ -68,7 +73,9 @@ const sampleEvents: Event[] = [
     category: 'Social',
     description: 'Casual meetup for young adults in the community',
     isJoined: false,
-    isInterested: true
+    isInterested: true,
+    isOnline: false,
+    organizer: 'Emily Chen'
   }
 ]
 

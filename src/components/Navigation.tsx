@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Logo } from '@/components/Logo'
+import Logo from '@/components/Logo'
 
 export function Navigation() {
   const router = useRouter()

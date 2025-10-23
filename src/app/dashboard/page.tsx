@@ -15,6 +15,7 @@ import LeaderDashboard from '@/components/LeaderDashboard'
 import BottomNavigation from '@/components/BottomNavigation'
 import OnboardingFlow from '@/components/OnboardingFlow'
 import FellowshipDiscovery from '@/components/FellowshipDiscovery'
+import UserTypeSelector from '@/components/UserTypeSelector'
 
 export default function DashboardPage() {
   const { user, signOut, loading } = useAuth()
@@ -22,6 +23,7 @@ export default function DashboardPage() {
   const [userRole, setUserRole] = useState<'Member' | 'Leader' | 'Church Admin'>('Member')
   const [userType, setUserType] = useState<'individual' | 'leader' | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showUserTypeSelector, setShowUserTypeSelector] = useState(false)
 
   useEffect(() => {
     // Determine user role from user metadata
@@ -47,6 +49,11 @@ export default function DashboardPage() {
     setUserType(type)
     setShowOnboarding(false)
     localStorage.setItem('gathered_user_type', type)
+  }
+
+  const handleUserTypeChange = (type: 'individual' | 'leader') => {
+    setUserType(type)
+    setShowUserTypeSelector(false)
   }
 
   const handleTabChange = (tab: string) => {
@@ -128,7 +135,10 @@ export default function DashboardPage() {
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#F5C451] rounded-full"></div>
               </button>
-              <button className="p-2 text-white/60 hover:text-white">
+              <button 
+                onClick={() => setShowUserTypeSelector(true)}
+                className="p-2 text-white/60 hover:text-white"
+              >
                 <Settings className="w-5 h-5" />
               </button>
               <button
@@ -191,6 +201,15 @@ export default function DashboardPage() {
 
       {/* Bottom Navigation */}
       <BottomNavigation activeTab="home" onTabChange={handleTabChange} />
+
+      {/* User Type Selector Modal */}
+      {showUserTypeSelector && userType && (
+        <UserTypeSelector
+          currentType={userType}
+          onTypeChange={handleUserTypeChange}
+          onClose={() => setShowUserTypeSelector(false)}
+        />
+      )}
     </div>
   )
 }

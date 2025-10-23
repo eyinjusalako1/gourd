@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Calendar, MapPin, Users, Clock, Filter, ChevronDown } from 'lucide-react'
+import EventRSVPModal from './EventRSVPModal'
 
 interface Event {
   id: string
@@ -82,6 +83,9 @@ export default function EventList() {
   const [events, setEvents] = useState<Event[]>(sampleEvents)
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [showRSVPModal, setShowRSVPModal] = useState(false)
+  const [rsvpStates, setRsvpStates] = useState<Record<string, 'going' | 'interested' | 'not-going'>>({})
 
   const categories = ['All', 'Bible Study', 'Prayer', 'Outreach', 'Social']
 
@@ -90,18 +94,37 @@ export default function EventList() {
     : events.filter(event => event.category === selectedCategory)
 
   const handleRSVP = (eventId: string, action: 'going' | 'interested' | 'not-going') => {
+    setRsvpStates(prev => ({
+      ...prev,
+      [eventId]: action
+    }))
+    
     setEvents(events.map(event => {
       if (event.id === eventId) {
+        const previousRSVP = rsvpStates[eventId]
+        let newAttendees = event.attendees
+        
+        // Adjust attendee count based on RSVP changes
+        if (action === 'going' && previousRSVP !== 'going') {
+          newAttendees = event.attendees + 1
+        } else if (previousRSVP === 'going' && action !== 'going') {
+          newAttendees = Math.max(0, event.attendees - 1)
+        }
+        
         return {
           ...event,
+          attendees: newAttendees,
           isJoined: action === 'going',
-          isInterested: action === 'interested',
-          attendees: action === 'going' ? event.attendees + 1 : 
-                    (event.isJoined && (action === 'interested' || action === 'not-going')) ? event.attendees - 1 : event.attendees
+          isInterested: action === 'interested'
         }
       }
       return event
     }))
+  }
+
+  const handleOpenRSVPModal = (event: Event) => {
+    setSelectedEvent(event)
+    setShowRSVPModal(true)
   }
 
   const formatDate = (dateString: string) => {
@@ -202,33 +225,24 @@ export default function EventList() {
               </div>
             </div>
 
-            {/* RSVP Buttons */}
-            <div className="flex space-x-2 ml-2">
+            {/* RSVP Button */}
+            <div className="ml-2">
               <button
-                onClick={() => handleRSVP(event.id, 'going')}
-                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                  event.isJoined
+                onClick={() => handleOpenRSVPModal(event)}
+                className={`w-full py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  rsvpStates[event.id] === 'going'
                     ? 'bg-[#F5C451] text-[#0F1433] shadow-lg transform scale-105'
+                    : rsvpStates[event.id] === 'interested'
+                    ? 'bg-blue-500 text-white shadow-lg transform scale-105'
+                    : rsvpStates[event.id] === 'not-going'
+                    ? 'bg-red-500 text-white shadow-lg transform scale-105'
                     : 'bg-white/10 text-white hover:bg-white/20 border border-[#D4AF37]/50'
                 }`}
               >
-                {event.isJoined ? 'Going ✓' : 'Going'}
-              </button>
-              <button
-                onClick={() => handleRSVP(event.id, 'interested')}
-                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                  event.isInterested
-                    ? 'bg-blue-500 text-white shadow-lg transform scale-105'
-                    : 'bg-white/10 text-white hover:bg-white/20 border border-blue-500/50'
-                }`}
-              >
-                {event.isInterested ? 'Interested ✓' : 'Interested'}
-              </button>
-              <button
-                onClick={() => handleRSVP(event.id, 'not-going')}
-                className="flex-1 py-3 px-4 rounded-lg text-sm font-semibold bg-white/10 text-white hover:bg-white/20 border border-red-500/50 transition-all duration-200"
-              >
-                Not Going
+                {rsvpStates[event.id] === 'going' ? 'Going ✓' :
+                 rsvpStates[event.id] === 'interested' ? 'Interested ✓' :
+                 rsvpStates[event.id] === 'not-going' ? 'Not Going ✓' :
+                 'RSVP to Event'}
               </button>
             </div>
           </div>
@@ -240,6 +254,20 @@ export default function EventList() {
           <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>No events found for this category</p>
         </div>
+      )}
+
+      {/* Event RSVP Modal */}
+      {selectedEvent && (
+        <EventRSVPModal
+          event={selectedEvent}
+          isOpen={showRSVPModal}
+          onClose={() => {
+            setShowRSVPModal(false)
+            setSelectedEvent(null)
+          }}
+          onRSVP={handleRSVP}
+          currentRSVP={rsvpStates[selectedEvent.id]}
+        />
       )}
     </div>
   )

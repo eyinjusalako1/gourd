@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 
 interface LeaderDashboardProps {
-  userRole: 'Leader' | 'Church Admin'
+  userRole: 'Member' | 'Leader' | 'Church Admin'
 }
 
 export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {

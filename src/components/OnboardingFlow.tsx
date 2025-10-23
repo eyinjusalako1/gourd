@@ -32,7 +32,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <Heart className="w-8 h-8 text-[#0F1433]" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">Welcome to Gathered</h1>
-            <p className="text-white/80 text-lg">Let's find your perfect community fit</p>
+            <p className="text-white/80 text-lg">Let&apos;s find your perfect community fit</p>
           </div>
 
           {/* User Type Selection */}
@@ -52,7 +52,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 </div>
                 <div className="text-left flex-1">
                   <h3 className="text-lg font-semibold text-white mb-1">
-                    I'm looking for fellowship
+                    I&apos;m looking for fellowship
                   </h3>
                   <p className="text-white/70 text-sm">
                     Find small groups, Bible studies, and Christian community near you
@@ -73,7 +73,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 </div>
                 <div className="text-left flex-1">
                   <h3 className="text-lg font-semibold text-white mb-1">
-                    I'm a leader or church representative
+                    I&apos;m a leader or church representative
                   </h3>
                   <p className="text-white/70 text-sm">
                     Create and manage fellowships, events, and grow your community

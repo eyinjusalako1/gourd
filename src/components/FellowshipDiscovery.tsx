@@ -47,7 +47,7 @@ const sampleFellowships: Fellowship[] = [
   },
   {
     id: '3',
-    name: 'Women\'s Fellowship Circle',
+    name: 'Women&apos;s Fellowship Circle',
     description: 'A supportive space for women to grow in faith, share testimonies, and build lasting friendships.',
     location: 'Grace Church',
     memberCount: 18,
@@ -60,8 +60,8 @@ const sampleFellowships: Fellowship[] = [
   },
   {
     id: '4',
-    name: 'Men\'s Accountability Group',
-    description: 'Brothers in Christ supporting each other through life\'s challenges and victories.',
+    name: 'Men&apos;s Accountability Group',
+    description: 'Brothers in Christ supporting each other through life&apos;s challenges and victories.',
     location: 'Coffee Corner',
     memberCount: 12,
     category: 'Accountability',

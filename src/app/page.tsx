@@ -44,7 +44,7 @@ export default function Home() {
               Connect, Grow, and Serve Together
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-400">
-              Whether you're seeking fellowship or building community, Gathered brings believers together
+              Whether you&apos;re seeking fellowship or building community, Gathered brings believers together
             </p>
           </div>
 

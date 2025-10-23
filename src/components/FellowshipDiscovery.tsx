@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Search, MapPin, Users, Calendar, Filter, Star, Heart, MessageCircle } from 'lucide-react'
+import FellowshipJoinModal from './FellowshipJoinModal'
 
 interface Fellowship {
   id: string
@@ -80,6 +81,9 @@ export default function FellowshipDiscovery() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedFellowship, setSelectedFellowship] = useState<Fellowship | null>(null)
+  const [showJoinModal, setShowJoinModal] = useState(false)
+  const [joinedFellowships, setJoinedFellowships] = useState<string[]>([])
 
   const filteredFellowships = fellowships.filter(fellowship => {
     const matchesCategory = selectedCategory === 'All' || fellowship.category === selectedCategory
@@ -88,9 +92,15 @@ export default function FellowshipDiscovery() {
     return matchesCategory && matchesSearch
   })
 
-  const handleJoinFellowship = (fellowshipId: string) => {
-    console.log('Joining fellowship:', fellowshipId)
-    // In a real app, this would handle the join logic
+  const handleJoinFellowship = (fellowship: Fellowship) => {
+    setSelectedFellowship(fellowship)
+    setShowJoinModal(true)
+  }
+
+  const handleConfirmJoin = (fellowshipId: string) => {
+    setJoinedFellowships(prev => [...prev, fellowshipId])
+    setShowJoinModal(false)
+    setSelectedFellowship(null)
   }
 
   const handleMessageFellowship = (fellowshipId: string) => {
@@ -199,11 +209,17 @@ export default function FellowshipDiscovery() {
             {/* Action Buttons */}
             <div className="flex space-x-3">
               <button
-                onClick={() => handleJoinFellowship(fellowship.id)}
-                className="flex-1 bg-[#F5C451] text-[#0F1433] py-3 rounded-xl font-semibold hover:bg-[#D4AF37] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center space-x-2"
+                onClick={() => handleJoinFellowship(fellowship)}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center space-x-2 ${
+                  joinedFellowships.includes(fellowship.id)
+                    ? 'bg-green-500 text-white'
+                    : 'bg-[#F5C451] text-[#0F1433] hover:bg-[#D4AF37]'
+                }`}
               >
                 <Heart className="w-4 h-4" />
-                <span>Join Fellowship</span>
+                <span>
+                  {joinedFellowships.includes(fellowship.id) ? 'Joined ✓' : 'Join Fellowship'}
+                </span>
               </button>
               <button
                 onClick={() => handleMessageFellowship(fellowship.id)}
@@ -242,6 +258,19 @@ export default function FellowshipDiscovery() {
           Create Fellowship
         </button>
       </div>
+
+      {/* Fellowship Join Modal */}
+      {selectedFellowship && (
+        <FellowshipJoinModal
+          fellowship={selectedFellowship}
+          isOpen={showJoinModal}
+          onClose={() => {
+            setShowJoinModal(false)
+            setSelectedFellowship(null)
+          }}
+          onJoin={handleConfirmJoin}
+        />
+      )}
     </div>
   )
 }

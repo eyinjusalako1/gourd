@@ -13,22 +13,40 @@ import AnnouncementFeed from '@/components/AnnouncementFeed'
 import StatsPanel from '@/components/StatsPanel'
 import LeaderDashboard from '@/components/LeaderDashboard'
 import BottomNavigation from '@/components/BottomNavigation'
+import OnboardingFlow from '@/components/OnboardingFlow'
+import FellowshipDiscovery from '@/components/FellowshipDiscovery'
 
 export default function DashboardPage() {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
   const [userRole, setUserRole] = useState<'Member' | 'Leader' | 'Church Admin'>('Member')
+  const [userType, setUserType] = useState<'individual' | 'leader' | null>(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   useEffect(() => {
     // Determine user role from user metadata
     if (user?.user_metadata && 'role' in user.user_metadata) {
       setUserRole((user.user_metadata as any).role)
     }
+    
+    // Check if user has completed onboarding
+    const savedUserType = localStorage.getItem('gathered_user_type')
+    if (savedUserType) {
+      setUserType(savedUserType as 'individual' | 'leader')
+    } else {
+      setShowOnboarding(true)
+    }
   }, [user, loading, router])
 
   const handleSignOut = async () => {
     await signOut()
     router.push('/')
+  }
+
+  const handleOnboardingComplete = (type: 'individual' | 'leader') => {
+    setUserType(type)
+    setShowOnboarding(false)
+    localStorage.setItem('gathered_user_type', type)
   }
 
   const handleTabChange = (tab: string) => {
@@ -54,13 +72,18 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-beige-50 dark:bg-navy-900">
+      <div className="min-h-screen flex items-center justify-center bg-[#0F1433]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5C451] mx-auto"></div>
+          <p className="mt-4 text-white/80">Loading your dashboard...</p>
         </div>
       </div>
     )
+  }
+
+  // Show onboarding flow for new users
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />
   }
 
   // Show demo dashboard for visitors
@@ -92,7 +115,10 @@ export default function DashboardPage() {
                   Gathered
                 </h1>
                 <p className="text-sm text-white/80">
-                  Welcome back, {displayUser.user_metadata?.name || 'Friend'}!
+                  {userType === 'individual' 
+                    ? `Welcome back, ${displayUser.user_metadata?.name || 'Friend'}! Ready to find fellowship?`
+                    : `Welcome back, ${displayUser.user_metadata?.name || 'Leader'}! Ready to build community?`
+                  }
                 </p>
               </div>
             </div>
@@ -124,9 +150,19 @@ export default function DashboardPage() {
 
         {/* Section B: Engagement & Community */}
         <div className="space-y-6">
-          <EventList />
-          <FellowshipGroups userRole={userRole} />
-          <AnnouncementFeed />
+          {userType === 'individual' ? (
+            <>
+              <FellowshipDiscovery />
+              <EventList />
+              <AnnouncementFeed />
+            </>
+          ) : (
+            <>
+              <EventList />
+              <FellowshipGroups userRole={userRole} />
+              <AnnouncementFeed />
+            </>
+          )}
         </div>
 
         {/* Section C: Growth & Analytics */}
@@ -138,15 +174,15 @@ export default function DashboardPage() {
         )}
 
         {/* Monetization Integration Placeholder */}
-        {userRole === 'Member' && (
+        {userType === 'individual' && (
           <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl p-4 text-[#0F1433]">
             <div className="text-center">
-              <h3 className="font-bold text-lg mb-2">Upgrade to Gathered+</h3>
+              <h3 className="font-bold text-lg mb-2">Ready to Lead?</h3>
               <p className="text-sm mb-4 opacity-90">
-                Host your own fellowship groups and unlock advanced features
+                Start your own fellowship group and help others find community
               </p>
               <button className="bg-[#0F1433] text-[#F5C451] px-6 py-2 rounded-lg font-medium hover:bg-[#0F1433]/90 transition-colors">
-                Learn More
+                Become a Leader
               </button>
             </div>
           </div>

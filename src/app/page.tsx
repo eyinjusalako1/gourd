@@ -16,7 +16,7 @@ export default function Home() {
               Welcome to Gathered
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-100">
-              Your church community event management platform
+              Find fellowship, build community, grow in faith together
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -41,10 +41,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Everything you need for church events
+              Connect, Grow, and Serve Together
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-400">
-              Manage events, track RSVPs, and build community
+              Whether you're seeking fellowship or building community, Gathered brings believers together
             </p>
           </div>
 
@@ -54,10 +54,10 @@ export default function Home() {
                 <Calendar className="w-8 h-8 text-primary-600 dark:text-primary-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Event Management
+                Find Events
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Create and manage church events with ease
+                Discover Bible studies, prayer meetings, and fellowship events
               </p>
             </div>
 
@@ -66,10 +66,10 @@ export default function Home() {
                 <Users className="w-8 h-8 text-gold-600 dark:text-gold-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                RSVP Tracking
+                Join Fellowships
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Track attendance and manage guest lists
+                Connect with small groups and Christian communities
               </p>
             </div>
 
@@ -78,10 +78,10 @@ export default function Home() {
                 <Heart className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Community Building
+                Build Community
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Foster connections within your church community
+                Create and manage fellowship groups for your church
               </p>
             </div>
 
@@ -90,10 +90,10 @@ export default function Home() {
                 <BookOpen className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Bible Study Groups
+                Grow in Faith
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Organize study groups and spiritual events
+                Access daily verses, prayer tools, and spiritual growth resources
               </p>
             </div>
           </div>

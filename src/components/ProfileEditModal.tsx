@@ -56,7 +56,7 @@ export default function ProfileEditModal({
   const handleRemoveInterest = (interest: string) => {
     setFormData(prev => ({
       ...prev,
-      interests: prev.interests.filter(i => i !== interest)
+      interests: prev.interests.filter((i: string) => i !== interest)
     }))
   }
 

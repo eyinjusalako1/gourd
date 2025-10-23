@@ -97,7 +97,7 @@ export default function UserSearchPage() {
     }
 
     setFilteredUsers(filtered)
-  }, [searchQuery, selectedFilter])
+  }, [searchQuery, selectedFilter, users])
 
   const handleFollow = (userId: string) => {
     setUsers(prev => prev.map(user => 

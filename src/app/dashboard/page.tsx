@@ -5,7 +5,7 @@
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Settings, LogOut, Bell } from 'lucide-react'
+import { Settings, LogOut, Bell, User, Users } from 'lucide-react'
 import Logo from '@/components/Logo'
 import VerseCard from '@/components/VerseCard'
 import EventList from '@/components/EventList'
@@ -134,9 +134,24 @@ export default function DashboardPage() {
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#F5C451] rounded-full"></div>
               </button>
+              <button
+                onClick={() => router.push('/discover')}
+                className="p-2 text-white/60 hover:text-white"
+                title="Discover People"
+              >
+                <Users className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => router.push('/profile')}
+                className="p-2 text-white/60 hover:text-white"
+                title="My Profile"
+              >
+                <User className="w-5 h-5" />
+              </button>
               <button 
                 onClick={() => setShowUserTypeSelector(true)}
                 className="p-2 text-white/60 hover:text-white"
+                title="Settings"
               >
                 <Settings className="w-5 h-5" />
               </button>

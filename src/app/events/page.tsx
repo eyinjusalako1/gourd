@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { EventService } from '@/lib/event-service'
 import type { Event } from '@/types'
-import { Navigation } from '@/components/Navigation'
+import Logo from '@/components/Logo'
 import { 
   Calendar, 
   MapPin, 
@@ -14,12 +14,15 @@ import {
   Heart,
   Megaphone,
   Hand,
-  Monitor
+  Monitor,
+  ArrowRight,
+  Filter
 } from 'lucide-react'
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState('All')
 
   useEffect(() => {
     loadEvents()
@@ -56,17 +59,34 @@ export default function EventsPage() {
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case 'bible_study':
-        return 'bg-gold-100 text-gold-600 dark:bg-gold-900 dark:text-gold-400'
+        return 'bg-blue-500'
       case 'prayer_meeting':
-        return 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
+        return 'bg-purple-500'
       case 'worship':
-        return 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'
+        return 'bg-red-500'
       case 'evangelism':
-        return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
+        return 'bg-green-500'
       case 'community_service':
-        return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400'
+        return 'bg-orange-500'
       default:
-        return 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400'
+        return 'bg-[#F5C451]'
+    }
+  }
+
+  const getEventTypeAccent = (type: string) => {
+    switch (type) {
+      case 'bible_study':
+        return 'border-blue-500'
+      case 'prayer_meeting':
+        return 'border-purple-500'
+      case 'worship':
+        return 'border-red-500'
+      case 'evangelism':
+        return 'border-green-500'
+      case 'community_service':
+        return 'border-orange-500'
+      default:
+        return 'border-[#D4AF37]'
     }
   }
 
@@ -74,9 +94,8 @@ export default function EventsPage() {
     const date = new Date(dateString)
     return {
       date: date.toLocaleDateString('en-US', { 
-        weekday: 'long', 
-        year: 'numeric',
-        month: 'long', 
+        weekday: 'short', 
+        month: 'short', 
         day: 'numeric' 
       }),
       time: date.toLocaleTimeString('en-US', { 
@@ -87,83 +106,141 @@ export default function EventsPage() {
     }
   }
 
+  const categories = ['All', 'Bible Study', 'Prayer', 'Worship', 'Outreach', 'Social']
+  
+  const filteredEvents = selectedCategory === 'All' 
+    ? events 
+    : events.filter(event => {
+        const typeMap: Record<string, string> = {
+          'Bible Study': 'bible_study',
+          'Prayer': 'prayer_meeting',
+          'Worship': 'worship',
+          'Outreach': 'evangelism',
+          'Social': 'community_service'
+        }
+        return event.event_type === typeMap[selectedCategory]
+      })
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#0F1433]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading events...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5C451] mx-auto"></div>
+          <p className="mt-4 text-white/80">Loading events...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Navigation />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Upcoming Events
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Join our community events and grow together in faith
-          </p>
+    <div className="min-h-screen bg-[#0F1433] pb-20">
+      {/* Header */}
+      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
+        <div className="max-w-md mx-auto px-4">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-3">
+              <Logo size="md" showText={false} />
+              <div>
+                <h1 className="text-xl font-bold text-white">
+                  Events
+                </h1>
+                <p className="text-sm text-white/80">
+                  Join our community events and grow together in faith
+                </p>
+              </div>
+            </div>
+            
+            <Link
+              href="/dashboard"
+              className="flex items-center space-x-1 px-3 py-1 text-white/60 hover:text-white transition-colors"
+            >
+              <ArrowRight className="w-4 h-4" />
+              <span className="text-sm">Dashboard</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-md mx-auto px-4 py-6">
+        {/* Category Filter */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-white">Filter Events</h2>
+            <Filter className="w-5 h-5 text-[#F5C451]" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-[#F5C451] text-[#0F1433]'
+                    : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => {
+        {/* Events Grid */}
+        <div className="space-y-4">
+          {filteredEvents.map((event) => {
             const { date, time } = formatEventDate(event.start_time)
             
             return (
               <Link key={event.id} href={`/events/${event.id}`}>
-                <div className="card hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getEventTypeColor(event.event_type)}`}>
+                <div className={`bg-white/5 border ${getEventTypeAccent(event.event_type)} rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg relative overflow-hidden`}>
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
+                  
+                  <div className="flex items-start justify-between mb-4 relative z-10">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${getEventTypeColor(event.event_type)}`}>
                       {getEventTypeIcon(event.event_type)}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-white/80">
                       {event.rsvp_count} going
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl font-semibold text-white mb-2 relative z-10">
                     {event.title}
                   </h3>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                  <p className="text-white/80 mb-4 leading-relaxed relative z-10">
                     {event.description}
                   </p>
 
-                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="space-y-2 text-sm text-white/70 mb-4 relative z-10">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="w-4 h-4 text-[#F5C451]" />
                       <span>{date}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-4 h-4 ml-2 text-[#F5C451]" />
                       <span>{time}</span>
                     </div>
                     {event.location && (
                       <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-4 h-4 text-[#F5C451]" />
                         <span>{event.location}</span>
                       </div>
                     )}
                     {event.is_virtual && (
                       <div className="flex items-center space-x-2">
-                        <Monitor className="w-4 h-4" />
+                        <Monitor className="w-4 h-4 text-[#F5C451]" />
                         <span>Virtual Event</span>
                       </div>
                     )}
                   </div>
 
                   {event.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-4">
+                    <div className="flex flex-wrap gap-2 relative z-10">
                       {event.tags.slice(0, 3).map((tag, index) => (
                         <span
                           key={index}
-                          className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full"
+                          className="px-3 py-1 bg-white/10 text-white/80 text-xs rounded-full border border-[#D4AF37]/30"
                         >
                           {tag}
                         </span>
@@ -176,14 +253,17 @@ export default function EventsPage() {
           })}
         </div>
 
-        {events.length === 0 && (
+        {filteredEvents.length === 0 && (
           <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              No events scheduled
+            <Calendar className="w-16 h-16 text-white/40 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">
+              No events found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Check back later for upcoming events
+            <p className="text-white/80">
+              {selectedCategory === 'All' 
+                ? 'No events scheduled at this time'
+                : `No ${selectedCategory.toLowerCase()} events found`
+              }
             </p>
           </div>
         )}

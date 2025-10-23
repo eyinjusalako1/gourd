@@ -1,6 +1,4 @@
-'use client'
-
-import { Crown } from 'lucide-react'
+import React from 'react'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
@@ -8,11 +6,15 @@ interface LogoProps {
   className?: string
 }
 
-export default function Logo({ size = 'md', showText = true, className = '' }: LogoProps) {
+const Logo: React.FC<LogoProps> = ({ 
+  size = 'md', 
+  showText = true, 
+  className = '' 
+}) => {
   const sizeClasses = {
     sm: 'w-8 h-8',
-    md: 'w-12 h-12', 
-    lg: 'w-16 h-16'
+    md: 'w-10 h-10', 
+    lg: 'w-12 h-12'
   }
 
   const textSizes = {
@@ -23,52 +25,71 @@ export default function Logo({ size = 'md', showText = true, className = '' }: L
 
   return (
     <div className={`flex items-center space-x-3 ${className}`}>
-      {/* Logo Icon */}
+      {/* SVG Logo */}
       <div className={`${sizeClasses[size]} relative`}>
-        {/* Background circle */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-full"></div>
-        
-        {/* Cross */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute w-1 h-6 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
-            {/* Horizontal line */}
-            <div className="absolute w-6 h-1 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-white/20 rounded-full blur-sm"></div>
-          </div>
-        </div>
-
-        {/* Golden rays */}
-        <div className="absolute inset-0">
-          {/* Top rays */}
-          <div className="absolute top-1 left-1/2 w-0.5 h-2 bg-[#D4AF37] transform -translate-x-1/2 rotate-12"></div>
-          <div className="absolute top-1 right-1/2 w-0.5 h-2 bg-[#D4AF37] transform translate-x-1/2 -rotate-12"></div>
-          {/* Side rays */}
-          <div className="absolute left-1 top-1/2 w-2 h-0.5 bg-[#D4AF37] transform -translate-y-1/2 rotate-12"></div>
-          <div className="absolute right-1 top-1/2 w-2 h-0.5 bg-[#D4AF37] transform -translate-y-1/2 -rotate-12"></div>
-        </div>
-
-        {/* Golden dots */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/2 w-1 h-1 bg-[#D4AF37] rounded-full transform -translate-x-1/2"></div>
-          <div className="absolute top-1/4 left-1/4 w-0.5 h-0.5 bg-[#D4AF37] rounded-full"></div>
-          <div className="absolute top-1/4 right-1/4 w-0.5 h-0.5 bg-[#D4AF37] rounded-full"></div>
-        </div>
-
-        {/* Golden figures (simplified as dots for smaller sizes) */}
-        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-          <div className="flex space-x-0.5">
-            <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
-            <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
-            <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
-            <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
-          </div>
-        </div>
+        <svg
+          viewBox="0 0 100 100"
+          className="w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Background Circle */}
+          <circle
+            cx="50"
+            cy="50"
+            r="48"
+            fill="#0F1433"
+            stroke="#D4AF37"
+            strokeWidth="2"
+          />
+          
+          {/* Cross */}
+          <rect
+            x="45"
+            y="20"
+            width="10"
+            height="60"
+            fill="#F5C451"
+            rx="2"
+          />
+          <rect
+            x="20"
+            y="45"
+            width="60"
+            height="10"
+            fill="#F5C451"
+            rx="2"
+          />
+          
+          {/* Golden Rays */}
+          <g fill="#D4AF37" opacity="0.8">
+            {/* Top ray */}
+            <rect x="48" y="5" width="4" height="12" rx="2" />
+            {/* Right ray */}
+            <rect x="83" y="48" width="12" height="4" rx="2" />
+            {/* Bottom ray */}
+            <rect x="48" y="83" width="4" height="12" rx="2" />
+            {/* Left ray */}
+            <rect x="5" y="48" width="12" height="4" rx="2" />
+          </g>
+          
+          {/* Community Figures */}
+          <g fill="#FFFFFF" opacity="0.9">
+            {/* Left figure */}
+            <circle cx="25" cy="70" r="4" />
+            <rect x="23" y="74" width="4" height="8" rx="2" />
+            
+            {/* Right figure */}
+            <circle cx="75" cy="70" r="4" />
+            <rect x="73" y="74" width="4" height="8" rx="2" />
+            
+            {/* Center figure */}
+            <circle cx="50" cy="75" r="3" />
+            <rect x="48.5" y="78" width="3" height="6" rx="1.5" />
+          </g>
+        </svg>
       </div>
-
-      {/* Logo Text */}
+      
+      {/* Text */}
       {showText && (
         <span className={`font-bold text-white ${textSizes[size]}`}>
           Gathered
@@ -77,3 +98,5 @@ export default function Logo({ size = 'md', showText = true, className = '' }: L
     </div>
   )
 }
+
+export default Logo

@@ -111,16 +111,16 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
       {/* Header */}
-      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
+      <div className={`${userType === 'leader' ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433]' : 'bg-[#0F1433]'} shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40`}>
         <div className="max-w-md mx-auto px-4">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <Logo size="md" showText={false} />
               <div>
-                <h1 className="text-xl font-bold text-white">
+                <h1 className={`text-xl font-bold ${userType === 'leader' ? 'text-[#0F1433]' : 'text-white'}`}>
                   Gathered
                 </h1>
-                <p className="text-sm text-white/80">
+                <p className={`text-sm ${userType === 'leader' ? 'text-[#0F1433]/80' : 'text-white/80'}`}>
                   {userType === 'individual' 
                     ? `Welcome back, ${displayUser.user_metadata?.name || 'Friend'}! Ready to find fellowship?`
                     : `Welcome back, ${displayUser.user_metadata?.name || 'Leader'}! Ready to build community?`
@@ -130,34 +130,34 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center space-x-2">
-              <button className="p-2 text-white/60 hover:text-white relative">
+              <button className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'} relative`}>
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#F5C451] rounded-full"></div>
               </button>
               <button
                 onClick={() => router.push('/discover')}
-                className="p-2 text-white/60 hover:text-white"
+                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="Discover People"
               >
                 <Users className="w-5 h-5" />
               </button>
               <button
                 onClick={() => router.push('/profile')}
-                className="p-2 text-white/60 hover:text-white"
+                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="My Profile"
               >
                 <User className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => setShowUserTypeSelector(true)}
-                className="p-2 text-white/60 hover:text-white"
+                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="Settings"
               >
                 <Settings className="w-5 h-5" />
               </button>
               <button
                 onClick={handleSignOut}
-                className="flex items-center space-x-1 px-3 py-1 text-white/60 hover:text-white transition-colors"
+                className={`flex items-center space-x-1 px-3 py-1 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'} transition-colors`}
               >
                 <LogOut className="w-4 h-4" />
                 <span className="text-sm">Sign Out</span>
@@ -193,7 +193,7 @@ export default function DashboardPage() {
         <StatsPanel />
 
         {/* Section D: Leader/Admin Features */}
-        {isLeader && (
+        {userType === 'leader' && (
           <LeaderDashboard userRole={userRole} />
         )}
 

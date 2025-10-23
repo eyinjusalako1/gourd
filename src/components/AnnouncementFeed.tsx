@@ -138,7 +138,7 @@ export default function AnnouncementFeed() {
       </div>
 
       {/* Announcements List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {announcements
           .sort((a, b) => {
             // Pinned announcements first, then by timestamp
@@ -147,66 +147,74 @@ export default function AnnouncementFeed() {
             return 0
           })
           .map(announcement => (
-          <div key={announcement.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div key={announcement.id} className="bg-[#0F1433]/80 text-white border-l-4 border-[#D4AF37] p-4 rounded-lg mb-2 hover:bg-[#0F1433] transition-all duration-200 relative overflow-hidden">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
+            
             {/* Header */}
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-3 relative z-10">
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-gold-100 dark:bg-gold-900 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-gold-600 dark:text-gold-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-[#0F1433]" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="font-semibold text-navy-900 dark:text-white">
+                    <h3 className="font-semibold text-white text-lg">
                       {announcement.author}
                     </h3>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full">
                       {announcement.authorRole}
                     </span>
                     {announcement.isPinned && (
-                      <Pin className="w-3 h-3 text-gold-500" />
+                      <Pin className="w-3 h-3 text-[#F5C451]" />
                     )}
                   </div>
-                  <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center space-x-2 text-xs text-white/60">
                     <span>{announcement.groupName}</span>
                     <span>•</span>
                     <span>{formatTimestamp(announcement.timestamp)}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeColors[announcement.type]}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      announcement.type === 'announcement' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                      announcement.type === 'prayer' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                      announcement.type === 'testimony' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                      'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                    }`}>
                       {announcement.type}
                     </span>
                   </div>
                 </div>
               </div>
-              <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <button className="p-1 text-white/60 hover:text-white transition-colors">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="mb-4">
-              <h4 className="font-medium text-navy-900 dark:text-white mb-2">
+            <div className="mb-4 relative z-10">
+              <h4 className="font-semibold text-white mb-2 text-lg">
                 {announcement.title}
               </h4>
-              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+              <p className="text-white/80 text-sm leading-relaxed">
                 {announcement.content}
               </p>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => handleLike(announcement.id)}
                   className={`flex items-center space-x-1 text-sm transition-colors ${
                     announcement.isLiked 
-                      ? 'text-gold-600 dark:text-gold-400' 
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gold-600 dark:hover:text-gold-400'
+                      ? 'text-[#F5C451]' 
+                      : 'text-white/60 hover:text-[#F5C451]'
                   }`}
                 >
                   <Heart className={`w-4 h-4 ${announcement.isLiked ? 'fill-current' : ''}`} />
                   <span>{announcement.likes}</span>
                 </button>
                 
-                <button className="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <button className="flex items-center space-x-1 text-sm text-white/60 hover:text-white transition-colors">
                   <MessageCircle className="w-4 h-4" />
                   <span>{announcement.comments}</span>
                 </button>
@@ -217,8 +225,8 @@ export default function AnnouncementFeed() {
                   onClick={() => handlePin(announcement.id)}
                   className={`p-2 rounded-lg transition-colors ${
                     announcement.isPinned
-                      ? 'bg-gold-100 dark:bg-gold-900 text-gold-600 dark:text-gold-400'
-                      : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-[#F5C451] text-[#0F1433]'
+                      : 'text-white/60 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Pin className="w-4 h-4" />
@@ -226,7 +234,7 @@ export default function AnnouncementFeed() {
                 
                 <button
                   onClick={() => handleShare(announcement.id)}
-                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>

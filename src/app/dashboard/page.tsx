@@ -78,36 +78,36 @@ export default function DashboardPage() {
   const isLeader = userRole === 'Leader' || userRole === 'Church Admin'
 
   return (
-    <div className="min-h-screen bg-beige-50 dark:bg-navy-900 pb-20">
+    <div className="min-h-screen bg-[#0F1433] pb-20">
       {/* Header */}
-      <div className="bg-white dark:bg-navy-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
         <div className="max-w-md mx-auto px-4">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl">
-                <Crown className="w-6 h-6 text-navy-900" />
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-xl">
+                <Crown className="w-6 h-6 text-[#0F1433]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-navy-900 dark:text-white">
+                <h1 className="text-xl font-bold text-white">
                   Gathered
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-white/80">
                   Welcome back, {displayUser.user_metadata?.name || 'Friend'}!
                 </p>
               </div>
             </div>
             
             <div className="flex items-center space-x-2">
-              <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 relative">
+              <button className="p-2 text-white/60 hover:text-white relative">
                 <Bell className="w-5 h-5" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gold-500 rounded-full"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#F5C451] rounded-full"></div>
               </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <button className="p-2 text-white/60 hover:text-white">
                 <Settings className="w-5 h-5" />
               </button>
               <button
                 onClick={handleSignOut}
-                className="flex items-center space-x-1 px-3 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="flex items-center space-x-1 px-3 py-1 text-white/60 hover:text-white transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="text-sm">Sign Out</span>
@@ -117,8 +117,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+      {/* Main Content - Scrollable */}
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto">
         {/* Section A: Spiritual Touchpoint */}
         <VerseCard />
 
@@ -139,13 +139,13 @@ export default function DashboardPage() {
 
         {/* Monetization Integration Placeholder */}
         {userRole === 'Member' && (
-          <div className="bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl p-4 text-navy-900">
+          <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl p-4 text-[#0F1433]">
             <div className="text-center">
               <h3 className="font-bold text-lg mb-2">Upgrade to Gathered+</h3>
               <p className="text-sm mb-4 opacity-90">
                 Host your own fellowship groups and unlock advanced features
               </p>
-              <button className="bg-white text-navy-900 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+              <button className="bg-[#0F1433] text-[#F5C451] px-6 py-2 rounded-lg font-medium hover:bg-[#0F1433]/90 transition-colors">
                 Learn More
               </button>
             </div>

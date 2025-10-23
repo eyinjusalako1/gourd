@@ -96,63 +96,61 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
       </div>
 
       {/* Groups Grid */}
-      <div className="grid gap-3">
+      <div className="grid gap-4">
         {fellowships.map(fellowship => (
-          <div key={fellowship.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-start justify-between mb-3">
+          <div key={fellowship.id} className="bg-[#0F1433] border border-[#F5C451] rounded-2xl p-4 flex items-center justify-between hover:shadow-lg transition-all duration-200 hover:bg-[#0F1433]/90 relative overflow-hidden">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
+            
+            <div className="flex items-center space-x-4 flex-1 relative z-10">
+              {/* Group Avatar */}
+              <div className="w-12 h-12 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-full flex items-center justify-center relative">
+                <Users className="w-6 h-6 text-[#0F1433]" />
+                {fellowship.isLeader && (
+                  <Crown className="absolute -top-1 -right-1 w-4 h-4 text-[#F5C451]" />
+                )}
+              </div>
+              
+              {/* Group Info */}
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
-                  <h3 className="font-semibold text-navy-900 dark:text-white">
+                  <h3 className="font-semibold text-white text-lg">
                     {fellowship.name}
                   </h3>
-                  {fellowship.isLeader && (
-                    <Crown className="w-4 h-4 text-gold-500" />
+                  {fellowship.unreadMessages > 0 && (
+                    <div className="bg-[#F5C451] text-[#0F1433] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {fellowship.unreadMessages}
+                    </div>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <p className="text-sm text-white/80 mb-2">
                   {fellowship.description}
                 </p>
-                <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center space-x-4 text-xs text-white/60">
                   <span className="flex items-center space-x-1">
-                    <Users className="w-3 h-3" />
+                    <Users className="w-3 h-3 text-[#F5C451]" />
                     <span>{fellowship.memberCount} members</span>
                   </span>
                   <span>Last activity: {fellowship.lastActivity}</span>
                 </div>
               </div>
-              
-              {/* Unread Messages Badge */}
-              {fellowship.unreadMessages > 0 && (
-                <div className="bg-gold-500 text-navy-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {fellowship.unreadMessages}
-                </div>
-              )}
             </div>
 
             {/* Actions */}
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 relative z-10">
               <button
                 onClick={() => handleJoinGroup(fellowship.id)}
-                className="flex-1 py-2 px-3 bg-gold-500 text-navy-900 rounded-lg text-sm font-medium hover:bg-gold-400 transition-colors"
+                className="px-4 py-2 bg-[#F5C451] text-[#0F1433] rounded-lg text-sm font-semibold hover:bg-[#D4AF37] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                View Group
+                {fellowship.isLeader ? 'Manage' : 'Join'}
               </button>
               
               <button
                 onClick={() => handleJoinGroup(fellowship.id)}
-                className="flex items-center justify-center p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="flex items-center justify-center p-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all duration-200 border border-[#F5C451]/50"
               >
                 <MessageCircle className="w-4 h-4" />
               </button>
-              
-              {fellowship.isLeader && (
-                <button
-                  onClick={() => handleManageGroup(fellowship.id)}
-                  className="flex items-center justify-center p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  <Settings className="w-4 h-4" />
-                </button>
-              )}
             </div>
           </div>
         ))}

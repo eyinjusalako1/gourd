@@ -150,38 +150,51 @@ export default function EventList() {
       )}
 
       {/* Events List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filteredEvents.map(event => (
-          <div key={event.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div key={event.id} className="bg-white/5 border border-[#D4AF37] rounded-xl p-4 mb-3 hover:shadow-lg transition-all duration-200 hover:bg-white/10 relative overflow-hidden">
+            {/* Category accent line */}
+            <div className={`absolute top-0 left-0 w-1 h-full ${
+              event.category === 'Bible Study' ? 'bg-blue-500' :
+              event.category === 'Prayer' ? 'bg-purple-500' :
+              event.category === 'Outreach' ? 'bg-green-500' :
+              'bg-orange-500'
+            }`}></div>
+            
             {/* Event Header */}
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-3 ml-2">
               <div className="flex-1">
-                <h3 className="font-semibold text-navy-900 dark:text-white mb-1">
+                <h3 className="font-semibold text-white mb-1 text-lg">
                   {event.title}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <p className="text-sm text-white/80 mb-3 leading-relaxed">
                   {event.description}
                 </p>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${categoryColors[event.category]}`}>
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                  event.category === 'Bible Study' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                  event.category === 'Prayer' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                  event.category === 'Outreach' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                  'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                }`}>
                   {event.category}
                 </span>
               </div>
             </div>
 
             {/* Event Details */}
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <Calendar className="w-4 h-4" />
+            <div className="space-y-2 mb-4 ml-2">
+              <div className="flex items-center space-x-2 text-sm text-white/70">
+                <Calendar className="w-4 h-4 text-[#F5C451]" />
                 <span>{formatDate(event.date)}</span>
-                <Clock className="w-4 h-4 ml-2" />
+                <Clock className="w-4 h-4 ml-2 text-[#F5C451]" />
                 <span>{event.time}</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <MapPin className="w-4 h-4" />
+              <div className="flex items-center space-x-2 text-sm text-white/70">
+                <MapPin className="w-4 h-4 text-[#F5C451]" />
                 <span>{event.location}</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <Users className="w-4 h-4" />
+              <div className="flex items-center space-x-2 text-sm text-white/70">
+                <Users className="w-4 h-4 text-[#F5C451]" />
                 <span>
                   {event.attendees}
                   {event.maxAttendees && `/${event.maxAttendees}`} attending
@@ -190,30 +203,30 @@ export default function EventList() {
             </div>
 
             {/* RSVP Buttons */}
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 ml-2">
               <button
                 onClick={() => handleRSVP(event.id, 'going')}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   event.isJoined
-                    ? 'bg-gold-500 text-navy-900'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-[#F5C451] text-[#0F1433] shadow-lg transform scale-105'
+                    : 'bg-white/10 text-white hover:bg-white/20 border border-[#D4AF37]/50'
                 }`}
               >
                 {event.isJoined ? 'Going ✓' : 'Going'}
               </button>
               <button
                 onClick={() => handleRSVP(event.id, 'interested')}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   event.isInterested
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-blue-500 text-white shadow-lg transform scale-105'
+                    : 'bg-white/10 text-white hover:bg-white/20 border border-blue-500/50'
                 }`}
               >
                 {event.isInterested ? 'Interested ✓' : 'Interested'}
               </button>
               <button
                 onClick={() => handleRSVP(event.id, 'not-going')}
-                className="flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="flex-1 py-3 px-4 rounded-lg text-sm font-semibold bg-white/10 text-white hover:bg-white/20 border border-red-500/50 transition-all duration-200"
               >
                 Not Going
               </button>

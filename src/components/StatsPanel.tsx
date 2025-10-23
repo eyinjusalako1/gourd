@@ -62,57 +62,65 @@ export default function StatsPanel() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <TrendingUp className="w-4 h-4 text-green-500" />
+      <div className="grid grid-cols-2 gap-3 p-2">
+        <div className="bg-[#0F1433] text-white border border-[#D4AF37]/50 rounded-xl py-4 text-center hover:shadow-lg transition-all duration-200 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-center mb-2">
+              <Calendar className="w-6 h-6 text-[#F5C451]" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {stats.eventsAttended}
+            </h3>
+            <p className="text-sm text-white/80">
+              Events Attended
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">
-            {stats.eventsAttended}
-          </h3>
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Events Attended
-          </p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            <TrendingUp className="w-4 h-4 text-green-500" />
+        <div className="bg-[#0F1433] text-white border border-[#D4AF37]/50 rounded-xl py-4 text-center hover:shadow-lg transition-all duration-200 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-center mb-2">
+              <Users className="w-6 h-6 text-[#F5C451]" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {stats.groupsJoined}
+            </h3>
+            <p className="text-sm text-white/80">
+              Groups Joined
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-purple-900 dark:text-purple-100">
-            {stats.groupsJoined}
-          </h3>
-          <p className="text-sm text-purple-700 dark:text-purple-300">
-            Groups Joined
-          </p>
         </div>
 
-        <div className="bg-gradient-to-br from-gold-50 to-gold-100 dark:from-gold-900 dark:to-gold-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <Heart className="w-5 h-5 text-gold-600 dark:text-gold-400" />
-            <TrendingUp className="w-4 h-4 text-green-500" />
+        <div className="bg-[#0F1433] text-white border border-[#D4AF37]/50 rounded-xl py-4 text-center hover:shadow-lg transition-all duration-200 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F5C451]/10 to-transparent pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-center mb-2">
+              <Heart className="w-6 h-6 text-[#F5C451]" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {formatCurrency(stats.contributions)}
+            </h3>
+            <p className="text-sm text-white/80">
+              Contributions
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-gold-900 dark:text-gold-100">
-            {formatCurrency(stats.contributions)}
-          </h3>
-          <p className="text-sm text-gold-700 dark:text-gold-300">
-            Contributions
-          </p>
         </div>
 
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <Award className="w-5 h-5 text-green-600 dark:text-green-400" />
-            <TrendingUp className="w-4 h-4 text-green-500" />
+        <div className="bg-[#0F1433] text-white border border-[#D4AF37]/50 rounded-xl py-4 text-center hover:shadow-lg transition-all duration-200 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-center mb-2">
+              <Award className="w-6 h-6 text-[#F5C451]" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {stats.faithStreak}
+            </h3>
+            <p className="text-sm text-white/80">
+              Day Faith Streak
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-green-900 dark:text-green-100">
-            {stats.faithStreak}
-          </h3>
-          <p className="text-sm text-green-700 dark:text-green-300">
-            Day Faith Streak
-          </p>
         </div>
       </div>
 

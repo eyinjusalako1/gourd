@@ -25,9 +25,9 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50">
+    <div className="fixed bottom-0 w-full bg-[#0F1433] border-t border-[#D4AF37]/30 z-50">
       <div className="max-w-md mx-auto">
-        <div className="flex items-center justify-around py-2">
+        <div className="flex justify-around items-center py-2">
           {tabs.map(tab => {
             const Icon = tab.icon
             const isActive = currentTab === tab.id
@@ -38,22 +38,22 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
                 onClick={() => handleTabClick(tab.id)}
                 className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${
                   isActive
-                    ? 'text-gold-600 dark:text-gold-400'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    ? 'text-[#F5C451]'
+                    : 'text-white/60 hover:text-white'
                 }`}
               >
                 <div className={`relative ${
                   isActive ? 'scale-110' : 'scale-100'
                 } transition-transform duration-200`}>
                   <Icon className={`w-5 h-5 ${
-                    isActive ? 'text-gold-600 dark:text-gold-400' : ''
+                    isActive ? 'text-[#F5C451]' : 'text-white/60'
                   }`} />
                   {isActive && (
-                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-gold-500 rounded-full animate-pulse" />
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#F5C451] rounded-full animate-pulse" />
                   )}
                 </div>
                 <span className={`text-xs font-medium mt-1 ${
-                  isActive ? 'text-gold-600 dark:text-gold-400' : ''
+                  isActive ? 'text-[#F5C451]' : 'text-white/60'
                 }`}>
                   {tab.label}
                 </span>

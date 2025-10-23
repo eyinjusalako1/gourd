@@ -64,12 +64,15 @@ export default function VerseCard() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-navy-900 to-navy-800 rounded-2xl p-6 text-white shadow-xl">
+    <div className="bg-[#0F1433] text-white rounded-2xl p-6 shadow-md border border-yellow-400 relative overflow-hidden">
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-transparent pointer-events-none"></div>
+      
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 relative z-10">
         <div className="flex items-center space-x-2">
-          <BookOpen className="w-5 h-5 text-gold-500" />
-          <span className="font-medium text-gold-500">Verse of the Day</span>
+          <BookOpen className="w-5 h-5 text-[#F5C451]" />
+          <span className="font-medium text-[#F5C451]">Verse of the Day</span>
         </div>
         <div className="flex space-x-1">
           <button
@@ -88,23 +91,23 @@ export default function VerseCard() {
       </div>
 
       {/* Verse Content */}
-      <div className="mb-6">
+      <div className="mb-6 relative z-10">
         <blockquote className="text-lg leading-relaxed mb-3 font-serif">
           &ldquo;{currentVerse.text}&rdquo;
         </blockquote>
-        <cite className="text-sm text-gold-300">
+        <cite className="text-sm text-[#F5C451]">
           — {currentVerse.reference} ({currentVerse.translation})
         </cite>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between relative z-10">
         <div className="flex space-x-4">
           <button
             onClick={handleLike}
             className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
               isLiked 
-                ? 'bg-gold-500 text-navy-900' 
+                ? 'bg-[#F5C451] text-[#0F1433]' 
                 : 'bg-white/10 hover:bg-white/20'
             }`}
           >
@@ -131,20 +134,20 @@ export default function VerseCard() {
 
         <button
           onClick={startPrayer}
-          className="bg-gradient-to-r from-gold-500 to-gold-600 text-navy-900 px-4 py-2 rounded-lg font-medium hover:from-gold-400 hover:to-gold-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] px-6 py-3 rounded-lg font-semibold hover:from-[#F5C451] hover:to-[#D4AF37] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
-          Start Day in Prayer
+          Start Prayer
         </button>
       </div>
 
       {/* Verse Indicators */}
-      <div className="flex justify-center space-x-2 mt-4">
+      <div className="flex justify-center space-x-2 mt-4 relative z-10">
         {sampleVerses.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentVerseIndex(index)}
             className={`w-2 h-2 rounded-full transition-colors ${
-              index === currentVerseIndex ? 'bg-gold-500' : 'bg-white/30'
+              index === currentVerseIndex ? 'bg-[#F5C451]' : 'bg-white/30'
             }`}
           />
         ))}

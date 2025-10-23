@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Users, Church, ArrowRight, Heart, Search, Calendar, Settings } from 'lucide-react'
+import { Users, Church, ArrowRight, Search, Calendar, Settings } from 'lucide-react'
+import Logo from './Logo'
 
 interface OnboardingFlowProps {
   onComplete: (userType: 'individual' | 'leader') => void
@@ -28,8 +29,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         <div className="max-w-md w-full">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-[#0F1433]" />
+            <div className="flex justify-center mb-4">
+              <Logo size="lg" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">Welcome to Gathered</h1>
             <p className="text-white/80 text-lg">Let&apos;s find your perfect community fit</p>
@@ -101,12 +102,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         <div className="max-w-md w-full">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-2xl flex items-center justify-center mx-auto mb-4">
-              {selectedType === 'individual' ? (
-                <Search className="w-8 h-8 text-[#0F1433]" />
-              ) : (
-                <Church className="w-8 h-8 text-[#0F1433]" />
-              )}
+            <div className="flex justify-center mb-4">
+              <Logo size="lg" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">
               {selectedType === 'individual' ? 'Find Your Fellowship' : 'Build Your Community'}

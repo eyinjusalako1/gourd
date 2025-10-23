@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Calendar, Users, Heart, BookOpen, Crown, ArrowRight, MapPin, Clock } from 'lucide-react'
+import { Calendar, Users, Heart, BookOpen, ArrowRight, MapPin, Clock } from 'lucide-react'
+import Logo from '@/components/Logo'
 
 export default function Home() {
   return (
@@ -14,15 +15,8 @@ export default function Home() {
           <div className="text-center">
             {/* Logo */}
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-2xl flex items-center justify-center">
-                <Crown className="w-8 h-8 text-[#0F1433]" />
-              </div>
+              <Logo size="lg" />
             </div>
-            
-            {/* Brand Name */}
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Gathered
-            </h1>
             
             {/* Main Title */}
             <h2 className="text-2xl font-bold text-white mb-4">

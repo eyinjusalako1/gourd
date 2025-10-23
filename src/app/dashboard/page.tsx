@@ -5,7 +5,8 @@
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Settings, LogOut, Bell, Crown } from 'lucide-react'
+import { Settings, LogOut, Bell } from 'lucide-react'
+import Logo from '@/components/Logo'
 import VerseCard from '@/components/VerseCard'
 import EventList from '@/components/EventList'
 import FellowshipGroups from '@/components/FellowshipGroups'
@@ -114,9 +115,7 @@ export default function DashboardPage() {
         <div className="max-w-md mx-auto px-4">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#F5C451] rounded-xl">
-                <Crown className="w-6 h-6 text-[#0F1433]" />
-              </div>
+              <Logo size="md" showText={false} />
               <div>
                 <h1 className="text-xl font-bold text-white">
                   Gathered

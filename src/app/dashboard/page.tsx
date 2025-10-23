@@ -1,6 +1,6 @@
 'use client'
 
-// Gathered Dashboard - Comprehensive faith community platform
+// Gathered Dashboard - Balanced UX for individuals and leaders
 
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'

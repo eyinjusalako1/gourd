@@ -27,7 +27,8 @@ import {
   Plus,
   Mail,
   Phone,
-  MoreHorizontal
+  MoreHorizontal,
+  TrendingUp
 } from 'lucide-react'
 
 export default function FellowshipManagePage({ params }: { params: { id: string } }) {

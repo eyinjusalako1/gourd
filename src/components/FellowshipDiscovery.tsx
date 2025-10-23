@@ -236,7 +236,7 @@ export default function FellowshipDiscovery() {
 
       {/* Call to Action */}
       <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-2xl p-6 text-[#0F1433] text-center">
-        <h3 className="text-xl font-bold mb-2">Don't see what you're looking for?</h3>
+        <h3 className="text-xl font-bold mb-2">Don&apos;t see what you&apos;re looking for?</h3>
         <p className="mb-4 opacity-90">Start your own fellowship group and invite others to join</p>
         <button className="bg-[#0F1433] text-[#F5C451] px-6 py-2 rounded-lg font-medium hover:bg-[#0F1433]/90 transition-colors">
           Create Fellowship

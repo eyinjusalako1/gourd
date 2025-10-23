@@ -61,6 +61,8 @@ const sampleEvents: Event[] = [
     maxAttendees: 20,
     category: 'Outreach',
     description: 'Volunteer at the local homeless shelter',
+    isJoined: false,
+    isInterested: false,
     isOnline: false,
     organizer: 'Mike Davis'
   },

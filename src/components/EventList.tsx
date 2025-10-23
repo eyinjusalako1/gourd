@@ -46,6 +46,8 @@ const sampleEvents: Event[] = [
     attendees: 8,
     category: 'Prayer',
     description: 'Community prayer session for healing and guidance',
+    isJoined: true,
+    isInterested: false,
     isOnline: true,
     organizer: 'Sarah Johnson'
   },

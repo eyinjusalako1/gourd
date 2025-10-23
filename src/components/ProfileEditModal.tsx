@@ -204,7 +204,7 @@ export default function ProfileEditModal({
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {formData.interests.map((interest, index) => (
+              {formData.interests.map((interest: string, index: number) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-white/10 text-white/80 text-sm rounded-full border border-[#D4AF37]/30 flex items-center space-x-2"

@@ -90,7 +90,7 @@ export default function ProfilePage() {
         comments: 1
       }
     ]
-  }
+  })
 
   const handleFollow = () => {
     setIsFollowing(!isFollowing)

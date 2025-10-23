@@ -194,7 +194,7 @@ export default function DashboardPage() {
 
         {/* Section D: Leader/Admin Features */}
         {userType === 'leader' && (
-          <LeaderDashboard userRole={userRole} />
+          <LeaderDashboard userRole={userRole as 'Leader' | 'Church Admin'} />
         )}
 
         {/* Monetization Integration Placeholder */}

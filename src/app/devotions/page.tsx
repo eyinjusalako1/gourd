@@ -27,7 +27,7 @@ interface Plan {
 const mockReadings: Reading[] = [
   {
     id: '1',
-    title: 'Today\'s Reading',
+    title: 'Today&apos;s Reading',
     verse: 'Psalm 23:1-6',
     content: 'The LORD is my shepherd; I shall not want. He makes me lie down in green pastures...',
     date: new Date().toISOString().split('T')[0],
@@ -35,7 +35,7 @@ const mockReadings: Reading[] = [
   },
   {
     id: '2',
-    title: 'Yesterday\'s Reading',
+    title: 'Yesterday&apos;s Reading',
     verse: 'John 3:16-21',
     content: 'For God so loved the world that he gave his one and only Son...',
     date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
@@ -160,7 +160,7 @@ export default function DevotionsPage() {
                   <BookOpen className="w-5 h-5 text-[#F5C451]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold">Today's Reading</h2>
+                  <h2 className="text-lg font-bold">Today&apos;s Reading</h2>
                   <p className="text-sm opacity-80">{todayReading.verse}</p>
                 </div>
               </div>

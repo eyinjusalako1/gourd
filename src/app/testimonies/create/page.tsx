@@ -42,11 +42,35 @@ export default function CreateTestimonyPage() {
     e.preventDefault()
     setIsLoading(true)
 
+    // Create new testimony object
+    const newTestimony = {
+      id: Date.now().toString(),
+      author: formData.isAnonymous ? 'Anonymous' : 'Demo User',
+      title: formData.title,
+      content: formData.content,
+      date: 'Just now',
+      category: formData.category,
+      likes: 0,
+      comments: 0,
+      isLiked: false,
+      fellowship: formData.fellowship || undefined,
+      tags: selectedTags
+    }
+
+    // Save to localStorage
+    const existingTestimonies = localStorage.getItem('gathered_testimonies')
+    const testimonies = existingTestimonies ? JSON.parse(existingTestimonies) : []
+    testimonies.unshift(newTestimony) // Add to beginning
+    localStorage.setItem('gathered_testimonies', JSON.stringify(testimonies))
+
+    // Dispatch storage event to notify other components
+    window.dispatchEvent(new Event('storage'))
+
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false)
       router.push('/testimonies')
-    }, 1500)
+    }, 1000)
   }
 
   return (

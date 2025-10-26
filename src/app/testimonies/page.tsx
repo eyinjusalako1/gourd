@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Heart, Plus, Search, Filter, Share2, MessageCircle, ThumbsUp, BookOpen } from 'lucide-react'
 import Logo from '@/components/Logo'
@@ -81,6 +81,23 @@ export default function TestimoniesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [testimonies, setTestimonies] = useState<Testimony[]>(mockTestimonies)
+
+  // Load testimonies from localStorage
+  useEffect(() => {
+    const loadTestimonies = () => {
+      const savedTestimonies = localStorage.getItem('gathered_testimonies')
+      if (savedTestimonies) {
+        const parsedTestimonies = JSON.parse(savedTestimonies)
+        setTestimonies([...parsedTestimonies, ...mockTestimonies])
+      }
+    }
+
+    loadTestimonies()
+
+    // Listen for storage events
+    window.addEventListener('storage', loadTestimonies)
+    return () => window.removeEventListener('storage', loadTestimonies)
+  }, [])
 
   const handleLike = (id: string) => {
     setTestimonies(prev =>

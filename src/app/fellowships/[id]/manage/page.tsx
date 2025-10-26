@@ -193,6 +193,10 @@ export default function FellowshipManagePage({ params }: { params: { id: string 
     router.push('/announcements/create')
   }
 
+  const handleGroupChat = () => {
+    router.push(`/fellowships/${params.id}/chat`)
+  }
+
   const filteredMembers = fellowshipData.members.filter(member =>
     member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     member.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -343,7 +347,10 @@ export default function FellowshipManagePage({ params }: { params: { id: string 
                     <Megaphone className="w-4 h-4" />
                     <span className="text-sm font-semibold">Send Announcement</span>
                   </button>
-                  <button className="bg-white/10 text-white p-3 rounded-lg hover:bg-white/20 transition-colors border border-[#D4AF37]/50 flex items-center space-x-2">
+                  <button
+                    onClick={handleGroupChat}
+                    className="bg-white/10 text-white p-3 rounded-lg hover:bg-white/20 transition-colors border border-[#D4AF37]/50 flex items-center space-x-2"
+                  >
                     <MessageCircle className="w-4 h-4" />
                     <span className="text-sm font-semibold">Group Chat</span>
                   </button>

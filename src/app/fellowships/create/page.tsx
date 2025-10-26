@@ -367,9 +367,10 @@ export default function CreateFellowshipPage() {
                     value={formData.meetingFrequency}
                     onChange={(e) => handleInputChange('meetingFrequency', e.target.value)}
                     className="w-full bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#F5C451]"
+                    style={{ backgroundColor: 'rgba(15, 20, 51, 0.9)' }}
                   >
                     {frequencies.map(freq => (
-                      <option key={freq.value} value={freq.value}>{freq.label}</option>
+                      <option key={freq.value} value={freq.value} style={{ backgroundColor: '#0F1433', color: 'white' }}>{freq.label}</option>
                     ))}
                   </select>
                 </div>

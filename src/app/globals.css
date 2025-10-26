@@ -26,4 +26,24 @@
   }
 }
 
+/* Global dropdown styling for dark theme */
+select {
+  background-color: rgba(15, 20, 51, 0.9) !important;
+  color: white !important;
+}
 
+select option {
+  background-color: #0F1433 !important;
+  color: white !important;
+}
+
+/* Ensure select elements in forms have proper styling */
+form select {
+  background-color: rgba(15, 20, 51, 0.9) !important;
+  color: white !important;
+}
+
+form select option {
+  background-color: #0F1433 !important;
+  color: white !important;
+}

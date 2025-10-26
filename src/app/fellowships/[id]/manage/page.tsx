@@ -292,14 +292,14 @@ export default function FellowshipManagePage({ params }: { params: { id: string 
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'bg-[#F5C451] text-[#0F1433]'
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <IconComponent className="w-4 h-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="text-xs whitespace-nowrap">{tab.label}</span>
               </button>
             )
           })}

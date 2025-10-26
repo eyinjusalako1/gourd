@@ -108,6 +108,24 @@ export default function CreateEventPage() {
       // In real app, this would make an API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
+      // Save event to localStorage
+      const newEvent = {
+        id: Date.now().toString(),
+        ...formData,
+        start_time: new Date(`${formData.date}T${formData.startTime}`).toISOString(),
+        end_time: new Date(`${formData.date}T${formData.endTime}`).toISOString(),
+        event_type: formData.category.toLowerCase().replace(' ', '_'),
+        is_virtual: formData.isOnline,
+        virtual_platform: formData.virtualPlatform,
+        rsvp_count: 0
+      }
+      
+      const existing = localStorage.getItem('gathered_events')
+      const events = existing ? JSON.parse(existing) : []
+      events.push(newEvent)
+      localStorage.setItem('gathered_events', JSON.stringify(events))
+      window.dispatchEvent(new Event('storage'))
+      
       // Redirect to events page or fellowship management
       router.push('/events')
     } catch (error) {

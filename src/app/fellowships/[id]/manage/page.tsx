@@ -185,6 +185,14 @@ export default function FellowshipManagePage({ params }: { params: { id: string 
     // In real app, this would make API calls
   }
 
+  const handleScheduleEvent = () => {
+    router.push('/events/create')
+  }
+
+  const handleSendAnnouncement = () => {
+    router.push('/announcements/create')
+  }
+
   const filteredMembers = fellowshipData.members.filter(member =>
     member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     member.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -292,14 +300,14 @@ export default function FellowshipManagePage({ params }: { params: { id: string 
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 flex items-center justify-center space-x-1 py-2 px-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-[#F5C451] text-[#0F1433]'
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <IconComponent className="w-4 h-4" />
-                <span className="text-xs whitespace-nowrap">{tab.label}</span>
+                <span>{tab.label}</span>
               </button>
             )
           })}
@@ -321,11 +329,17 @@ export default function FellowshipManagePage({ params }: { params: { id: string 
                     <UserPlus className="w-4 h-4" />
                     <span className="text-sm font-semibold">Invite Members</span>
                   </button>
-                  <button className="bg-white/10 text-white p-3 rounded-lg hover:bg-white/20 transition-colors border border-[#D4AF37]/50 flex items-center space-x-2">
+                  <button
+                    onClick={handleScheduleEvent}
+                    className="bg-white/10 text-white p-3 rounded-lg hover:bg-white/20 transition-colors border border-[#D4AF37]/50 flex items-center space-x-2"
+                  >
                     <Calendar className="w-4 h-4" />
                     <span className="text-sm font-semibold">Schedule Event</span>
                   </button>
-                  <button className="bg-white/10 text-white p-3 rounded-lg hover:bg-white/20 transition-colors border border-[#D4AF37]/50 flex items-center space-x-2">
+                  <button
+                    onClick={handleSendAnnouncement}
+                    className="bg-white/10 text-white p-3 rounded-lg hover:bg-white/20 transition-colors border border-[#D4AF37]/50 flex items-center space-x-2"
+                  >
                     <Megaphone className="w-4 h-4" />
                     <span className="text-sm font-semibold">Send Announcement</span>
                   </button>

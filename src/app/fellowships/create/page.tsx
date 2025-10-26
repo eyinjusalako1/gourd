@@ -111,8 +111,8 @@ export default function CreateFellowshipPage() {
       // In real app, this would make an API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // Redirect to fellowship management page
-      router.push('/fellowships/manage')
+      // Redirect back to dashboard
+      router.push('/dashboard')
     } catch (error) {
       console.error('Error creating fellowship:', error)
     } finally {
@@ -215,9 +215,10 @@ export default function CreateFellowshipPage() {
                     value={formData.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
                     className="w-full bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#F5C451]"
+                    style={{ backgroundColor: 'rgba(15, 20, 51, 0.9)' }}
                   >
                     {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                      <option key={category} value={category} style={{ backgroundColor: '#0F1433', color: 'white' }}>{category}</option>
                     ))}
                   </select>
                 </div>
@@ -301,13 +302,14 @@ export default function CreateFellowshipPage() {
                         value={formData.virtualPlatform}
                         onChange={(e) => handleInputChange('virtualPlatform', e.target.value)}
                         className="w-full bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#F5C451]"
+                        style={{ backgroundColor: 'rgba(15, 20, 51, 0.9)' }}
                       >
-                        <option value="">Select platform</option>
-                        <option value="zoom">Zoom</option>
-                        <option value="teams">Microsoft Teams</option>
-                        <option value="meet">Google Meet</option>
-                        <option value="discord">Discord</option>
-                        <option value="other">Other</option>
+                        <option value="" style={{ backgroundColor: '#0F1433', color: 'white' }}>Select platform</option>
+                        <option value="zoom" style={{ backgroundColor: '#0F1433', color: 'white' }}>Zoom</option>
+                        <option value="teams" style={{ backgroundColor: '#0F1433', color: 'white' }}>Microsoft Teams</option>
+                        <option value="meet" style={{ backgroundColor: '#0F1433', color: 'white' }}>Google Meet</option>
+                        <option value="discord" style={{ backgroundColor: '#0F1433', color: 'white' }}>Discord</option>
+                        <option value="other" style={{ backgroundColor: '#0F1433', color: 'white' }}>Other</option>
                       </select>
                     </div>
                     <div>
@@ -335,10 +337,11 @@ export default function CreateFellowshipPage() {
                       value={formData.meetingDay}
                       onChange={(e) => handleInputChange('meetingDay', e.target.value)}
                       className="w-full bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#F5C451]"
+                      style={{ backgroundColor: 'rgba(15, 20, 51, 0.9)' }}
                     >
-                      <option value="">Select day</option>
+                      <option value="" style={{ backgroundColor: '#0F1433', color: 'white' }}>Select day</option>
                       {meetingDays.map(day => (
-                        <option key={day} value={day}>{day}</option>
+                        <option key={day} value={day} style={{ backgroundColor: '#0F1433', color: 'white' }}>{day}</option>
                       ))}
                     </select>
                   </div>

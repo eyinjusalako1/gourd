@@ -114,13 +114,13 @@ export default function CreateFellowshipPage() {
       // Save fellowship to localStorage
       const newFellowship = {
         id: Date.now().toString(), // Simple ID generation
-        name: formData.name,
+        ...formData, // Include all form data first
+        // Override with calculated values
         members: 0,
         location: formData.isOnline ? `Online - ${formData.virtualPlatform}` : formData.location,
         nextEvent: formData.meetingDay,
         engagement: 0,
-        status: 'active',
-        ...formData // Include all form data
+        status: 'active'
       }
       
       // Get existing fellowships

@@ -4,7 +4,22 @@ export class EventService {
   private static baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'
 
   static async getEvents(): Promise<Event[]> {
-    // Mock data - replace with real API call
+    // Try to get events from localStorage first
+    if (typeof window !== 'undefined') {
+      try {
+        const savedEvents = localStorage.getItem('gathered_events')
+        if (savedEvents) {
+          const events = JSON.parse(savedEvents)
+          if (events.length > 0) {
+            return events
+          }
+        }
+      } catch (error) {
+        console.error('Error loading events from localStorage:', error)
+      }
+    }
+    
+    // Return mock data if no saved events
     return [
       {
         id: '1',

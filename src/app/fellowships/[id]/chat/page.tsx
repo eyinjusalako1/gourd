@@ -57,12 +57,14 @@ export default function FellowshipChatPage({ params }: { params: { id: string } 
   }, [messages])
 
   const handleSendMessage = () => {
-    if (!newMessage.trim() || !user) return
+    if (!newMessage.trim()) return
+
+    const currentUser = user || { id: 'demo', user_metadata: { name: 'Demo User' } }
 
     const message: Message = {
       id: Date.now().toString(),
-      userId: user.id,
-      userName: user.user_metadata?.name || 'You',
+      userId: currentUser.id,
+      userName: currentUser.user_metadata?.name || 'You',
       content: newMessage,
       timestamp: new Date().toISOString(),
       isOwnMessage: true

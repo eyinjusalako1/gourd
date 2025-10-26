@@ -219,7 +219,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
               <div className="w-12 h-12 bg-[#0F1433] rounded-xl flex items-center justify-center">
                 <Crown className="w-6 h-6 text-[#F5C451]" />
               </div>
-              <div>
+          <div>
                 <h2 className="text-2xl font-bold">Leadership Dashboard</h2>
                 <p className="text-[#0F1433]/80">
                   {userRole === 'Church Admin' ? 'Church Administration' : 'Fellowship Leadership'}
@@ -272,7 +272,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
             </button>
           </div>
         </div>
-      </div>
+            </div>
 
       {/* Leadership Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -285,7 +285,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
             <div className="text-2xl font-bold text-[#F5C451]">{leadershipData.stats.activeFellowships}</div>
             <div className="text-sm text-white/80">Active Fellowships</div>
           </div>
-        </div>
+            </div>
         <div className="bg-white/5 border border-[#D4AF37] rounded-xl p-4 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
           <div className="relative z-10">
@@ -295,7 +295,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
             <div className="text-2xl font-bold text-[#F5C451]">{leadershipData.stats.eventsHosted}</div>
             <div className="text-sm text-white/80">Events Hosted</div>
           </div>
-        </div>
+            </div>
         <div className="bg-white/5 border border-[#D4AF37] rounded-xl p-4 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
           <div className="relative z-10">
@@ -305,7 +305,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
             <div className="text-2xl font-bold text-[#F5C451]">{leadershipData.stats.engagementRate}%</div>
             <div className="text-sm text-white/80">Engagement Rate</div>
           </div>
-        </div>
+            </div>
         <div className="bg-white/5 border border-[#D4AF37] rounded-xl p-4 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
           <div className="relative z-10">
@@ -324,7 +324,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white">Your Fellowships</h3>
-            <button
+              <button
               onClick={handleCreateFellowship}
               className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors flex items-center space-x-1"
             >
@@ -379,8 +379,8 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
         </div>
       </div>
 
-      {/* Upcoming Events */}
-      <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 relative overflow-hidden">
+      {/* Upcoming Events - Removed to declutter */}
+      {/* <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
@@ -396,7 +396,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
           <div className="space-y-3">
             {leadershipData.upcomingEvents.map(event => (
               <div key={event.id} className="bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30 hover:bg-white/10 transition-colors">
-                <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
                       <h4 className="font-semibold text-white">{event.title}</h4>
@@ -419,11 +419,11 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
                         <Users className="w-4 h-4 text-[#F5C451]" />
                         <span>{event.attendees}/{event.maxAttendees} RSVPs</span>
                       </div>
-                    </div>
-                  </div>
+                </div>
+              </div>
                   <button className="bg-white/10 text-white px-4 py-2 rounded-lg font-semibold hover:bg-white/20 transition-colors border border-[#D4AF37]/50">
                     Manage
-                  </button>
+            </button>
                 </div>
               </div>
             ))}
@@ -431,8 +431,8 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 relative overflow-hidden">
+      {/* Recent Activity - Removed to declutter */}
+      {/* <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
         <div className="relative z-10">
           <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
@@ -457,7 +457,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
             })}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

@@ -62,76 +62,84 @@ export default function Home() {
         {/* Feature Cards */}
         <div className="space-y-4">
           {/* Find Events Card */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-white" />
+          <Link href="/events">
+            <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    Find Events
+                  </h3>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    Discover Bible studies, prayer meetings, and fellowship events
+                  </p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-[#F5C451]" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">
-                  Find Events
-                </h3>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Discover Bible studies, prayer meetings, and fellowship events
-                </p>
-              </div>
-              <ArrowRight className="w-5 h-5 text-[#F5C451]" />
             </div>
-          </div>
+          </Link>
 
           {/* Join Fellowships Card */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+          <Link href="/dashboard">
+            <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    Join Fellowships
+                  </h3>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    Connect with small groups and Christian communities
+                  </p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-[#F5C451]" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">
-                  Join Fellowships
-                </h3>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Connect with small groups and Christian communities
-                </p>
-              </div>
-              <ArrowRight className="w-5 h-5 text-[#F5C451]" />
             </div>
-          </div>
+          </Link>
 
           {/* Build Community Card */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-                <Heart className="w-6 h-6 text-white" />
+          <Link href="/dashboard">
+            <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    Build Community
+                  </h3>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    Create and manage fellowship groups for your church
+                  </p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-[#F5C451]" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">
-                  Build Community
-                </h3>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Create and manage fellowship groups for your church
-                </p>
-              </div>
-              <ArrowRight className="w-5 h-5 text-[#F5C451]" />
             </div>
-          </div>
+          </Link>
 
           {/* Grow in Faith Card */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-white" />
+          <Link href="/dashboard">
+            <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:shadow-lg cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    Grow in Faith
+                  </h3>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    Access daily verses, prayer tools, and spiritual growth resources
+                  </p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-[#F5C451]" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">
-                  Grow in Faith
-                </h3>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Access daily verses, prayer tools, and spiritual growth resources
-                </p>
-              </div>
-              <ArrowRight className="w-5 h-5 text-[#F5C451]" />
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Sample Fellowship Preview */}

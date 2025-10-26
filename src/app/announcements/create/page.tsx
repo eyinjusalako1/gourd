@@ -87,8 +87,8 @@ export default function CreateAnnouncementPage() {
       // In real app, this would make an API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // Redirect to fellowship management or announcements page
-      router.push('/fellowships/manage')
+      // Redirect back to dashboard
+      router.push('/dashboard')
     } catch (error) {
       console.error('Error creating announcement:', error)
     } finally {

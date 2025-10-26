@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   Users, 
@@ -29,6 +29,32 @@ interface LeaderDashboardProps {
 export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
+
+  // Get created fellowships from localStorage
+  const getCreatedFellowships = () => {
+    const saved = localStorage.getItem('gathered_fellowships')
+    return saved ? JSON.parse(saved) : []
+  }
+
+  const [createdFellowships, setCreatedFellowships] = useState(() => getCreatedFellowships())
+
+  // Listen for new fellowships
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setCreatedFellowships(getCreatedFellowships())
+    }
+
+    // Listen for storage events (when fellowship is created in another tab)
+    window.addEventListener('storage', handleStorageChange)
+
+    // Also check localStorage periodically
+    const interval = setInterval(handleStorageChange, 1000)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [])
 
   // Mock data for leadership dashboard
   const leadershipData = {
@@ -307,7 +333,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
             </button>
           </div>
           <div className="space-y-3">
-            {leadershipData.fellowships.map(fellowship => (
+            {[...leadershipData.fellowships, ...createdFellowships].map(fellowship => (
               <div key={fellowship.id} className="bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30 hover:bg-white/10 transition-colors">
                 <div className="flex flex-col space-y-3">
                   <div className="flex items-start justify-between">

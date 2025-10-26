@@ -111,6 +111,31 @@ export default function CreateFellowshipPage() {
       // In real app, this would make an API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
+      // Save fellowship to localStorage
+      const newFellowship = {
+        id: Date.now().toString(), // Simple ID generation
+        name: formData.name,
+        members: 0,
+        location: formData.isOnline ? `Online - ${formData.virtualPlatform}` : formData.location,
+        nextEvent: formData.meetingDay,
+        engagement: 0,
+        status: 'active',
+        ...formData // Include all form data
+      }
+      
+      // Get existing fellowships
+      const existing = localStorage.getItem('gathered_fellowships')
+      const fellowships = existing ? JSON.parse(existing) : []
+      
+      // Add new fellowship
+      fellowships.push(newFellowship)
+      
+      // Save back to localStorage
+      localStorage.setItem('gathered_fellowships', JSON.stringify(fellowships))
+      
+      // Trigger storage event for other components
+      window.dispatchEvent(new Event('storage'))
+      
       // Redirect back to dashboard
       router.push('/dashboard')
     } catch (error) {

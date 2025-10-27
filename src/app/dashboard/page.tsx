@@ -67,7 +67,7 @@ export default function DashboardPage() {
         router.push('/chat')
         break
       case 'fellowships':
-        router.push('/fellowship')
+        router.push('/fellowships')
         break
       case 'devotions':
         router.push('/devotions')

@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
+import MemberInviteModal from '@/components/MemberInviteModal'
 import { 
   ArrowLeft, 
   Users, 
@@ -649,6 +650,13 @@ export default function FellowshipManagePage({ params }: { params: { id: string 
           </div>
         )}
       </div>
+
+      {/* Member Invite Modal */}
+      <MemberInviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        fellowshipName={fellowshipData.name}
+      />
     </div>
   )
 }

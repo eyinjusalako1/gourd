@@ -5,7 +5,7 @@
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Settings, LogOut, Bell, User, Users, BookOpen } from 'lucide-react'
+import { Settings, LogOut, Bell, User, Users, BookOpen, Heart } from 'lucide-react'
 import Logo from '@/components/Logo'
 import VerseCard from '@/components/VerseCard'
 import EventList from '@/components/EventList'
@@ -154,6 +154,13 @@ export default function DashboardPage() {
                 title="Testimonies"
               >
                 <BookOpen className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => router.push('/prayers')}
+                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
+                title="Prayer Requests"
+              >
+                <Heart className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => setShowUserTypeSelector(true)}

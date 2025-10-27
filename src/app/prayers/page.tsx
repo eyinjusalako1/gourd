@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, Plus, Search, Filter, ArrowLeft, User, Clock, Prayer } from 'lucide-react'
+import { Heart, Plus, Search, Filter, ArrowLeft, User, Clock } from 'lucide-react'
 import Logo from '@/components/Logo'
 
 interface PrayerRequest {

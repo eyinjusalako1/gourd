@@ -17,6 +17,7 @@ import BottomNavigation from '@/components/BottomNavigation'
 import OnboardingFlow from '@/components/OnboardingFlow'
 import FellowshipDiscovery from '@/components/FellowshipDiscovery'
 import UserTypeSelector from '@/components/UserTypeSelector'
+import OnboardingTutorial from '@/components/OnboardingTutorial'
 
 export default function DashboardPage() {
   const { user, signOut, loading } = useAuth()
@@ -237,6 +238,11 @@ export default function DashboardPage() {
           onTypeChange={handleUserTypeChange}
           onClose={() => setShowUserTypeSelector(false)}
         />
+      )}
+
+      {/* Onboarding Tutorial */}
+      {userType && !showOnboarding && (
+        <OnboardingTutorial onComplete={() => {}} />
       )}
     </div>
   )

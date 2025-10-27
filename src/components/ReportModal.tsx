@@ -9,7 +9,7 @@ interface ReportModalProps {
   contentType: 'message' | 'testimony' | 'prayer' | 'comment' | 'user'
 }
 
-export default function ReportModal({ isOpen, onClose, contentType }: ReportModalPresentationProps) {
+export default function ReportModal({ isOpen, onClose, contentType }: ReportModalProps) {
   const [selectedReason, setSelectedReason] = useState('')
   const [description, setDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)

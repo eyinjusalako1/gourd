@@ -186,7 +186,11 @@ export default function DashboardPage() {
       <div className="max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto">
         {/* For Leaders: Stewardship Dashboard First */}
         {userType === 'leader' && (
-          <LeaderDashboard userRole={userRole as 'Leader' | 'Church Admin'} />
+          <>
+            <LeaderDashboard userRole={userRole as 'Leader' | 'Church Admin'} />
+            <VerseCard />
+            <AnnouncementFeed />
+          </>
         )}
 
         {/* For Disciples: Verse Card First */}

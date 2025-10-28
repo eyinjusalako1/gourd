@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
 import ProfileEditModal from '@/components/ProfileEditModal'
+import StatsPanel from '@/components/StatsPanel'
 import { 
   ArrowLeft, 
   Edit3, 
@@ -248,6 +249,9 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+
+          {/* Growth & Analytics Stats Panel */}
+          <StatsPanel />
 
           {/* Interests */}
           <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-4 mb-6 relative overflow-hidden">

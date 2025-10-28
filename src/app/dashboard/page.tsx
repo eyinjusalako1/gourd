@@ -5,7 +5,8 @@
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Settings, LogOut, Bell, User, Users, BookOpen, Heart } from 'lucide-react'
+import { Settings, LogOut, Bell, User, Users, BookOpen, Heart, MessageCircle } from 'lucide-react'
+import FeedbackModal from '@/components/FeedbackModal'
 import Logo from '@/components/Logo'
 import VerseCard from '@/components/VerseCard'
 import EventList from '@/components/EventList'
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const [userType, setUserType] = useState<'individual' | 'leader' | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showUserTypeSelector, setShowUserTypeSelector] = useState(false)
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
   useEffect(() => {
     // Determine user role from user metadata
@@ -163,6 +165,13 @@ export default function DashboardPage() {
               >
                 <Heart className="w-5 h-5" />
               </button>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
+                title="Send Feedback"
+              >
+                <MessageCircle className="w-5 h-5" />
+              </button>
               <button 
                 onClick={() => setShowUserTypeSelector(true)}
                 className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
@@ -241,6 +250,12 @@ export default function DashboardPage() {
       {userType && !showOnboarding && (
         <OnboardingTutorial onComplete={() => {}} />
       )}
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
     </div>
   )
 }

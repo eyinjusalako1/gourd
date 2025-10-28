@@ -123,8 +123,8 @@ export default function DashboardPage() {
                 </h1>
                 <p className={`text-sm ${userType === 'leader' ? 'text-[#0F1433]/80' : 'text-white/80'}`}>
                   {userType === 'individual' 
-                    ? `Welcome back, ${displayUser.user_metadata?.name || 'Friend'}! Ready to find fellowship?`
-                    : `Welcome back, ${displayUser.user_metadata?.name || 'Leader'}! Ready to build community?`
+                    ? `Welcome back, ${displayUser.user_metadata?.name || 'Disciple'}! Ready to find fellowship?`
+                    : `Welcome back, ${displayUser.user_metadata?.name || 'Steward'}! Ready to steward your community?`
                   }
                 </p>
               </div>

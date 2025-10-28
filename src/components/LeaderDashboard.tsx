@@ -220,9 +220,9 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
                 <Crown className="w-6 h-6 text-[#F5C451]" />
               </div>
           <div>
-                <h2 className="text-2xl font-bold">Leadership Dashboard</h2>
+                <h2 className="text-2xl font-bold">Stewardship Dashboard</h2>
                 <p className="text-[#0F1433]/80">
-                  {userRole === 'Church Admin' ? 'Church Administration' : 'Fellowship Leadership'}
+                  {userRole === 'Church Admin' ? 'Church Administration' : 'Fellowship Stewardship'}
                 </p>
               </div>
             </div>

@@ -53,7 +53,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 </div>
                 <div className="text-left flex-1">
                   <h3 className="text-lg font-semibold text-white mb-1">
-                    I&apos;m looking for fellowship
+                    Become a Disciple
                   </h3>
                   <p className="text-white/70 text-sm">
                     Find small groups, Bible studies, and Christian community near you
@@ -74,10 +74,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 </div>
                 <div className="text-left flex-1">
                   <h3 className="text-lg font-semibold text-white mb-1">
-                    I&apos;m a leader or church representative
+                    Become a Steward
                   </h3>
                   <p className="text-white/70 text-sm">
-                    Create and manage fellowships, events, and grow your community
+                    Create and manage fellowships, events, and steward your community
                   </p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-[#F5C451] group-hover:translate-x-1 transition-transform" />
@@ -157,7 +157,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               onClick={handleComplete}
               className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] py-4 rounded-xl font-semibold text-lg hover:from-[#F5C451] hover:to-[#D4AF37] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              {selectedType === 'individual' ? 'Start Finding Fellowship' : 'Start Building Community'}
+              {selectedType === 'individual' ? 'Start Your Journey as a Disciple' : 'Start Stewarding Your Community'}
             </button>
             <button
               onClick={() => setStep(1)}

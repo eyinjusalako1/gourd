@@ -59,7 +59,7 @@ export default function UserTypeSelector({ currentType, onTypeChange, onClose }:
               </div>
               <div className="text-left flex-1">
                 <h3 className="text-lg font-semibold text-white mb-1">
-                  I&apos;m looking for fellowship
+                  Disciple
                 </h3>
                 <p className="text-white/70 text-sm">
                   Find small groups, Bible studies, and Christian community
@@ -90,10 +90,10 @@ export default function UserTypeSelector({ currentType, onTypeChange, onClose }:
               </div>
               <div className="text-left flex-1">
                 <h3 className="text-lg font-semibold text-white mb-1">
-                  I&apos;m a leader or church representative
+                  Steward
                 </h3>
                 <p className="text-white/70 text-sm">
-                  Create and manage fellowships, events, and grow your community
+                  Create and manage fellowships, events, and steward your community
                 </p>
               </div>
               {selectedType === 'leader' && (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Home, Calendar, MessageCircle, Users, BookOpen } from 'lucide-react'
+import { Home, Calendar, MessageCircle, Users, BookOpen, HelpCircle } from 'lucide-react'
 
 interface BottomNavProps {
   activeTab?: string

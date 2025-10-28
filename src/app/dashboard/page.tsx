@@ -5,7 +5,7 @@
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Settings, LogOut, Bell, User, Users, BookOpen, Heart, MessageCircle } from 'lucide-react'
+import { Settings, LogOut, Bell, User, Users, BookOpen, Heart, MessageCircle, HelpCircle } from 'lucide-react'
 import FeedbackModal from '@/components/FeedbackModal'
 import Logo from '@/components/Logo'
 import VerseCard from '@/components/VerseCard'
@@ -164,6 +164,13 @@ export default function DashboardPage() {
                 title="Prayer Requests"
               >
                 <Heart className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => router.push('/faq')}
+                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
+                title="Help & FAQ"
+              >
+                <HelpCircle className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setShowFeedbackModal(true)}

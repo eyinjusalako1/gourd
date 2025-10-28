@@ -113,13 +113,15 @@ export default function DevotionsPage() {
                 <p className="text-sm text-white/60">Daily Bible readings</p>
               </div>
             </div>
-            <button
-              onClick={() => router.push('/devotions/plans')}
-              className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
-              title="Reading Plans"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => router.push('/devotions/create')}
+                className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
+                title="Create Devotional"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

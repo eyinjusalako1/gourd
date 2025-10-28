@@ -184,47 +184,40 @@ export default function DashboardPage() {
 
       {/* Main Content - Scrollable */}
       <div className="max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto">
-        {/* Section A: Spiritual Touchpoint */}
-        <VerseCard />
-
-        {/* Section B: Engagement & Community */}
-        <div className="space-y-6">
-          {userType === 'individual' ? (
-            <>
-              <FellowshipDiscovery />
-              <EventList />
-              <AnnouncementFeed />
-            </>
-          ) : (
-            <>
-              <EventList />
-              <FellowshipGroups userRole={userRole} />
-              <AnnouncementFeed />
-            </>
-          )}
-        </div>
-
-        {/* Section C: Growth & Analytics */}
-        <StatsPanel />
-
-        {/* Section D: Leader/Admin Features */}
+        {/* For Leaders: Stewardship Dashboard First */}
         {userType === 'leader' && (
           <LeaderDashboard userRole={userRole as 'Leader' | 'Church Admin'} />
         )}
 
-        {/* Monetization Integration Placeholder */}
+        {/* For Disciples: Verse Card First */}
         {userType === 'individual' && (
-          <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl p-4 text-[#0F1433]">
-            <div className="text-center">
-              <h3 className="font-bold text-lg mb-2">Ready to Lead?</h3>
-              <p className="text-sm mb-4 opacity-90">
-                Start your own fellowship group and help others find community
-              </p>
-              <button className="bg-[#0F1433] text-[#F5C451] px-6 py-2 rounded-lg font-medium hover:bg-[#0F1433]/90 transition-colors">
-                Become a Leader
-              </button>
+          <>
+            {/* Section A: Spiritual Touchpoint */}
+            <VerseCard />
+
+            {/* Section B: Engagement & Community */}
+            <div className="space-y-6">
+              <FellowshipDiscovery />
+              <EventList />
+              <AnnouncementFeed />
             </div>
-          </div>
+
+            {/* Section C: Growth & Analytics */}
+            <StatsPanel />
+
+            {/* Monetization Integration Placeholder */}
+            <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl p-4 text-[#0F1433]">
+              <div className="text-center">
+                <h3 className="font-bold text-lg mb-2">Ready to Steward?</h3>
+                <p className="text-sm mb-4 opacity-90">
+                  Start your own fellowship group and steward a community
+                </p>
+                <button className="bg-[#0F1433] text-[#F5C451] px-6 py-2 rounded-lg font-medium hover:bg-[#0F1433]/90 transition-colors">
+                  Become a Steward
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
 

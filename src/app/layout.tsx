@@ -2,6 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/lib/auth-context'
+import QuickActionsFab from '@/components/QuickActionsFab'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,8 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="min-h-screen bg-[#0F1433]">
             {children}
+            <QuickActionsFab />
           </div>
         </AuthProvider>
       </body>

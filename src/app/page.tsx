@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { Calendar, Users, Heart, BookOpen, ArrowRight, MapPin, Clock } from 'lucide-react'
 import Logo from '@/components/Logo'

@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Logo from '@/components/Logo'
-import { ArrowLeft, Search, ChevronDown, ChevronUp, HelpCircle, BookOpen, Users, MessageCircle, Heart } from 'lucide-react'
+import { Search, ChevronDown, ChevronUp, HelpCircle, BookOpen, Users, MessageCircle, Heart } from 'lucide-react'
 import FeedbackModal from '@/components/FeedbackModal'
+import AppHeader from '@/components/AppHeader'
 
 interface FAQItem {
   id: string
@@ -154,31 +154,20 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
-      {/* Header */}
-      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
-        <div className="max-w-md mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="mr-4 p-2 text-white/60 hover:text-white transition-colors"
-              title="Back to Dashboard"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <div className="flex-1 flex items-center space-x-3">
-              <Logo size="md" showText={false} />
-              <h1 className="text-xl font-bold text-white">Help Center</h1>
-            </div>
-            <button
-              onClick={() => setShowFeedbackModal(true)}
-              className="p-2 text-white/60 hover:text-white transition-colors"
-              title="Submit Feedback"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <AppHeader
+        title="Help Center"
+        subtitle="FAQ and support"
+        backHref="/dashboard"
+        rightSlot={(
+          <button
+            onClick={() => setShowFeedbackModal(true)}
+            className="p-2 text-white/60 hover:text-white transition-colors"
+            title="Submit Feedback"
+          >
+            <MessageCircle className="w-5 h-5" />
+          </button>
+        )}
+      />
 
       {/* Main Content */}
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">

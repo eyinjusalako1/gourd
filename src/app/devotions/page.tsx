@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { BookOpen, Calendar, TrendingUp, CheckCircle, Clock, Star, ArrowLeft, Plus } from 'lucide-react'
-import Logo from '@/components/Logo'
+import { BookOpen, Calendar, TrendingUp, CheckCircle, Clock, Star, Plus } from 'lucide-react'
+import AppHeader from '@/components/AppHeader'
 
 interface Reading {
   id: string
@@ -95,36 +95,20 @@ export default function DevotionsPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
-      {/* Header */}
-      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
-        <div className="max-w-md mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="p-2 text-white/60 hover:text-white transition-colors"
-                title="Back to Dashboard"
-              >
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-              <Logo size="md" showText={false} />
-              <div>
-                <h1 className="text-xl font-bold text-white">Devotions</h1>
-                <p className="text-sm text-white/60">Daily Bible readings</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => router.push('/devotions/create')}
-                className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
-                title="Create Devotional"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <AppHeader
+        title="Devotions"
+        subtitle="Daily Bible readings"
+        backHref="/dashboard"
+        rightSlot={(
+          <button
+            onClick={() => router.push('/devotions/create')}
+            className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
+            title="Create Devotional"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+        )}
+      />
 
       {/* Stats Overview */}
       <div className="max-w-md mx-auto px-4 py-6">

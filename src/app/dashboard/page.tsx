@@ -12,7 +12,6 @@ import VerseCard from '@/components/VerseCard'
 import EventList from '@/components/EventList'
 import FellowshipGroups from '@/components/FellowshipGroups'
 import AnnouncementFeed from '@/components/AnnouncementFeed'
-import StatsPanel from '@/components/StatsPanel'
 import LeaderDashboard from '@/components/LeaderDashboard'
 import BottomNavigation from '@/components/BottomNavigation'
 import OnboardingFlow from '@/components/OnboardingFlow'
@@ -226,8 +225,7 @@ export default function DashboardPage() {
               <AnnouncementFeed />
             </div>
 
-            {/* Section C: Growth & Analytics */}
-            <StatsPanel />
+            {/* Section C removed: Stats moved to Profile page for shorter mobile layout */}
 
             {/* Monetization Integration Placeholder */}
             <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl p-4 text-[#0F1433]">

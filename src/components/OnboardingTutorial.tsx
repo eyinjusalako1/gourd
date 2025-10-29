@@ -63,6 +63,7 @@ const tutorialSteps: TutorialStep[] = [
 export default function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [targetRect, setTargetRect] = useState<{top:number;left:number;width:number;height:number} | null>(null)
 
   useEffect(() => {
     // Check if user has completed tutorial
@@ -95,13 +96,51 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
   const step = tutorialSteps[currentStep]
   const isLastStep = currentStep === tutorialSteps.length - 1
 
+  // Measure and highlight target if provided
+  useEffect(() => {
+    if (!step.target) {
+      setTargetRect(null)
+      return
+    }
+    const el = document.querySelector(step.target) as HTMLElement | null
+    if (!el) {
+      setTargetRect(null)
+      return
+    }
+    const rect = el.getBoundingClientRect()
+    const next = { top: rect.top + window.scrollY, left: rect.left + window.scrollX, width: rect.width, height: rect.height }
+    setTargetRect(next)
+    // Ensure into view
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  }, [currentStep])
+
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
-      {/* Overlay with cutout */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/75 pointer-events-auto" />
+
+      {/* Highlight box */}
+      {targetRect && (
+        <div
+          className="absolute border-2 border-[#F5C451] rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] pointer-events-none"
+          style={{
+            top: targetRect.top - 8 - window.scrollY,
+            left: targetRect.left - 8 - window.scrollX,
+            width: targetRect.width + 16,
+            height: targetRect.height + 16
+          }}
+        />
+      )}
       
-      {/* Tooltip - center on mobile, respect safe areas */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 max-w-sm mx-auto px-4 pointer-events-auto md:bottom-24 md:top-auto md:-translate-y-0">
+      {/* Tooltip - center on mobile, or near target if available */}
+      <div
+        className="absolute inset-x-0 max-w-sm mx-auto px-4 pointer-events-auto"
+        style={targetRect ? {
+          top: step.position === 'top' ? Math.max(16, targetRect.top - 140 - window.scrollY) : undefined,
+          left: '0', right: '0',
+          bottom: step.position === 'top' ? undefined : Math.max(24, window.innerHeight - (targetRect.top - window.scrollY) + 16)
+        } : { top: '50%', transform: 'translateY(-50%)' }}
+      >
         <div className="bg-[#0F1433] border-2 border-[#F5C451] rounded-2xl p-6 relative">
           {/* Close button (skip tutorial) */}
           {!isLastStep && (

@@ -41,7 +41,9 @@ export default function GlobalBottomNav() {
   }
 
   return (
-    <BottomNavigation activeTab={getActiveTab()} onTabChange={handleTabChange} />
+    <div data-tutorial="bottom-nav">
+      <BottomNavigation activeTab={getActiveTab()} onTabChange={handleTabChange} />
+    </div>
   )
 }
 

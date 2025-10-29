@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <div className="min-h-screen bg-[#0F1433]">
+          <div className="min-h-screen bg-[#0F1433] safe-bottom">
             <PageTransition>
               {children}
             </PageTransition>

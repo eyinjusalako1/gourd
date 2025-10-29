@@ -148,6 +148,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/profile')}
                 className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="My Profile"
+                data-tutorial="profile"
               >
                 <User className="w-5 h-5" />
               </button>
@@ -155,6 +156,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/testimonies')}
                 className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="Testimonies"
+                data-tutorial="testimonies"
               >
                 <BookOpen className="w-5 h-5" />
               </button>
@@ -162,6 +164,7 @@ export default function DashboardPage() {
                 onClick={() => router.push('/prayers')}
                 className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="Prayer Requests"
+                data-tutorial="prayers"
               >
                 <Heart className="w-5 h-5" />
               </button>
@@ -183,6 +186,7 @@ export default function DashboardPage() {
                 onClick={() => setShowUserTypeSelector(true)}
                 className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="Settings"
+                data-tutorial="settings"
               >
                 <Settings className="w-5 h-5" />
               </button>

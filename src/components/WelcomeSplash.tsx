@@ -24,7 +24,19 @@ export default function WelcomeSplash({ onSelect }: { onSelect: (type: 'individu
           <Logo size="lg" showText={false} />
         </div>
         <h1 className="text-3xl font-extrabold text-white mb-2">Welcome to Gathered</h1>
-        <p className="text-white/80 mb-8">Find fellowship, grow in faith, and steward community</p>
+        <p className="text-white/80 mb-6">Find fellowship, grow in faith, and steward community</p>
+
+        {/* Role descriptions */}
+        <div className="text-left max-w-sm mx-auto mb-5 space-y-3">
+          <div className="bg-white/5 border border-[#D4AF37]/30 rounded-xl p-3">
+            <div className="text-[#F5C451] text-xs font-bold tracking-wide mb-1">DISCIPLE</div>
+            <p className="text-white/80 text-sm">Join fellowships, browse events, pray with others, and share testimonies as you grow in Christ.</p>
+          </div>
+          <div className="bg-white/5 border border-[#D4AF37]/30 rounded-xl p-3">
+            <div className="text-[#F5C451] text-xs font-bold tracking-wide mb-1">STEWARD</div>
+            <p className="text-white/80 text-sm">Lead a group or church community: create fellowships, schedule events, send announcements, and shepherd members.</p>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-3 max-w-xs mx-auto">
           <button
             onClick={() => { localStorage.setItem('gathered_user_type', 'individual'); localStorage.setItem('gathered_saw_welcome', '1'); onSelect('individual') }}

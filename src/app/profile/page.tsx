@@ -146,6 +146,7 @@ export default function ProfilePage() {
                   onClick={handleEditProfile}
                   className="p-2 text-white/60 hover:text-white transition-colors"
                   title="Edit profile"
+                  data-tutorial="edit-profile"
                 >
                   <Edit3 className="w-5 h-5" />
                 </button>

@@ -255,10 +255,7 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Onboarding Tutorial */}
-      {userType && !showOnboarding && (
-        <OnboardingTutorial onComplete={() => {}} />
-      )}
+      {/* Onboarding Tutorial moved to global layout */}
 
       {/* Feedback Modal */}
       <FeedbackModal

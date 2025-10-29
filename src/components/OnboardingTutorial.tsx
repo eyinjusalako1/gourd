@@ -33,6 +33,13 @@ const tutorialSteps: TutorialStep[] = [
     position: 'bottom'
   },
   {
+    id: 'profile-edit',
+    title: 'Edit Your Profile',
+    description: 'Tap Edit Profile to update your photo, bio, and interests.',
+    target: '[data-tutorial="edit-profile"]',
+    position: 'top'
+  },
+  {
     id: 'testimonies',
     title: 'Share Your Testimony',
     description: 'Click the book icon to read and share testimonies. Your story can inspire others!',
@@ -103,6 +110,7 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
     // Define simple routing map for tutorial icons if needed
     const routeMap: Record<string, string> = {
       profile: '/dashboard',
+      'profile-edit': '/profile',
       testimonies: '/dashboard',
       prayers: '/dashboard',
       'bottom-nav': '/dashboard'
@@ -133,7 +141,7 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
 
   // Auto-click targets to guide users directly into the flow
   useEffect(() => {
-    const autoClickIds = new Set(['profile', 'testimonies', 'prayers'])
+    const autoClickIds = new Set(['profile', 'profile-edit', 'testimonies', 'prayers'])
     if (!autoClickIds.has(step.id)) return
     const el = document.querySelector(step.target) as HTMLElement | null
     if (!el) return
@@ -142,6 +150,16 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
     }, 500)
     return () => clearTimeout(timer)
   }, [currentStep, step.id, step.target])
+
+  // Auto-advance after auto actions to keep the flow moving
+  useEffect(() => {
+    const autoAdvanceIds = new Set(['profile', 'profile-edit', 'testimonies', 'prayers'])
+    if (!autoAdvanceIds.has(step.id)) return
+    const t = setTimeout(() => {
+      setCurrentStep(s => Math.min(s + 1, tutorialSteps.length - 1))
+    }, 1200)
+    return () => clearTimeout(t)
+  }, [currentStep, step.id])
 
   if (!isVisible) return null
 

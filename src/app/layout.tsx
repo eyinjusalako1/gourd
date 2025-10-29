@@ -7,6 +7,7 @@ import CommandPalette from '@/components/CommandPalette'
 import PageTransition from '@/components/PageTransition'
 import GlobalBottomNav from '@/components/GlobalBottomNav'
 import BottomMoreSheet from '@/components/BottomMoreSheet'
+import OnboardingTutorial from '@/components/OnboardingTutorial'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -32,6 +33,7 @@ export default function RootLayout({
             <CommandPalette />
             <GlobalBottomNav />
             <BottomMoreSheet />
+            <OnboardingTutorial onComplete={() => {}} />
           </div>
         </AuthProvider>
       </body>

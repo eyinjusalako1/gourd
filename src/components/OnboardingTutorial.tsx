@@ -91,12 +91,10 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
     handleComplete()
   }
 
-  if (!isVisible) return null
-
   const step = tutorialSteps[currentStep]
   const isLastStep = currentStep === tutorialSteps.length - 1
 
-  // Measure and highlight target if provided
+  // Measure and highlight target if provided (must run before early return to keep hook order consistent)
   useEffect(() => {
     if (!step.target) {
       setTargetRect(null)
@@ -112,7 +110,9 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
     setTargetRect(next)
     // Ensure into view
     el.scrollIntoView({ block: 'center', behavior: 'smooth' })
-  }, [currentStep])
+  }, [currentStep, step.target])
+
+  if (!isVisible) return null
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">

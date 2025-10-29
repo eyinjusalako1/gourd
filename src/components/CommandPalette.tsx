@@ -34,9 +34,14 @@ export default function CommandPalette() {
         if (e.key === 'Enter') handleSelect(filtered[activeIdx])
       }
     }
+    const openFromUI = () => setOpen(true)
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open])
+    window.addEventListener('open-command-palette', openFromUI as EventListener)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('open-command-palette', openFromUI as EventListener)
+    }
+  }, [open, filtered, activeIdx])
 
   const items: CommandItem[] = useMemo(() => ([
     { id: 'home', label: 'Dashboard', href: '/dashboard', icon: Home, keywords: 'home start' },

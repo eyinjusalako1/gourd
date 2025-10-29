@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Search } from 'lucide-react'
 
 interface AppHeaderProps {
   title: string
@@ -39,6 +39,13 @@ export default function AppHeader({ title, subtitle, backHref, rightSlot }: AppH
           </div>
           <div className="flex items-center space-x-2">
             {rightSlot}
+            <button
+              onClick={() => window.dispatchEvent(new Event('open-command-palette'))}
+              className="p-2 text-white/60 hover:text-white transition-colors"
+              title="Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>

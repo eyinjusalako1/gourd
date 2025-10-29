@@ -37,6 +37,25 @@
   transition: opacity 200ms ease-out, transform 200ms ease-out;
 }
 
+/* Welcome hero animations */
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes riseIn {
+  0% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-pop { animation: popIn 500ms ease-out both; }
+.animate-rise { animation: riseIn 600ms ease-out both; }
+.welcome-glow {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient( circle at 50% 40%, rgba(245,196,81,0.25), transparent 45% ),
+              radial-gradient( circle at 60% 60%, rgba(212,175,55,0.2), transparent 45% );
+  filter: blur(32px);
+}
+
 /* Global dropdown styling for dark theme */
 select {
   background-color: rgba(15, 20, 51, 0.9) !important;

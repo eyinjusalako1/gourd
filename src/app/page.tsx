@@ -1,10 +1,15 @@
 import Link from 'next/link'
 import { Calendar, Users, Heart, BookOpen, ArrowRight, MapPin, Clock } from 'lucide-react'
 import Logo from '@/components/Logo'
+import WelcomeSplash from '@/components/WelcomeSplash'
+import { useRouter } from 'next/navigation'
+import React from 'react'
 
 export default function Home() {
+  const router = useRouter()
   return (
     <div className="min-h-screen bg-[#0F1433]">
+      <WelcomeSplash onSelect={(type)=>{ router.push('/dashboard') }} />
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Background gradient */}
@@ -14,17 +19,17 @@ export default function Home() {
         <div className="relative max-w-md mx-auto px-4 py-12">
           <div className="text-center">
             {/* Logo */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-6 animate-pop">
               <Logo size="lg" />
             </div>
             
             {/* Main Title */}
-            <h2 className="text-2xl font-bold text-white mb-4">
+            <h2 className="text-2xl font-bold text-white mb-4 animate-rise">
               Welcome to Gathered
             </h2>
             
             {/* Tagline */}
-            <p className="text-white/80 text-lg mb-8 leading-relaxed">
+            <p className="text-white/80 text-lg mb-8 leading-relaxed animate-rise">
               Find fellowship, build community, grow in faith together
             </p>
             

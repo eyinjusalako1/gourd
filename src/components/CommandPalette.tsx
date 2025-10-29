@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Search, Home, Calendar, MessageCircle, Users, BookOpen, Heart, HelpCircle, User, Settings, Megaphone, Plus } from 'lucide-react'
 
@@ -18,30 +18,6 @@ export default function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [activeIdx, setActiveIdx] = useState(0)
-
-  // Global shortcut: Ctrl/Cmd+K
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const isMetaK = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'
-      if (isMetaK) {
-        e.preventDefault()
-        setOpen(prev => !prev)
-      }
-      if (open) {
-        if (e.key === 'Escape') setOpen(false)
-        if (e.key === 'ArrowDown') setActiveIdx(i => Math.min(i + 1, filtered.length - 1))
-        if (e.key === 'ArrowUp') setActiveIdx(i => Math.max(i - 1, 0))
-        if (e.key === 'Enter') handleSelect(filtered[activeIdx])
-      }
-    }
-    const openFromUI = () => setOpen(true)
-    window.addEventListener('keydown', onKey)
-    window.addEventListener('open-command-palette', openFromUI as EventListener)
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      window.removeEventListener('open-command-palette', openFromUI as EventListener)
-    }
-  }, [open, filtered, activeIdx])
 
   const items: CommandItem[] = useMemo(() => ([
     { id: 'home', label: 'Dashboard', href: '/dashboard', icon: Home, keywords: 'home start' },
@@ -65,18 +41,42 @@ export default function CommandPalette() {
     )
   }, [query, items])
 
+  const handleSelect = useCallback((item?: CommandItem) => {
+    if (!item) return
+    setOpen(false)
+    router.push(item.href)
+  }, [router])
+
+  // Global shortcut: Ctrl/Cmd+K
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const isMetaK = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'
+      if (isMetaK) {
+        e.preventDefault()
+        setOpen(prev => !prev)
+      }
+      if (open) {
+        if (e.key === 'Escape') setOpen(false)
+        if (e.key === 'ArrowDown') setActiveIdx(i => Math.min(i + 1, filtered.length - 1))
+        if (e.key === 'ArrowUp') setActiveIdx(i => Math.max(i - 1, 0))
+        if (e.key === 'Enter') handleSelect(filtered[activeIdx])
+      }
+    }
+    const openFromUI = () => setOpen(true)
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('open-command-palette', openFromUI as EventListener)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('open-command-palette', openFromUI as EventListener)
+    }
+  }, [open, filtered, activeIdx, handleSelect])
+
   useEffect(() => {
     if (open) {
       setQuery('')
       setActiveIdx(0)
     }
   }, [open, pathname])
-
-  const handleSelect = (item?: CommandItem) => {
-    if (!item) return
-    setOpen(false)
-    router.push(item.href)
-  }
 
   if (!open) return null
 

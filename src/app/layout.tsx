@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/lib/auth-context'
 import QuickActionsFab from '@/components/QuickActionsFab'
 import CommandPalette from '@/components/CommandPalette'
+import PageTransition from '@/components/PageTransition'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <div className="min-h-screen bg-[#0F1433]">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
             <QuickActionsFab />
             <CommandPalette />
           </div>

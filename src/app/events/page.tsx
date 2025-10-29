@@ -123,10 +123,28 @@ export default function EventsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0F1433]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5C451] mx-auto"></div>
-          <p className="mt-4 text-white/80">Loading events...</p>
+      <div className="min-h-screen bg-[#0F1433] pb-20">
+        <AppHeader title="Events" subtitle="Find your next fellowship" backHref="/dashboard" />
+        <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+          {[0,1,2,3].map((i) => (
+            <div key={i} className="bg-white/5 border border-[#D4AF37]/30 rounded-2xl p-6 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
+              <div className="animate-pulse">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/10" />
+                  <div className="w-16 h-4 bg-white/10 rounded" />
+                </div>
+                <div className="h-5 bg-white/10 rounded w-3/4 mb-3" />
+                <div className="h-4 bg-white/10 rounded w-full mb-2" />
+                <div className="h-4 bg-white/10 rounded w-5/6 mb-4" />
+                <div className="flex space-x-2">
+                  <div className="h-6 w-20 bg-white/10 rounded-full" />
+                  <div className="h-6 w-16 bg-white/10 rounded-full" />
+                  <div className="h-6 w-24 bg-white/10 rounded-full" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     )

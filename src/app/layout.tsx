@@ -33,7 +33,7 @@ export default function RootLayout({
             <CommandPalette />
             <GlobalBottomNav />
             <BottomMoreSheet />
-            <OnboardingTutorial onComplete={() => {}} />
+            <OnboardingTutorial />
           </div>
         </AuthProvider>
       </body>

@@ -14,7 +14,7 @@ interface TutorialStep {
 }
 
 interface OnboardingTutorialProps {
-  onComplete: () => void
+  onComplete?: () => void
 }
 
 const tutorialSteps: TutorialStep[] = [
@@ -95,7 +95,7 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
   const handleComplete = () => {
     localStorage.setItem('gathered_tutorial_completed', 'true')
     setIsVisible(false)
-    onComplete()
+    if (onComplete) onComplete()
   }
 
   const handleSkip = () => {

@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth-context'
 import QuickActionsFab from '@/components/QuickActionsFab'
 import CommandPalette from '@/components/CommandPalette'
 import PageTransition from '@/components/PageTransition'
+import GlobalBottomNav from '@/components/GlobalBottomNav'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,6 +29,7 @@ export default function RootLayout({
             </PageTransition>
             <QuickActionsFab />
             <CommandPalette />
+            <GlobalBottomNav />
           </div>
         </AuthProvider>
       </body>

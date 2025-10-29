@@ -7,8 +7,25 @@ export default function WelcomeSplash({ onSelect }: { onSelect: (type: 'individu
   const [show, setShow] = useState(true)
 
   useEffect(() => {
-    const completed = localStorage.getItem('gathered_saw_welcome')
-    if (completed) setShow(false)
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const forceIntro = params.get('intro') === '1'
+      const hasType = localStorage.getItem('gathered_user_type')
+      const completed = localStorage.getItem('gathered_saw_welcome')
+      if (forceIntro) {
+        setShow(true)
+        return
+      }
+      // Show intro if user type not chosen yet
+      if (!hasType) {
+        setShow(true)
+        return
+      }
+      // Otherwise respect previous dismissal
+      setShow(!completed)
+    } catch {
+      setShow(true)
+    }
   }, [])
 
   if (!show) return null

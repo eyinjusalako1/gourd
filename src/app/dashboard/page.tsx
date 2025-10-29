@@ -132,7 +132,7 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar max-w-[60vw] sm:max-w-none">
               <button className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'} relative`}>
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#F5C451] rounded-full"></div>

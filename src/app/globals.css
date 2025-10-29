@@ -58,3 +58,12 @@ form select option {
   background-color: #0F1433 !important;
   color: white !important;
 }
+
+/* Hide scrollbars utility */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}

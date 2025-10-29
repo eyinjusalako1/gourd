@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { X, ArrowRight, Check } from 'lucide-react'
 
 interface TutorialStep {
@@ -9,6 +10,7 @@ interface TutorialStep {
   description: string
   target: string // CSS selector for the element to highlight
   position: 'top' | 'bottom' | 'left' | 'right'
+  navigateTo?: string // optional route to navigate before showing this step
 }
 
 interface OnboardingTutorialProps {
@@ -64,6 +66,8 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
   const [currentStep, setCurrentStep] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [targetRect, setTargetRect] = useState<{top:number;left:number;width:number;height:number} | null>(null)
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     // Check if user has completed tutorial
@@ -93,6 +97,21 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
 
   const step = tutorialSteps[currentStep]
   const isLastStep = currentStep === tutorialSteps.length - 1
+
+  // Auto-navigation for steps that reference controls on specific pages
+  useEffect(() => {
+    // Define simple routing map for tutorial icons if needed
+    const routeMap: Record<string, string> = {
+      profile: '/dashboard',
+      testimonies: '/dashboard',
+      prayers: '/dashboard',
+      'bottom-nav': '/dashboard'
+    }
+    const desired = routeMap[step.id]
+    if (desired && pathname !== desired) {
+      router.push(desired)
+    }
+  }, [currentStep, step.id, pathname, router])
 
   // Measure and highlight target if provided (must run before early return to keep hook order consistent)
   useEffect(() => {

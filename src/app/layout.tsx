@@ -6,6 +6,7 @@ import QuickActionsFab from '@/components/QuickActionsFab'
 import CommandPalette from '@/components/CommandPalette'
 import PageTransition from '@/components/PageTransition'
 import GlobalBottomNav from '@/components/GlobalBottomNav'
+import BottomMoreSheet from '@/components/BottomMoreSheet'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,6 +31,7 @@ export default function RootLayout({
             <QuickActionsFab />
             <CommandPalette />
             <GlobalBottomNav />
+            <BottomMoreSheet />
           </div>
         </AuthProvider>
       </body>

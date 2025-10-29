@@ -31,6 +31,9 @@ export default function GlobalBottomNav() {
       case 'devotions':
         router.push('/devotions')
         break
+      case 'more':
+        window.dispatchEvent(new Event('open-bottom-more'))
+        break
       default:
         router.push('/dashboard')
         break

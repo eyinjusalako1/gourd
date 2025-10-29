@@ -131,6 +131,18 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
     el.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }, [currentStep, step.target])
 
+  // Auto-click targets to guide users directly into the flow
+  useEffect(() => {
+    const autoClickIds = new Set(['profile', 'testimonies', 'prayers'])
+    if (!autoClickIds.has(step.id)) return
+    const el = document.querySelector(step.target) as HTMLElement | null
+    if (!el) return
+    const timer = setTimeout(() => {
+      el.click()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [currentStep, step.id, step.target])
+
   if (!isVisible) return null
 
   return (

@@ -1,10 +1,12 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import AppHeader from '@/components/AppHeader'
 import { Bell, Shield, User, Palette, Smartphone, HelpCircle } from 'lucide-react'
 
 export default function SettingsPage() {
+  const router = useRouter()
   const sections = [
     { id: 'account', title: 'Account', icon: User, desc: 'Profile, email, password' },
     { id: 'notifications', title: 'Notifications', icon: Bell, desc: 'Push, email alerts' },
@@ -23,7 +25,7 @@ export default function SettingsPage() {
           {sections.map(sec => {
             const Icon = sec.icon
             return (
-              <button key={sec.id} className="bg-white/5 border border-[#D4AF37]/30 rounded-2xl p-4 text-left hover:bg-white/10 transition-colors">
+              <button onClick={() => router.push(`/settings/${sec.id}`)} key={sec.id} className="bg-white/5 border border-[#D4AF37]/30 rounded-2xl p-4 text-left hover:bg-white/10 transition-colors">
                 <div className="w-10 h-10 rounded-lg bg-[#F5C451]/15 border border-[#D4AF37]/40 flex items-center justify-center mb-3">
                   <Icon className="w-5 h-5 text-[#F5C451]" />
                 </div>

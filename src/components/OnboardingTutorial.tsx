@@ -100,8 +100,8 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
       {/* Overlay with cutout */}
       <div className="absolute inset-0 bg-black/75 pointer-events-auto" />
       
-      {/* Tooltip */}
-      <div className="absolute bottom-24 left-0 right-0 mx-auto max-w-sm px-4 pointer-events-auto">
+      {/* Tooltip - center on mobile, respect safe areas */}
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 max-w-sm mx-auto px-4 pointer-events-auto md:bottom-24 md:top-auto md:-translate-y-0">
         <div className="bg-[#0F1433] border-2 border-[#F5C451] rounded-2xl p-6 relative">
           {/* Close button (skip tutorial) */}
           {!isLastStep && (

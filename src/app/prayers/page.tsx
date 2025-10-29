@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, Plus, Search, Filter, ArrowLeft, User, Clock } from 'lucide-react'
-import Logo from '@/components/Logo'
+import { Heart, Plus, Search, Filter, User, Clock } from 'lucide-react'
+import AppHeader from '@/components/AppHeader'
 
 interface PrayerRequest {
   id: string
@@ -104,33 +104,19 @@ export default function PrayersPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
-      {/* Header */}
-      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
-        <div className="max-w-md mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="p-2 text-white/60 hover:text-white transition-colors"
-                title="Back to Dashboard"
-              >
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-              <Logo size="md" showText={false} />
-              <div>
-                <h1 className="text-xl font-bold text-white">Prayer Requests</h1>
-                <p className="text-sm text-white/60">Join in prayer together</p>
-              </div>
-            </div>
-            <button
-              onClick={handleCreatePrayer}
-              className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <AppHeader
+        title="Prayer Requests"
+        subtitle="Join in prayer together"
+        backHref="/dashboard"
+        rightSlot={(
+          <button
+            onClick={handleCreatePrayer}
+            className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+        )}
+      />
 
       {/* Search and Filters */}
       <div className="max-w-md mx-auto px-4 py-4">

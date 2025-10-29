@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import Logo from '@/components/Logo'
-import { ArrowLeft, MessageCircle, Users } from 'lucide-react'
+import { MessageCircle, Users } from 'lucide-react'
+import AppHeader from '@/components/AppHeader'
 
 export default function ChatPage() {
   const router = useRouter()
@@ -35,26 +35,7 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
-      {/* Header */}
-      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
-        <div className="max-w-md mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
-            <button
-              onClick={() => router.back()}
-              className="p-2 text-white/60 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            
-            <div className="flex items-center space-x-3">
-              <Logo size="sm" showText={false} />
-              <h1 className="text-lg font-bold text-white">Chat</h1>
-            </div>
-
-            <div className="w-10"></div>
-          </div>
-        </div>
-      </div>
+      <AppHeader title="Chats" backHref="/dashboard" />
 
       {/* Fellowship Chats List */}
       <div className="max-w-md mx-auto px-4 py-6 space-y-3">

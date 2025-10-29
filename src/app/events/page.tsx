@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { EventService } from '@/lib/event-service'
 import type { Event } from '@/types'
-import Logo from '@/components/Logo'
+import AppHeader from '@/components/AppHeader'
 import { 
   Calendar, 
   MapPin, 
@@ -134,32 +134,7 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
-      {/* Header */}
-      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
-        <div className="max-w-md mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <Logo size="md" showText={false} />
-              <div>
-                <h1 className="text-xl font-bold text-white">
-                  Events
-                </h1>
-                <p className="text-sm text-white/80">
-                  Join our community events and grow together in faith
-                </p>
-              </div>
-            </div>
-            
-            <Link
-              href="/dashboard"
-              className="flex items-center space-x-1 px-3 py-1 text-white/60 hover:text-white transition-colors"
-            >
-              <ArrowRight className="w-4 h-4" />
-              <span className="text-sm">Dashboard</span>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <AppHeader title="Events" subtitle="Join our community events and grow together in faith" backHref="/dashboard" />
 
       {/* Main Content */}
       <div className="max-w-md mx-auto px-4 py-6">

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Heart, Plus, Search, Filter, Share2, MessageCircle, ThumbsUp, BookOpen } from 'lucide-react'
-import Logo from '@/components/Logo'
+import AppHeader from '@/components/AppHeader'
 
 interface Testimony {
   id: string
@@ -122,35 +122,19 @@ export default function TestimoniesPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
-      {/* Header */}
-      <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
-        <div className="max-w-md mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="p-2 text-white/60 hover:text-white transition-colors"
-                title="Back to Dashboard"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <Logo size="md" showText={false} />
-              <div>
-                <h1 className="text-xl font-bold text-white">Testimonies</h1>
-                <p className="text-sm text-white/60">Share your story</p>
-              </div>
-            </div>
-            <button
-              onClick={handleCreateTestimony}
-              className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <AppHeader
+        title="Testimonies"
+        subtitle="Share your story"
+        backHref="/dashboard"
+        rightSlot={(
+          <button
+            onClick={handleCreateTestimony}
+            className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37] transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+        )}
+      />
 
       {/* Search and Filters */}
       <div className="max-w-md mx-auto px-4 py-4">

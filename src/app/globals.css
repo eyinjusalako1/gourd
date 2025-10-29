@@ -26,6 +26,17 @@
   }
 }
 
+/* Page fade-in */
+.page-fade-enter {
+  opacity: 0.01;
+  transform: translateY(4px);
+}
+.page-fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
 /* Global dropdown styling for dark theme */
 select {
   background-color: rgba(15, 20, 51, 0.9) !important;

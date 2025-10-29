@@ -64,8 +64,8 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#0F1433] border border-[#D4AF37] rounded-2xl p-6 max-w-md w-full relative">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="feedback-title" aria-describedby="feedback-desc">
+      <div className="bg-[#0F1433] border border-[#D4AF37] rounded-2xl p-6 max-w-md w-full relative" tabIndex={-1}>
         {/* Close button */}
         <button
           onClick={onClose}
@@ -80,8 +80,8 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             <MessageSquare className="w-5 h-5 text-[#0F1433]" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Share Your Feedback</h2>
-            <p className="text-sm text-white/60">Help us improve Gathered</p>
+            <h2 id="feedback-title" className="text-xl font-bold text-white">Share Your Feedback</h2>
+            <p id="feedback-desc" className="text-sm text-white/60">Help us improve Gathered</p>
           </div>
         </div>
 

@@ -37,6 +37,7 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
               <button
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
+              data-tutorial={`tab-${tab.id}`}
                 className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${
                   isActive
                     ? 'text-[#F5C451]'

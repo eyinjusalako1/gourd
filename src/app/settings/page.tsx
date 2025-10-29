@@ -2,11 +2,13 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
+import { useTutorial } from '@/lib/tutorial-context'
 import AppHeader from '@/components/AppHeader'
 import { Bell, Shield, User, Palette, Smartphone, HelpCircle } from 'lucide-react'
 
 export default function SettingsPage() {
   const router = useRouter()
+  const tutorial = useTutorial()
   const sections = [
     { id: 'account', title: 'Account', icon: User, desc: 'Profile, email, password' },
     { id: 'notifications', title: 'Notifications', icon: Bell, desc: 'Push, email alerts' },
@@ -42,6 +44,9 @@ export default function SettingsPage() {
           </button>
           <button className="w-full bg-white/5 text-white py-3 rounded-xl font-semibold border border-[#D4AF37]/30 hover:bg-white/10 transition-colors">
             Reset to Defaults
+          </button>
+          <button onClick={() => tutorial.restart()} className="w-full bg-white/5 text-white py-3 rounded-xl font-semibold border border-[#D4AF37]/30 hover:bg-white/10 transition-colors">
+            Restart Tutorial
           </button>
         </div>
       </div>

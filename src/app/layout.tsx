@@ -7,7 +7,8 @@ import CommandPalette from '@/components/CommandPalette'
 import PageTransition from '@/components/PageTransition'
 import GlobalBottomNav from '@/components/GlobalBottomNav'
 import BottomMoreSheet from '@/components/BottomMoreSheet'
-import OnboardingTutorial from '@/components/OnboardingTutorial'
+import { TutorialProvider } from '@/lib/tutorial-context'
+import TutorialOverlay from '@/components/TutorialOverlay'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,16 +26,18 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <div className="min-h-screen bg-[#0F1433] safe-bottom">
-            <PageTransition>
-              {children}
-            </PageTransition>
-            <QuickActionsFab />
-            <CommandPalette />
-            <GlobalBottomNav />
-            <BottomMoreSheet />
-            <OnboardingTutorial />
-          </div>
+          <TutorialProvider>
+            <div className="min-h-screen bg-[#0F1433] safe-bottom">
+              <PageTransition>
+                {children}
+              </PageTransition>
+              <QuickActionsFab />
+              <CommandPalette />
+              <GlobalBottomNav />
+              <BottomMoreSheet />
+              <TutorialOverlay />
+            </div>
+          </TutorialProvider>
         </AuthProvider>
       </body>
     </html>

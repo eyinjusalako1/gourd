@@ -22,8 +22,7 @@ CREATE TABLE IF NOT EXISTS faith_flames (
 
 CREATE INDEX IF NOT EXISTS idx_faith_flames_user ON faith_flames(user_id, activity_date DESC);
 CREATE INDEX IF NOT EXISTS idx_faith_flames_fellowship ON faith_flames(fellowship_id, activity_date DESC);
-CREATE INDEX IF NOT EXISTS idx_faith_flames_streak ON faith_flames(user_id, fellowship_id, activity_date) 
-  WHERE activity_date >= CURRENT_DATE - INTERVAL '30 days';
+CREATE INDEX IF NOT EXISTS idx_faith_flames_streak ON faith_flames(user_id, fellowship_id, activity_date DESC);
 
 -- Track current Faith Flame streaks
 CREATE TABLE IF NOT EXISTS faith_streaks (
@@ -246,8 +245,7 @@ CREATE TABLE IF NOT EXISTS fellowship_highlights (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_fellowship_highlights_active ON fellowship_highlights(fellowship_id, display_start, display_until) 
-  WHERE is_public = TRUE AND (display_until IS NULL OR display_until > NOW());
+CREATE INDEX IF NOT EXISTS idx_fellowship_highlights_active ON fellowship_highlights(fellowship_id, display_start DESC) WHERE is_public = TRUE;
 CREATE INDEX IF NOT EXISTS idx_fellowship_highlights_fire ON fellowship_highlights(highlight_type) WHERE highlight_type = 'on_fire';
 
 -- ============================================================================

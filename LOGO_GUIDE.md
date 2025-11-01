@@ -57,3 +57,4 @@ export function ChurchIcon({ className }: { className?: string }) {
 - Social media: 512x512px
 
 
+

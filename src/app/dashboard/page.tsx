@@ -1,23 +1,22 @@
 'use client'
 
-// Gathered Dashboard - Balanced UX for individuals and leaders
+// Gathered Dashboard - Youth Fellowship Focus
 
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Settings, LogOut, Bell, User, Users, BookOpen, Heart, MessageCircle, HelpCircle } from 'lucide-react'
+import { Settings, Bell } from 'lucide-react'
 import FeedbackModal from '@/components/FeedbackModal'
 import Logo from '@/components/Logo'
 import VerseCard from '@/components/VerseCard'
-import EventList from '@/components/EventList'
-import FellowshipGroups from '@/components/FellowshipGroups'
-import AnnouncementFeed from '@/components/AnnouncementFeed'
 import LeaderDashboard from '@/components/LeaderDashboard'
 import BottomNavigation from '@/components/BottomNavigation'
 import OnboardingFlow from '@/components/OnboardingFlow'
-import FellowshipDiscovery from '@/components/FellowshipDiscovery'
 import UserTypeSelector from '@/components/UserTypeSelector'
-import OnboardingTutorial from '@/components/OnboardingTutorial'
+import FellowshipActivityFeed from '@/components/FellowshipActivityFeed'
+import UpcomingEvents from '@/components/UpcomingEvents'
+import QuickActions from '@/components/QuickActions'
+import CommunityHighlight from '@/components/CommunityHighlight'
 
 export default function DashboardPage() {
   const { user, signOut, loading } = useAuth()
@@ -62,6 +61,9 @@ export default function DashboardPage() {
   const handleTabChange = (tab: string) => {
     // Handle navigation to different tabs
     switch (tab) {
+      case 'profile':
+        router.push('/profile')
+        break
       case 'events':
         router.push('/events')
         break
@@ -70,9 +72,6 @@ export default function DashboardPage() {
         break
       case 'fellowships':
         router.push('/fellowships')
-        break
-      case 'devotions':
-        router.push('/devotions')
         break
       default:
         // Stay on dashboard
@@ -108,8 +107,6 @@ export default function DashboardPage() {
     updated_at: new Date().toISOString(),
   }
 
-  const isLeader = userRole === 'Leader' || userRole === 'Church Admin'
-
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
       {/* Header */}
@@ -131,70 +128,17 @@ export default function DashboardPage() {
               </div>
             </div>
             
-                <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar max-w-[60vw] sm:max-w-none">
+                <div className="flex items-center space-x-2">
               <button className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'} relative`}>
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#F5C451] rounded-full"></div>
-              </button>
-              <button
-                onClick={() => router.push('/discover')}
-                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
-                title="Discover People"
-              >
-                <Users className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => router.push('/profile')}
-                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
-                title="My Profile"
-                data-tutorial="profile"
-              >
-                <User className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => router.push('/testimonies')}
-                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
-                title="Testimonies"
-                data-tutorial="testimonies"
-              >
-                <BookOpen className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => router.push('/prayers')}
-                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
-                title="Prayer Requests"
-                data-tutorial="prayers"
-              >
-                <Heart className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => router.push('/faq')}
-                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
-                title="Help & FAQ"
-              >
-                <HelpCircle className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setShowFeedbackModal(true)}
-                className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
-                title="Send Feedback"
-              >
-                <MessageCircle className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => setShowUserTypeSelector(true)}
                 className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="Settings"
-                data-tutorial="settings"
               >
                 <Settings className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleSignOut}
-                className={`flex items-center space-x-1 px-3 py-1 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'} transition-colors`}
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm">Sign Out</span>
               </button>
             </div>
           </div>
@@ -207,38 +151,46 @@ export default function DashboardPage() {
         {userType === 'leader' && (
           <>
             <LeaderDashboard userRole={userRole as 'Leader' | 'Church Admin'} />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
             <VerseCard />
-            <AnnouncementFeed />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
+            <FellowshipActivityFeed />
           </>
         )}
 
-        {/* For Disciples: Verse Card First */}
+        {/* For Youth: Simplified Focused Layout */}
         {userType === 'individual' && (
           <>
-            {/* Section A: Spiritual Touchpoint */}
+            {/* Section A: Personalized Greeting + Verse of the Day */}
+            <div className="text-center mb-4">
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Welcome back, {displayUser.user_metadata?.name || 'Friend'}! 🌿
+              </h2>
+              <p className="text-white/80">
+                Your fellowship community is here for you
+              </p>
+            </div>
+            
             <VerseCard />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
 
-            {/* Section B: Engagement & Community */}
-            <div className="space-y-6">
-              <FellowshipDiscovery />
-              <EventList />
-              <AnnouncementFeed />
+            {/* Section B: Your Fellowship Activity */}
+            <FellowshipActivityFeed />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
+
+            {/* Section C: Upcoming Events (Top 3) */}
+            <UpcomingEvents />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
+
+            {/* Section D: Quick Actions */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3">Quick Actions</h3>
+              <QuickActions />
             </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
 
-            {/* Section C removed: Stats moved to Profile page for shorter mobile layout */}
-
-            {/* Monetization Integration Placeholder */}
-            <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl p-4 text-[#0F1433]">
-              <div className="text-center">
-                <h3 className="font-bold text-lg mb-2">Ready to Steward?</h3>
-                <p className="text-sm mb-4 opacity-90">
-                  Start your own fellowship group and steward a community
-                </p>
-                <button className="bg-[#0F1433] text-[#F5C451] px-6 py-2 rounded-lg font-medium hover:bg-[#0F1433]/90 transition-colors">
-                  Become a Steward
-                </button>
-              </div>
-            </div>
+            {/* Section E: Community Highlight */}
+            <CommunityHighlight />
           </>
         )}
       </div>

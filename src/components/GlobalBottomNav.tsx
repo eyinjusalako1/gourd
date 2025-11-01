@@ -10,15 +10,18 @@ export default function GlobalBottomNav() {
 
   const getActiveTab = (): string => {
     if (!pathname) return 'home'
+    if (pathname.startsWith('/profile')) return 'profile'
     if (pathname.startsWith('/events')) return 'events'
     if (pathname.startsWith('/chat')) return 'chat'
     if (pathname.startsWith('/fellowships')) return 'fellowships'
-    if (pathname.startsWith('/devotions')) return 'devotions'
     return 'home'
   }
 
   const handleTabChange = (tab: string) => {
     switch (tab) {
+      case 'profile':
+        router.push('/profile')
+        break
       case 'events':
         router.push('/events')
         break
@@ -27,12 +30,6 @@ export default function GlobalBottomNav() {
         break
       case 'fellowships':
         router.push('/fellowships')
-        break
-      case 'devotions':
-        router.push('/devotions')
-        break
-      case 'more':
-        window.dispatchEvent(new Event('open-bottom-more'))
         break
       default:
         router.push('/dashboard')

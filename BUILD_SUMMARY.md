@@ -534,3 +534,4 @@ Gathered is a **fully functional Christian community platform** ready for beta t
 **Version:** 1.0.0 (MVP Beta)  
 **Build:** 3a760ec
 
+

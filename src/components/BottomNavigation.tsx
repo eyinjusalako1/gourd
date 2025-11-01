@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Home, Calendar, MessageCircle, Users, BookOpen, HelpCircle, MoreHorizontal } from 'lucide-react'
+import { Home, Calendar, MessageCircle, Users, User } from 'lucide-react'
 
 interface BottomNavProps {
   activeTab?: string
@@ -10,11 +10,10 @@ interface BottomNavProps {
 
 const tabs = [
   { id: 'home', label: 'Home', icon: Home },
-  { id: 'events', label: 'Events', icon: Calendar },
-  { id: 'chat', label: 'Chat', icon: MessageCircle },
   { id: 'fellowships', label: 'Fellowships', icon: Users },
-  { id: 'devotions', label: 'Devotions', icon: BookOpen },
-  { id: 'more', label: 'More', icon: MoreHorizontal }
+  { id: 'events', label: 'Events', icon: Calendar },
+  { id: 'chat', label: 'Messages', icon: MessageCircle },
+  { id: 'profile', label: 'Profile', icon: User }
 ]
 
 export default function BottomNavigation({ activeTab = 'home', onTabChange }: BottomNavProps) {

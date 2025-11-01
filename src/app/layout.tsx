@@ -6,7 +6,6 @@ import QuickActionsFab from '@/components/QuickActionsFab'
 import CommandPalette from '@/components/CommandPalette'
 import PageTransition from '@/components/PageTransition'
 import GlobalBottomNav from '@/components/GlobalBottomNav'
-import BottomMoreSheet from '@/components/BottomMoreSheet'
 import { TutorialProvider } from '@/lib/tutorial-context'
 import TutorialOverlay from '@/components/TutorialOverlay'
 
@@ -34,7 +33,6 @@ export default function RootLayout({
               <QuickActionsFab />
               <CommandPalette />
               <GlobalBottomNav />
-              <BottomMoreSheet />
               <TutorialOverlay />
             </div>
           </TutorialProvider>

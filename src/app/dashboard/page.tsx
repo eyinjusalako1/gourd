@@ -17,6 +17,11 @@ import FellowshipActivityFeed from '@/components/FellowshipActivityFeed'
 import UpcomingEvents from '@/components/UpcomingEvents'
 import QuickActions from '@/components/QuickActions'
 import CommunityHighlight from '@/components/CommunityHighlight'
+import FaithFlame from '@/components/FaithFlame'
+import EmberMeter, { EmberMeterCard } from '@/components/EmberMeter'
+import WeeklyChallenge from '@/components/WeeklyChallenge'
+import BlessingBadges from '@/components/BlessingBadges'
+import GamificationHighlight from '@/components/FellowshipHighlight'
 
 export default function DashboardPage() {
   const { user, signOut, loading } = useAuth()
@@ -169,27 +174,47 @@ export default function DashboardPage() {
               <p className="text-white/80">
                 Your fellowship community is here for you
               </p>
+              
+              {/* Faith Flame Display */}
+              <div className="flex justify-center mt-3">
+                <FaithFlame userId={user?.id || 'demo'} fellowshipId="1" size="md" showText={true} />
+              </div>
             </div>
             
             <VerseCard />
             <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
 
-            {/* Section B: Your Fellowship Activity */}
+            {/* Fellowship Highlight (if on fire) */}
+            <GamificationHighlight fellowshipId="1" />
+
+            {/* Section B: Unity Points Ember Meter */}
+            <EmberMeterCard fellowshipId="1" />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
+
+            {/* Section C: Your Fellowship Activity */}
             <FellowshipActivityFeed />
             <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
 
-            {/* Section C: Upcoming Events (Top 3) */}
+            {/* Section D: Weekly Challenges */}
+            <WeeklyChallenge fellowshipId="1" />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
+
+            {/* Section E: Upcoming Events (Top 3) */}
             <UpcomingEvents />
             <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
 
-            {/* Section D: Quick Actions */}
+            {/* Section F: Quick Actions */}
             <div>
               <h3 className="text-lg font-semibold text-white mb-3">Quick Actions</h3>
               <QuickActions />
             </div>
             <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
 
-            {/* Section E: Community Highlight */}
+            {/* Section G: Blessing Badges */}
+            <BlessingBadges userId={user?.id || 'demo'} fellowshipId="1" />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
+
+            {/* Section H: Community Highlight */}
             <CommunityHighlight />
           </>
         )}

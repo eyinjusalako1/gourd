@@ -1,5 +1,5 @@
 // Supabase Client Configuration
-// Mock client for now - to be replaced when Supabase is installed
+import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -9,22 +9,20 @@ export function isSupabaseConfigured(): boolean {
   return !!supabaseUrl && !!supabaseAnonKey && supabaseUrl !== 'your_supabase_url_here'
 }
 
-// Mock Supabase client until properly configured
-export const supabase = {
-  from: (table: string) => ({
-    select: () => ({ data: null, error: null }),
-    insert: () => ({ data: null, error: null }),
-    update: () => ({ data: null, error: null }),
-    delete: () => ({ data: null, error: null })
-  }),
-  channel: () => ({
-    on: () => ({ subscribe: () => {} })
-  })
-} as any
-
-// TODO: Replace with actual Supabase when installed
-// import { createClient } from '@supabase/supabase-js'
-// export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create Supabase client
+export const supabase = isSupabaseConfigured() 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : {
+      from: (table: string) => ({
+        select: () => ({ data: null, error: null }),
+        insert: () => ({ data: null, error: null }),
+        update: () => ({ data: null, error: null }),
+        delete: () => ({ data: null, error: null })
+      }),
+      channel: () => ({
+        on: () => ({ subscribe: () => {} })
+      })
+    } as any
 
 // Types matching our database schema
 export interface Database {

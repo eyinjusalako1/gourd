@@ -87,6 +87,14 @@ form select option {
   display: none; /* Chrome, Safari */
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
 /* Safe area helpers for devices with notches */
 .safe-bottom {
   padding-bottom: calc(env(safe-area-inset-bottom) + 0px);

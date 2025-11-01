@@ -80,13 +80,14 @@ export default function UpcomingEvents() {
           </button>
         </div>
         
-        <div className="space-y-3">
-          {sampleEvents.map(event => (
-            <div
-              key={event.id}
-              onClick={() => router.push(`/events/${event.id}`)}
-              className="bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30 hover:bg-white/10 transition-colors cursor-pointer"
-            >
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+          <div className="flex space-x-3 snap-x snap-mandatory" style={{ scrollSnapType: 'x mandatory' }}>
+            {sampleEvents.map(event => (
+              <div
+                key={event.id}
+                onClick={() => router.push(`/events/${event.id}`)}
+                className="flex-shrink-0 w-[280px] bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30 hover:bg-white/10 transition-colors cursor-pointer snap-center shadow-lg"
+              >
               <div className="flex items-start space-x-3">
                 <Calendar className="w-5 h-5 text-[#F5C451] mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -108,15 +109,25 @@ export default function UpcomingEvents() {
                         <span>Virtual Event</span>
                       </div>
                     )}
-                    <div className="flex items-center space-x-2 pt-1">
+                    <div className="flex items-center space-x-2 pt-1 mb-3">
                       <Users className="w-4 h-4 text-[#F5C451]" />
                       <span>{event.rsvpCount} RSVP&apos;d</span>
                     </div>
                   </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/events/${event.id}`)
+                    }}
+                    className="w-full mt-3 px-4 py-2 bg-[#F5C451] text-[#0F1433] text-sm font-semibold rounded-lg hover:bg-[#D4AF37] transition-colors"
+                  >
+                    RSVP
+                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

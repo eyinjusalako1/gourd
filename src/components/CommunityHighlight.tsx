@@ -22,6 +22,16 @@ const highlights = [
     type: 'encouragement',
     content: 'You are part of something beautiful—a community of believers.',
     author: 'The Gathered Community'
+  },
+  {
+    type: 'stats',
+    content: 'This week, 32 believers gathered in 5 fellowships.',
+    subtext: 'Keep building community together!'
+  },
+  {
+    type: 'stats',
+    content: 'Over 45 prayer requests shared this month.',
+    subtext: 'Prayer works! 🙏'
   }
 ]
 
@@ -30,23 +40,32 @@ export default function CommunityHighlight() {
   const highlight = highlights[currentIndex]
 
   return (
-    <div className="bg-gradient-to-r from-[#D4AF37]/20 to-[#F5C451]/20 border border-[#D4AF37]/40 rounded-xl p-4 text-center">
-      <div className="text-white">
+    <div className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl p-6 text-center shadow-lg">
+      <div className="text-[#0F1433]">
         {highlight.type === 'scripture' ? (
           <>
-            <p className="text-sm font-medium italic mb-1">
+            <p className="text-base font-medium italic mb-1">
               &ldquo;{highlight.content}&rdquo;
             </p>
-            <p className="text-xs text-white/80">
+            <p className="text-sm opacity-90">
               {highlight.reference}
+            </p>
+          </>
+        ) : highlight.type === 'stats' ? (
+          <>
+            <p className="text-base font-bold mb-1">
+              {highlight.content}
+            </p>
+            <p className="text-sm opacity-80">
+              {highlight.subtext}
             </p>
           </>
         ) : (
           <>
-            <p className="text-sm font-medium mb-1">
+            <p className="text-base font-medium mb-1">
               {highlight.content}
             </p>
-            <p className="text-xs text-white/60">
+            <p className="text-sm opacity-70">
               {highlight.author}
             </p>
           </>

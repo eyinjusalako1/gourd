@@ -144,27 +144,52 @@ export default function FellowshipActivityFeed() {
                     <span className="text-xs text-white/60">{activity.time}</span>
                   </div>
                   <h4 className="font-semibold text-white mb-1">{activity.title}</h4>
-                  <p className="text-white/80 text-sm line-clamp-2 mb-2">{activity.content}</p>
-                  <div className="flex items-center space-x-4 text-xs text-white/60">
-                    <span>{activity.author}</span>
-                    {activity.meta?.attendees && (
-                      <span className="flex items-center space-x-1">
-                        <Users className="w-3 h-3" />
-                        <span>{activity.meta.attendees}/{activity.meta.maxAttendees}</span>
-                      </span>
-                    )}
-                    {activity.meta?.prayerCount && (
-                      <span className="flex items-center space-x-1">
-                        <Heart className="w-3 h-3" />
-                        <span>{activity.meta.prayerCount} praying</span>
-                      </span>
-                    )}
-                    {activity.meta?.likes && (
-                      <span className="flex items-center space-x-1">
-                        <Heart className="w-3 h-3" />
-                        <span>{activity.meta.likes}</span>
-                      </span>
-                    )}
+                  <p className="text-white/80 text-sm line-clamp-2 mb-3">{activity.content}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3 text-xs text-white/60">
+                      <span>{activity.author}</span>
+                      {activity.meta?.attendees && (
+                        <span className="flex items-center space-x-1">
+                          <Users className="w-3 h-3" />
+                          <span>{activity.meta.attendees}/{activity.meta.maxAttendees}</span>
+                        </span>
+                      )}
+                      {activity.meta?.prayerCount && (
+                        <span className="flex items-center space-x-1">
+                          <Heart className="w-3 h-3" />
+                          <span>{activity.meta.prayerCount} praying</span>
+                        </span>
+                      )}
+                      {activity.meta?.likes && (
+                        <span className="flex items-center space-x-1">
+                          <Heart className="w-3 h-3" />
+                          <span>{activity.meta.likes}</span>
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {activity.type === 'event' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            router.push(`/events/${activity.id}`)
+                          }}
+                          className="px-3 py-1.5 bg-[#F5C451] text-[#0F1433] text-xs font-semibold rounded-lg hover:bg-[#D4AF37] transition-colors"
+                        >
+                          Join
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // Handle comment
+                        }}
+                        className="flex items-center space-x-1 px-3 py-1.5 bg-white/10 border border-[#D4AF37]/30 text-white text-xs font-medium rounded-lg hover:bg-white/20 transition-colors"
+                      >
+                        <MessageCircle className="w-3 h-3" />
+                        <span>3</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -59,7 +59,7 @@ export async function GET(
     }
 
     // Map to expected format
-    const formattedChallenges = challenges?.map(challenge => ({
+    const formattedChallenges = challenges?.map((challenge: any) => ({
       id: challenge.id,
       fellowshipId: challenge.fellowship_id,
       templateId: challenge.template_id,

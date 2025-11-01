@@ -22,18 +22,18 @@ export default function FaithFlame({ userId, fellowshipId, size = 'md', showText
 
   const fetchFaithFlame = async () => {
     try {
-      // Mock data for now - replace with actual API call
-      const mockStreak = 7
-      const mockIntensity: typeof intensity = mockStreak >= 14 ? 'on-fire' 
-        : mockStreak >= 7 ? 'burning'
-        : mockStreak >= 3 ? 'glow'
-        : mockStreak > 0 ? 'ember'
-        : 'out'
-      
-      setStreak(mockStreak)
-      setIntensity(mockIntensity)
+      const response = await fetch(`/api/gamification/faith-flame/${userId}/${fellowshipId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch faith flame')
+      }
+      const data = await response.json()
+      setStreak(data.currentStreak || 0)
+      setIntensity(data.intensity || 'out')
     } catch (error) {
       console.error('Error fetching faith flame:', error)
+      // Fallback to default values
+      setStreak(0)
+      setIntensity('out')
     } finally {
       setLoading(false)
     }

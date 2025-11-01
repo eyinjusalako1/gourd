@@ -26,18 +26,15 @@ export default function FellowshipHighlight({ fellowshipId }: FellowshipHighligh
 
   const fetchHighlight = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockHighlight: Highlight = {
-        id: '1',
-        type: 'on_fire',
-        title: 'This fellowship is on fire! 🔥',
-        message: 'Your fellowship stayed on fire this week with 127 Unity Points',
-        icon: '🔥',
-        pointsOrStreak: 85
+      const response = await fetch(`/api/gamification/highlights/${fellowshipId}?limit=1`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch highlights')
       }
-      setHighlight(mockHighlight)
+      const highlights = await response.json()
+      setHighlight(highlights && highlights.length > 0 ? highlights[0] : null)
     } catch (error) {
       console.error('Error fetching highlight:', error)
+      setHighlight(null)
     } finally {
       setLoading(false)
     }

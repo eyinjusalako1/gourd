@@ -32,34 +32,15 @@ export default function WeeklyChallenge({ fellowshipId, stewardView = false }: W
 
   const fetchChallenges = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockChallenges: Challenge[] = [
-        {
-          id: '1',
-          title: 'Share a Testimony',
-          description: 'Share one testimony this week with your fellowship',
-          category: 'testimony',
-          icon: '💬',
-          progress: 0,
-          threshold: 1,
-          isCompleted: false,
-          badgeReward: 'testimony_sharer'
-        },
-        {
-          id: '2',
-          title: 'Pray Together',
-          description: 'Join in a group prayer or prayer request this week',
-          category: 'prayer',
-          icon: '🙏',
-          progress: 1,
-          threshold: 1,
-          isCompleted: true,
-          badgeReward: 'prayer_warrior'
-        }
-      ]
-      setChallenges(mockChallenges)
+      const response = await fetch(`/api/gamification/challenges/${fellowshipId}/active`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch challenges')
+      }
+      const data: Challenge[] = await response.json()
+      setChallenges(data)
     } catch (error) {
       console.error('Error fetching challenges:', error)
+      setChallenges([])
     } finally {
       setLoading(false)
     }

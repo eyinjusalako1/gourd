@@ -32,48 +32,28 @@ export default function BlessingBadges({ userId, fellowshipId, compact = false }
 
   const fetchBadges = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockBadges: Badge[] = [
-        {
-          id: '1',
-          code: 'first_flame',
-          name: 'First Flame',
-          description: 'Light your first Faith Flame',
-          icon: '🕯️',
-          category: 'spiritual',
-          rarity: 'common',
-          glowColor: '#F5C451',
-          earnedAt: '2025-10-15',
-          isFeatured: false
-        },
-        {
-          id: '2',
-          code: 'week_warrior',
-          name: 'Week Warrior',
-          description: 'Keep your flame burning for 7 days',
-          icon: '🔥',
-          category: 'consistency',
-          rarity: 'uncommon',
-          glowColor: '#FF6B35',
-          earnedAt: '2025-10-20',
-          isFeatured: true
-        },
-        {
-          id: '3',
-          code: 'encourager',
-          name: 'Encourager',
-          description: 'Leave 10 encouraging comments',
-          icon: '💝',
-          category: 'community',
-          rarity: 'common',
-          glowColor: '#FFD700',
-          earnedAt: '2025-10-25',
-          isFeatured: false
-        }
-      ]
-      setBadges(mockBadges)
+      const response = await fetch(`/api/gamification/badges/${userId}${fellowshipId ? `?fellowshipId=${fellowshipId}` : ''}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch badges')
+      }
+      const userBadges = await response.json()
+      // Map to Badge format
+      const mappedBadges: Badge[] = userBadges.map((ub: any) => ({
+        id: ub.id || ub.code,
+        code: ub.code,
+        name: ub.name,
+        description: ub.description,
+        icon: ub.icon,
+        category: ub.category,
+        rarity: ub.rarity,
+        glowColor: ub.glowColor,
+        earnedAt: ub.earnedAt,
+        isFeatured: ub.isFeatured
+      }))
+      setBadges(mappedBadges)
     } catch (error) {
       console.error('Error fetching badges:', error)
+      setBadges([])
     } finally {
       setLoading(false)
     }

@@ -21,15 +21,20 @@ export default function EmberMeter({ fellowshipId, animate = true }: EmberMeterP
 
   const fetchEmberMeter = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockLevel = 85
-      const mockIsOnFire = mockLevel >= 80
-      
-      setLevel(mockLevel)
-      setIsOnFire(mockIsOnFire)
-      setWeeklyMessage(mockIsOnFire ? 'Your fellowship stayed on fire this week! 🔥' : null)
+      const response = await fetch(`/api/gamification/unity-points/${fellowshipId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch unity points')
+      }
+      const data = await response.json()
+      setLevel(data.emberMeterLevel || 0)
+      setIsOnFire(data.isOnFire || false)
+      setWeeklyMessage(data.weeklyMessage || null)
     } catch (error) {
       console.error('Error fetching ember meter:', error)
+      // Fallback to default values
+      setLevel(0)
+      setIsOnFire(false)
+      setWeeklyMessage(null)
     } finally {
       setLoading(false)
     }
@@ -129,11 +134,19 @@ export function EmberMeterCard({ fellowshipId }: { fellowshipId: string }) {
 
   const fetchMeter = async () => {
     try {
-      // Mock data
-      const mockLevel = 85
-      setLevel(mockLevel)
-      setIsOnFire(mockLevel >= 80)
-      setMessage(mockLevel >= 80 ? 'Your fellowship stayed on fire this week! 🔥' : null)
+      const response = await fetch(`/api/gamification/unity-points/${fellowshipId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch unity points')
+      }
+      const data = await response.json()
+      setLevel(data.emberMeterLevel || 0)
+      setIsOnFire(data.isOnFire || false)
+      setMessage(data.weeklyMessage || null)
+    } catch (error) {
+      console.error('Error fetching ember meter:', error)
+      setLevel(0)
+      setIsOnFire(false)
+      setMessage(null)
     } finally {
       setLoading(false)
     }

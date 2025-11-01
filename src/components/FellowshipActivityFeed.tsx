@@ -99,7 +99,7 @@ export default function FellowshipActivityFeed() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
         <div className="relative z-10 text-center">
           <Users className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-white mb-2">You're caught up! 🌿</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">You&apos;re caught up! 🌿</h3>
           <p className="text-white/60 text-sm">
             No updates yet? Start by sharing an encouragement with your fellowship.
           </p>

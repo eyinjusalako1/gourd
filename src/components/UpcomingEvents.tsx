@@ -110,7 +110,7 @@ export default function UpcomingEvents() {
                     )}
                     <div className="flex items-center space-x-2 pt-1">
                       <Users className="w-4 h-4 text-[#F5C451]" />
-                      <span>{event.rsvpCount} RSVP'd</span>
+                      <span>{event.rsvpCount} RSVP&apos;d</span>
                     </div>
                   </div>
                 </div>

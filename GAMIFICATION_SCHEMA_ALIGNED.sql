@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS unity_contributions (
   points INTEGER NOT NULL CHECK (points >= 0),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   
-  CONSTRAINT unique_user_contribution UNIQUE (unity_points_id, user_id, contribution_type, DATE(created_at))
+  CONSTRAINT unique_user_contribution UNIQUE (unity_points_id, user_id, contribution_type)
 );
 
 CREATE INDEX IF NOT EXISTS idx_unity_contributions_user ON unity_contributions(user_id, created_at DESC);

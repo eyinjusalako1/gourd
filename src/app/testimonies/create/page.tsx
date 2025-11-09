@@ -4,12 +4,15 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookOpen, Heart, ArrowLeft } from 'lucide-react'
 import Logo from '@/components/Logo'
+import { useAuth } from '@/lib/auth-context'
+import { gamificationService } from '@/lib/gamification-service'
 
 const categories = ['Community', 'Faith', 'Service', 'Healing', 'Growth', 'Encouragement', 'Other']
 const tags = ['faith', 'prayer', 'hope', 'love', 'community', 'healing', 'growth', 'service', 'friendship', 'encouragement']
 
 export default function CreateTestimonyPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -65,6 +68,16 @@ export default function CreateTestimonyPage() {
 
     // Dispatch storage event to notify other components
     window.dispatchEvent(new Event('storage'))
+
+    // Track activity for gamification
+    try {
+      const userId = user?.id || 'demo'
+      const fellowshipId = formData.fellowship || '1' // Use selected fellowship or default
+      await gamificationService.trackDailyActivity(userId, fellowshipId, 'testimony')
+    } catch (error) {
+      console.error('Failed to track testimony activity:', error)
+      // Don't block submission if tracking fails
+    }
 
     // Simulate API call
     setTimeout(() => {

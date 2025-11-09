@@ -59,3 +59,5 @@ Test at: https://your-vercel-url.vercel.app
 **Need help?** Check `DEPLOY_SUPABASE_DATABASE.md` for detailed troubleshooting.
 
 
+
+

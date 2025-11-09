@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Home, Calendar, MessageCircle, Users, User } from 'lucide-react'
 
 interface BottomNavProps {
@@ -19,15 +19,19 @@ const tabs = [
 export default function BottomNavigation({ activeTab = 'home', onTabChange }: BottomNavProps) {
   const [currentTab, setCurrentTab] = useState(activeTab)
 
+  useEffect(() => {
+    setCurrentTab(activeTab)
+  }, [activeTab])
+
   const handleTabClick = (tabId: string) => {
     setCurrentTab(tabId)
     onTabChange?.(tabId)
   }
 
   return (
-    <div className="fixed bottom-0 w-full bg-[#0F1433] border-t border-[#D4AF37]/30 z-50">
-      <div className="max-w-md mx-auto">
-        <div className="flex justify-around items-center py-2">
+    <div className="fixed bottom-0 w-full bg-[#0F1433]/95 backdrop-blur border-t border-[#D4AF37]/30 z-[6000]">
+      <div className="max-w-md mx-auto px-2">
+        <div className="flex justify-around items-center py-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.25rem)]">
           {tabs.map(tab => {
             const Icon = tab.icon
             const isActive = currentTab === tab.id
@@ -36,8 +40,8 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
               <button
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
-              data-tutorial={`tab-${tab.id}`}
-                className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${
+                data-tutorial={`tab-${tab.id}`}
+                className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 min-h-[56px] min-w-[64px] ${
                   isActive
                     ? 'text-[#F5C451]'
                     : 'text-white/60 hover:text-white'

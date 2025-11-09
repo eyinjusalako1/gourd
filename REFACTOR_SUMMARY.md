@@ -244,3 +244,5 @@ The MVP is ready for beta testing with youth groups! 🌿
 **Questions or issues?** Check the BUILD_SUMMARY.md and FEATURE_ROADMAP.md for additional context.
 
 
+
+

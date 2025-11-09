@@ -4,10 +4,14 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, Plus, ArrowLeft } from 'lucide-react'
 import Logo from '@/components/Logo'
+import { useAuth } from '@/lib/auth-context'
 
 // Simple fellowships listing page - MVP ready
 export default function FellowshipsPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  const role = user?.user_metadata?.role
+  const isSteward = role === 'Leader' || role === 'Church Admin'
 
   const mockFellowships = [
     {
@@ -44,12 +48,16 @@ export default function FellowshipsPage() {
               <Logo size="md" showText={false} />
               <h1 className="text-xl font-bold text-white">Fellowships</h1>
             </div>
-            <button
-              onClick={() => router.push('/fellowships/create')}
-              className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37]"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+            {isSteward ? (
+              <button
+                onClick={() => router.push('/fellowships/create')}
+                className="bg-[#F5C451] text-[#0F1433] p-2 rounded-lg hover:bg-[#D4AF37]"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            ) : (
+              <div className="w-10 h-10" />
+            )}
           </div>
         </div>
       </div>
@@ -59,7 +67,11 @@ export default function FellowshipsPage() {
         <div className="text-center mb-6">
           <Users className="w-16 h-16 text-[#F5C451]/20 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">Explore Fellowships</h2>
-          <p className="text-white/80">Discover communities near you or create your own</p>
+          <p className="text-white/80">
+            {isSteward
+              ? 'Discover communities near you or create your own'
+              : 'Discover communities near you and request to join'}
+          </p>
         </div>
 
         <div className="space-y-4">
@@ -86,14 +98,16 @@ export default function FellowshipsPage() {
           ))}
         </div>
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => router.push('/fellowships/create')}
-            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] py-3 rounded-xl font-bold hover:from-[#F5C451] hover:to-[#D4AF37] transition-all"
-          >
-            Create Your Own Fellowship
-          </button>
-        </div>
+        {isSteward && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => router.push('/fellowships/create')}
+              className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] py-3 rounded-xl font-bold hover:from-[#F5C451] hover:to-[#D4AF37] transition-all"
+            >
+              Create Your Own Fellowship
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

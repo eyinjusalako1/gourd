@@ -6,6 +6,7 @@ export interface User {
     avatar_url?: string
     denomination?: string
     location?: string
+    role?: 'Member' | 'Leader' | 'Church Admin'
   }
   created_at: string
   updated_at: string

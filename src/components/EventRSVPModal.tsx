@@ -270,3 +270,5 @@ export default function EventRSVPModal({ event, isOpen, onClose, onRSVP, current
   )
 }
 
+
+

@@ -8,6 +8,9 @@ import PageTransition from '@/components/PageTransition'
 import GlobalBottomNav from '@/components/GlobalBottomNav'
 import { TutorialProvider } from '@/lib/tutorial-context'
 import TutorialOverlay from '@/components/TutorialOverlay'
+import { ViewportHeightObserver } from '@/components/ViewportHeightObserver'
+import { ToastProvider } from '@/components/ui/Toast'
+import { FocusScrollManager } from '@/components/FocusScrollManager'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,15 +29,19 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <TutorialProvider>
-            <div className="min-h-screen bg-[#0F1433] safe-bottom">
-              <PageTransition>
-                {children}
-              </PageTransition>
-              <QuickActionsFab />
-              <CommandPalette />
-              <GlobalBottomNav />
-              <TutorialOverlay />
-            </div>
+            <ToastProvider>
+              <div className="min-h-screen bg-[#0F1433] safe-bottom">
+                <ViewportHeightObserver />
+                <FocusScrollManager />
+                <PageTransition>
+                  {children}
+                </PageTransition>
+                <QuickActionsFab />
+                <CommandPalette />
+                <GlobalBottomNav />
+                <TutorialOverlay />
+              </div>
+            </ToastProvider>
           </TutorialProvider>
         </AuthProvider>
       </body>

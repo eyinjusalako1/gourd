@@ -109,15 +109,39 @@ export default function CreateEventPage() {
       await new Promise(resolve => setTimeout(resolve, 2000))
       
       // Save event to localStorage
+      const startDate = new Date(`${formData.date}T${formData.startTime}`)
+      const endDate = new Date(`${formData.date}T${formData.endTime}`)
+
       const newEvent = {
         id: Date.now().toString(),
-        ...formData,
-        start_time: new Date(`${formData.date}T${formData.startTime}`).toISOString(),
-        end_time: new Date(`${formData.date}T${formData.endTime}`).toISOString(),
+        title: formData.title,
+        description: formData.description,
+        fellowship: formData.fellowship,
+        category: formData.category,
+        date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        location: formData.location,
+        isOnline: formData.isOnline,
+        virtualPlatform: formData.virtualPlatform,
+        virtualLink: formData.virtualLink,
+        maxAttendees: formData.maxAttendees,
+        requiresRsvp: formData.requiresRsvp,
+        allowGuests: formData.allowGuests,
+        maxGuests: formData.maxGuests,
+        tags: formData.tags,
+        start_time: startDate.toISOString(),
+        end_time: endDate.toISOString(),
         event_type: formData.category.toLowerCase().replace(' ', '_'),
         is_virtual: formData.isOnline,
         virtual_platform: formData.virtualPlatform,
-        rsvp_count: 0
+        requires_rsvp: formData.requiresRsvp,
+        allow_guests: formData.allowGuests,
+        max_attendees: formData.maxAttendees,
+        rsvp_count: 0,
+        created_by: 'demo-steward',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
       
       const existing = localStorage.getItem('gathered_events')

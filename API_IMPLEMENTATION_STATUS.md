@@ -379,3 +379,5 @@ Simply configure Supabase credentials to switch modes automatically!
 **The backend is ready! Just need Supabase configuration to go live.** 🚀
 
 
+
+

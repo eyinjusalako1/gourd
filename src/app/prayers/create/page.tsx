@@ -4,11 +4,14 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Heart, ArrowLeft, Check } from 'lucide-react'
 import Logo from '@/components/Logo'
+import { useAuth } from '@/lib/auth-context'
+import { gamificationService } from '@/lib/gamification-service'
 
 const categories = ['Healing', 'Provision', 'Relationships', 'Faith', 'Family', 'Work', 'Other']
 
 export default function CreatePrayerPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -49,6 +52,16 @@ export default function CreatePrayerPage() {
 
     // Dispatch storage event to notify other components
     window.dispatchEvent(new Event('storage'))
+
+    // Track activity for gamification
+    try {
+      const userId = user?.id || 'demo'
+      const fellowshipId = '1' // TODO: Get from user's current fellowship
+      await gamificationService.trackDailyActivity(userId, fellowshipId, 'prayer')
+    } catch (error) {
+      console.error('Failed to track prayer activity:', error)
+      // Don't block submission if tracking fails
+    }
 
     // Simulate API call
     setTimeout(() => {

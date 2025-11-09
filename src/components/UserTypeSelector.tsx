@@ -14,7 +14,6 @@ export default function UserTypeSelector({ currentType, onTypeChange, onClose }:
 
   const handleSave = () => {
     onTypeChange(selectedType)
-    localStorage.setItem('gathered_user_type', selectedType)
     onClose()
   }
 

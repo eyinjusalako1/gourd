@@ -15,9 +15,12 @@ import {
   Eye,
   CheckCircle
 } from 'lucide-react'
+import { useAuth } from '@/lib/auth-context'
+import { gamificationService } from '@/lib/gamification-service'
 
 export default function CreateAnnouncementPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
@@ -86,6 +89,16 @@ export default function CreateAnnouncementPage() {
     try {
       // In real app, this would make an API call
       await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Track activity for gamification
+      try {
+        const userId = user?.id || 'demo'
+        const fellowshipId = formData.fellowship || '1'
+        await gamificationService.trackDailyActivity(userId, fellowshipId, 'post')
+      } catch (error) {
+        console.error('Failed to track announcement activity:', error)
+        // Don't block submission if tracking fails
+      }
       
       // Redirect back to dashboard
       router.push('/dashboard')

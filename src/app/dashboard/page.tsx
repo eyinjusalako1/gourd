@@ -24,7 +24,7 @@ import BlessingBadges from '@/components/BlessingBadges'
 import GamificationHighlight from '@/components/FellowshipHighlight'
 
 export default function DashboardPage() {
-  const { user, signOut, loading } = useAuth()
+  const { user, signOut, loading, setMockUserType, profile } = useAuth()
   const router = useRouter()
   const [userRole, setUserRole] = useState<'Member' | 'Leader' | 'Church Admin'>('Member')
   const [userType, setUserType] = useState<'individual' | 'leader' | null>(null)
@@ -56,11 +56,13 @@ export default function DashboardPage() {
     setUserType(type)
     setShowOnboarding(false)
     localStorage.setItem('gathered_user_type', type)
+    setMockUserType(type)
   }
 
   const handleUserTypeChange = (type: 'individual' | 'leader') => {
     setUserType(type)
     setShowUserTypeSelector(false)
+    setMockUserType(type)
   }
 
   const handleTabChange = (tab: string) => {
@@ -101,16 +103,25 @@ export default function DashboardPage() {
   }
 
   // Show demo dashboard for visitors
-  const displayUser = user || {
-    id: 'demo',
-    email: 'demo@gathered.com',
-    user_metadata: {
-      name: 'Demo User',
-      role: 'Member'
-    },
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
+  const displayUser = user
+    ? {
+        ...user,
+        user_metadata: {
+          ...user.user_metadata,
+          name: profile?.name || user.user_metadata?.name || 'Demo User',
+          role: user.user_metadata?.role || 'Member'
+        }
+      }
+    : {
+        id: 'demo',
+        email: 'demo@gathered.com',
+        user_metadata: {
+          name: profile?.name || 'Demo User',
+          role: 'Member'
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
@@ -25,73 +25,77 @@ import {
 } from 'lucide-react'
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, profile, updateProfile } = useAuth()
   const router = useRouter()
   const [isOwnProfile, setIsOwnProfile] = useState(true)
   const [isFollowing, setIsFollowing] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [profileData, setProfileData] = useState({
-    id: user?.id || 'demo-user',
-    name: user?.user_metadata?.name || 'Demo User',
-    email: user?.email || 'demo@gathered.com',
-    bio: 'Passionate about building Christian community and growing in faith together. Love connecting with fellow believers and sharing testimonies.',
-    location: 'San Francisco, CA',
-    denomination: 'Non-denominational',
-    joinDate: 'January 2024',
-    profileImage: null,
-    coverImage: null,
-    interests: ['Bible Study', 'Prayer', 'Community Service', 'Worship'],
-    stats: {
-      eventsAttended: 24,
-      fellowshipsJoined: 3,
-      friends: 47,
-      testimoniesShared: 8
+
+  const profileStats = {
+    eventsAttended: 24,
+    fellowshipsJoined: 3,
+    friends: 47,
+    testimoniesShared: 8,
+  }
+
+  const recentActivity = [
+    {
+      id: '1',
+      type: 'event',
+      action: 'attended',
+      title: 'Sunday Morning Worship',
+      date: '2024-01-28',
+      icon: Calendar
     },
-    recentActivity: [
-      {
-        id: '1',
-        type: 'event',
-        action: 'attended',
-        title: 'Sunday Morning Worship',
-        date: '2024-01-28',
-        icon: Calendar
-      },
-      {
-        id: '2',
-        type: 'fellowship',
-        action: 'joined',
-        title: 'Young Adults Bible Study',
-        date: '2024-01-25',
-        icon: Users
-      },
-      {
-        id: '3',
-        type: 'testimony',
-        action: 'shared',
-        title: 'God\'s Faithfulness in Difficult Times',
-        date: '2024-01-22',
-        icon: Heart
-      }
-    ],
-    testimonies: [
-      {
-        id: '1',
-        title: 'God\'s Faithfulness in Difficult Times',
-        excerpt: 'Last year was incredibly challenging, but through prayer and community, I experienced God\'s faithfulness in ways I never imagined...',
-        date: '2024-01-22',
-        likes: 12,
-        comments: 3
-      },
-      {
-        id: '2',
-        title: 'Finding Purpose Through Service',
-        excerpt: 'Volunteering at the local shelter opened my eyes to how God uses us to be His hands and feet in the world...',
-        date: '2024-01-15',
-        likes: 8,
-        comments: 1
-      }
-    ]
-  })
+    {
+      id: '2',
+      type: 'fellowship',
+      action: 'joined',
+      title: 'Young Adults Bible Study',
+      date: '2024-01-25',
+      icon: Users
+    },
+    {
+      id: '3',
+      type: 'testimony',
+      action: 'shared',
+      title: 'God\'s Faithfulness in Difficult Times',
+      date: '2024-01-22',
+      icon: Heart
+    }
+  ]
+
+  const testimonies = [
+    {
+      id: '1',
+      title: 'God\'s Faithfulness in Difficult Times',
+      excerpt: 'Last year was incredibly challenging, but through prayer and community, I experienced God\'s faithfulness in ways I never imagined...',
+      date: '2024-01-22',
+      likes: 12,
+      comments: 3
+    },
+    {
+      id: '2',
+      title: 'Finding Purpose Through Service',
+      excerpt: 'Volunteering at the local shelter opened my eyes to how God uses us to be His hands and feet in the world...',
+      date: '2024-01-15',
+      likes: 8,
+      comments: 1
+    }
+  ]
+
+  const profileDisplay = useMemo(() => ({
+    id: user?.id || 'demo-user',
+    name: profile?.name || user?.user_metadata?.name || 'Demo User',
+    email: user?.email || 'demo@gathered.com',
+    bio: profile?.bio || 'Passionate about building Christian community and growing in faith together. Love connecting with fellow believers and sharing testimonies.',
+    location: profile?.location || 'San Francisco, CA',
+    denomination: profile?.denomination || 'Non-denominational',
+    joinDate: profile?.joinDate || 'January 2024',
+    avatarUrl: profile?.avatarUrl,
+    coverImageUrl: profile?.coverImageUrl,
+    interests: profile?.interests || ['Bible Study', 'Prayer', 'Community Service', 'Worship'],
+  }), [profile, user])
 
   const handleFollow = () => {
     setIsFollowing(!isFollowing)
@@ -108,11 +112,7 @@ export default function ProfilePage() {
   }
 
   const handleSaveProfile = (updatedData: any) => {
-    setProfileData(prev => ({
-      ...prev,
-      ...updatedData
-    }))
-    // In real app, this would make an API call to save the profile
+    updateProfile(updatedData)
   }
 
   return (
@@ -159,9 +159,20 @@ export default function ProfilePage() {
       <div className="max-w-md mx-auto">
         {/* Cover Photo */}
         <div className="relative h-32 bg-gradient-to-r from-[#D4AF37] to-[#F5C451]">
+          {profileDisplay.coverImageUrl ? (
+            <img
+              src={profileDisplay.coverImageUrl}
+              alt={`${profileDisplay.name} cover`}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : null
+          }
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0F1433]/50"></div>
           {isOwnProfile && (
-            <button className="absolute top-4 right-4 p-2 bg-black/20 rounded-full text-white hover:bg-black/40 transition-colors">
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="absolute top-4 right-4 p-2 bg-black/20 rounded-full text-white hover:bg-black/40 transition-colors"
+            >
               <Camera className="w-4 h-4" />
             </button>
           )}
@@ -172,11 +183,19 @@ export default function ProfilePage() {
           {/* Profile Picture */}
           <div className="flex items-end space-x-4 mb-4">
             <div className="relative">
-              <div className="w-24 h-24 bg-[#F5C451] rounded-full flex items-center justify-center border-4 border-[#0F1433]">
-                <span className="text-2xl font-bold text-[#0F1433]">
-                  {profileData.name.charAt(0)}
-                </span>
-              </div>
+              {profileDisplay.avatarUrl ? (
+                <img
+                  src={profileDisplay.avatarUrl}
+                  alt={profileDisplay.name}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-[#0F1433]"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-[#F5C451] rounded-full flex items-center justify-center border-4 border-[#0F1433]">
+                  <span className="text-2xl font-bold text-[#0F1433]">
+                    {profileDisplay.name.charAt(0)}
+                  </span>
+                </div>
+              )}
               {isOwnProfile && (
                 <button className="absolute -bottom-1 -right-1 p-1 bg-[#0F1433] border-2 border-[#F5C451] rounded-full text-[#F5C451] hover:bg-[#0F1433]/90 transition-colors">
                   <Camera className="w-3 h-3" />
@@ -208,23 +227,23 @@ export default function ProfilePage() {
 
           {/* Basic Info */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white mb-1">{profileData.name}</h1>
-            <p className="text-white/80 mb-2">{profileData.bio}</p>
+            <h1 className="text-2xl font-bold text-white mb-1">{profileDisplay.name}</h1>
+            <p className="text-white/80 mb-2">{profileDisplay.bio}</p>
             
             <div className="flex items-center space-x-4 text-sm text-white/70 mb-3">
               <div className="flex items-center space-x-1">
                 <MapPin className="w-4 h-4 text-[#F5C451]" />
-                <span>{profileData.location}</span>
+                <span>{profileDisplay.location}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <BookOpen className="w-4 h-4 text-[#F5C451]" />
-                <span>{profileData.denomination}</span>
+                <span>{profileDisplay.denomination}</span>
               </div>
             </div>
 
             <div className="flex items-center space-x-1 text-sm text-white/60">
               <Clock className="w-4 h-4" />
-              <span>Joined {profileData.joinDate}</span>
+              <span>Joined {profileDisplay.joinDate}</span>
             </div>
           </div>
 
@@ -233,19 +252,19 @@ export default function ProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
             <div className="grid grid-cols-2 gap-4 relative z-10">
               <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileData.stats.eventsAttended}</div>
+                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.eventsAttended}</div>
                 <div className="text-sm text-white/80">Events Attended</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileData.stats.fellowshipsJoined}</div>
+                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.fellowshipsJoined}</div>
                 <div className="text-sm text-white/80">Fellowships</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileData.stats.friends}</div>
+                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.friends}</div>
                 <div className="text-sm text-white/80">Friends</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileData.stats.testimoniesShared}</div>
+                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.testimoniesShared}</div>
                 <div className="text-sm text-white/80">Testimonies</div>
               </div>
             </div>
@@ -259,7 +278,7 @@ export default function ProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
             <h3 className="text-lg font-semibold text-white mb-3 relative z-10">Interests</h3>
             <div className="flex flex-wrap gap-2 relative z-10">
-              {profileData.interests.map((interest, index) => (
+              {profileDisplay.interests.map((interest, index) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-white/10 text-white/80 text-sm rounded-full border border-[#D4AF37]/30"
@@ -275,7 +294,7 @@ export default function ProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
             <h3 className="text-lg font-semibold text-white mb-3 relative z-10">Recent Activity</h3>
             <div className="space-y-3 relative z-10">
-              {profileData.recentActivity.map((activity) => {
+              {recentActivity.map((activity) => {
                 const IconComponent = activity.icon
                 return (
                   <div key={activity.id} className="flex items-center space-x-3">
@@ -310,7 +329,7 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="space-y-4 relative z-10">
-              {profileData.testimonies.map((testimony) => (
+              {testimonies.map((testimony) => (
                 <div key={testimony.id} className="bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30">
                   <h4 className="font-semibold text-white mb-2">{testimony.title}</h4>
                   <p className="text-white/80 text-sm mb-3 leading-relaxed">{testimony.excerpt}</p>
@@ -339,7 +358,7 @@ export default function ProfilePage() {
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
         onSave={handleSaveProfile}
-        currentProfile={profileData}
+        currentProfile={profileDisplay}
       />
     </div>
   )

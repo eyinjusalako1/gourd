@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Heart, MessageSquare, Calendar } from 'lucide-react'
+import { Heart, MessageSquare, Calendar } from 'lucide-react'
+import { useAuth } from '@/lib/auth-context'
 
 interface QuickAction {
   id: string
@@ -13,33 +14,43 @@ interface QuickAction {
 
 export default function QuickActions() {
   const router = useRouter()
+  const { user } = useAuth()
+  const role = user?.user_metadata?.role
+  const isSteward = role === 'Leader' || role === 'Church Admin'
 
-  const actions: QuickAction[] = [
-    {
-      id: 'create-event',
-      label: 'Create Event',
-      icon: Calendar,
-      onClick: () => router.push('/events/create')
-    },
-    {
-      id: 'share-encouragement',
-      label: 'Share Encouragement',
-      icon: Heart,
-      onClick: () => {
-        // Navigate to fellowship first, or show post modal
-        router.push('/fellowships')
-      }
-    },
-    {
-      id: 'request-prayer',
-      label: 'Request Prayer',
-      icon: MessageSquare,
-      onClick: () => {
-        // Navigate to prayer request creation
-        router.push('/fellowships')
-      }
+  const actions: QuickAction[] = useMemo(() => {
+    const items: QuickAction[] = []
+
+    if (isSteward) {
+      items.push({
+        id: 'create-event',
+        label: 'Create Event',
+        icon: Calendar,
+        onClick: () => router.push('/events/create')
+      })
     }
-  ]
+
+    items.push(
+      {
+        id: 'share-encouragement',
+        label: 'Share Encouragement',
+        icon: Heart,
+        onClick: () => {
+          router.push('/fellowships')
+        }
+      },
+      {
+        id: 'request-prayer',
+        label: 'Request Prayer',
+        icon: MessageSquare,
+        onClick: () => {
+          router.push('/prayers/create')
+        }
+      }
+    )
+
+    return items
+  }, [isSteward, router])
 
   return (
     <div className="grid grid-cols-3 gap-3">
@@ -61,4 +72,6 @@ export default function QuickActions() {
     </div>
   )
 }
+
+
 

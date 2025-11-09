@@ -1,23 +1,31 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Users, Calendar, Megaphone, BookOpen, Heart, MessageCircle, FileText, HelpCircle } from 'lucide-react'
+import { useAuth } from '@/lib/auth-context'
 
 export default function QuickActionsFab() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const { user } = useAuth()
+  const role = user?.user_metadata?.role
+  const isSteward = role === 'Leader' || role === 'Church Admin'
 
-  const actions = [
-    { id: 'fellowship', label: 'Create Fellowship', icon: Users, href: '/fellowships/create' },
-    { id: 'event', label: 'Schedule Event', icon: Calendar, href: '/events/create' },
-    { id: 'announcement', label: 'Send Announcement', icon: Megaphone, href: '/announcements/create' },
-    { id: 'devotional', label: 'Create Devotional', icon: BookOpen, href: '/devotions/create' },
-    { id: 'prayer', label: 'Share Prayer Request', icon: Heart, href: '/prayers/create' },
-    { id: 'testimony', label: 'Share Testimony', icon: FileText, href: '/testimonies/create' },
-    { id: 'feedback', label: 'Send Feedback', icon: MessageCircle, href: '/faq' },
-    { id: 'help', label: 'Help & FAQ', icon: HelpCircle, href: '/faq' },
-  ]
+  const actions = useMemo(() => {
+    const base = [
+      { id: 'fellowship', label: 'Create Fellowship', icon: Users, href: '/fellowships/create', showFor: 'steward' as const },
+      { id: 'event', label: 'Schedule Event', icon: Calendar, href: '/events/create', showFor: 'steward' as const },
+      { id: 'announcement', label: 'Send Announcement', icon: Megaphone, href: '/announcements/create', showFor: 'steward' as const },
+      { id: 'devotional', label: 'Create Devotional', icon: BookOpen, href: '/devotions/create', showFor: 'steward' as const },
+      { id: 'prayer', label: 'Share Prayer Request', icon: Heart, href: '/prayers/create', showFor: 'all' as const },
+      { id: 'testimony', label: 'Share Testimony', icon: FileText, href: '/testimonies/create', showFor: 'all' as const },
+      { id: 'feedback', label: 'Send Feedback', icon: MessageCircle, href: '/faq', showFor: 'all' as const },
+      { id: 'help', label: 'Help & FAQ', icon: HelpCircle, href: '/faq', showFor: 'all' as const },
+    ]
+
+    return base.filter(action => action.showFor === 'all' || isSteward)
+  }, [isSteward])
 
   const handleAction = (href: string) => {
     setOpen(false)
@@ -60,6 +68,8 @@ export default function QuickActionsFab() {
     </div>
   )
 }
+
+
 
 
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { BookOpen, Heart, Share2, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Verse {
@@ -33,6 +34,7 @@ const sampleVerses: Verse[] = [
 ]
 
 export default function VerseCard() {
+  const router = useRouter()
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
   const [isShared, setIsShared] = useState(false)
@@ -59,8 +61,11 @@ export default function VerseCard() {
   }
 
   const startPrayer = () => {
-    // Navigate to prayer feed or open prayer modal
-    console.log('Starting prayer session')
+    try {
+      router.push('/prayers/create')
+    } catch (error) {
+      console.error('Failed to navigate to prayer request form', error)
+    }
   }
 
   return (

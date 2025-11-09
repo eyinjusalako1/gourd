@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { 
   X, 
   Camera, 
@@ -30,11 +30,27 @@ export default function ProfileEditModal({
     bio: currentProfile?.bio || '',
     location: currentProfile?.location || '',
     denomination: currentProfile?.denomination || '',
-    interests: currentProfile?.interests || []
+    interests: currentProfile?.interests || [],
+    avatarUrl: currentProfile?.avatarUrl || '',
+    coverImageUrl: currentProfile?.coverImageUrl || ''
   })
 
   const [newInterest, setNewInterest] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement | null>(null)
+  const coverInputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    setFormData({
+      name: currentProfile?.name || '',
+      bio: currentProfile?.bio || '',
+      location: currentProfile?.location || '',
+      denomination: currentProfile?.denomination || '',
+      interests: currentProfile?.interests || [],
+      avatarUrl: currentProfile?.avatarUrl || '',
+      coverImageUrl: currentProfile?.coverImageUrl || ''
+    })
+  }, [currentProfile])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -100,19 +116,96 @@ export default function ProfileEditModal({
           {/* Profile Picture */}
           <div className="text-center">
             <div className="relative inline-block">
-              <div className="w-20 h-20 bg-[#F5C451] rounded-full flex items-center justify-center border-4 border-[#0F1433] mx-auto mb-3">
-                <span className="text-xl font-bold text-[#0F1433]">
-                  {formData.name.charAt(0) || 'U'}
-                </span>
-              </div>
-              <button className="absolute -bottom-1 -right-1 p-1 bg-[#0F1433] border-2 border-[#F5C451] rounded-full text-[#F5C451] hover:bg-[#0F1433]/90 transition-colors">
+              {formData.avatarUrl ? (
+                <img
+                  src={formData.avatarUrl}
+                  alt={formData.name || 'Profile'}
+                  className="w-20 h-20 rounded-full object-cover border-4 border-[#0F1433] mx-auto mb-3"
+                />
+              ) : (
+                <div className="w-20 h-20 bg-[#F5C451] rounded-full flex items-center justify-center border-4 border-[#0F1433] mx-auto mb-3">
+                  <span className="text-xl font-bold text-[#0F1433]">
+                    {formData.name.charAt(0) || 'U'}
+                  </span>
+                </div>
+              )}
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                className="absolute -bottom-1 -right-1 p-1 bg-[#0F1433] border-2 border-[#F5C451] rounded-full text-[#F5C451] hover:bg-[#0F1433]/90 transition-colors"
+              >
                 <Camera className="w-3 h-3" />
               </button>
             </div>
-            <button className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors">
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = () => {
+                  setFormData(prev => ({
+                    ...prev,
+                    avatarUrl: typeof reader.result === 'string' ? reader.result : prev.avatarUrl
+                  }))
+                }
+                reader.readAsDataURL(file)
+              }}
+            />
+            <button
+              onClick={() => avatarInputRef.current?.click()}
+              className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors"
+            >
               Change Photo
             </button>
           </div>
+          {/* Cover Photo */}
+          <div className="text-center">
+            <div className="relative">
+              {formData.coverImageUrl ? (
+                <img
+                  src={formData.coverImageUrl}
+                  alt="Cover"
+                  className="w-full h-24 object-cover rounded-xl border border-[#D4AF37]/40 mb-2"
+                />
+              ) : (
+                <div className="w-full h-24 bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-xl mb-2"></div>
+              )}
+              <button
+                onClick={() => coverInputRef.current?.click()}
+                className="absolute top-2 right-2 p-2 bg-[#0F1433]/70 rounded-full text-[#F5C451] hover:bg-[#0F1433]/90 transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+            </div>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = () => {
+                  setFormData(prev => ({
+                    ...prev,
+                    coverImageUrl: typeof reader.result === 'string' ? reader.result : prev.coverImageUrl
+                  }))
+                }
+                reader.readAsDataURL(file)
+              }}
+            />
+            <button
+              onClick={() => coverInputRef.current?.click()}
+              className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors"
+            >
+              Change Cover Photo
+            </button>
+          </div>
+
 
           {/* Name */}
           <div>

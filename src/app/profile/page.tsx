@@ -323,7 +323,11 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between mb-3 relative z-10">
               <h3 className="text-lg font-semibold text-white">Testimonies</h3>
               {isOwnProfile && (
-                <button className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => router.push('/testimonies/create')}
+                  className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] rounded-lg px-2 py-1"
+                >
                   Share New
                 </button>
               )}

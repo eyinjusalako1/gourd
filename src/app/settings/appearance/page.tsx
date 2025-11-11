@@ -76,7 +76,7 @@ export default function AppearanceSettingsPage() {
         <section className="space-y-2 text-white/60 text-xs">
           <p>
             These accessibility preferences sync with your profile. If you ever clear your cache or sign in on another device,
-            we'll reapply them automatically.
+            we&#39;ll reapply them automatically.
           </p>
         </section>
       </div>

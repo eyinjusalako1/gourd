@@ -110,7 +110,7 @@ export async function upsertUserProfile(userId: string, payload: UserProfileUpda
   if (isSupabaseConfigured()) {
     const { data, error } = await supabase
       .from('user_profiles')
-      .upsert(nextPayload, { on conflict: 'id' })
+      .upsert(nextPayload, { onConflict: 'id' })
       .select('*')
       .single()
 
@@ -138,7 +138,7 @@ export async function upsertUserProfile(userId: string, payload: UserProfileUpda
 
 function isTypeDismissed(profile: UserProfile | null | undefined, type: SuggestionType): boolean {
   if (!profile?.dismissed_suggestions) return false
-  return profile.dismissed_suggestions includes(${DISMISS_PREFIX})
+  return profile.dismissed_suggestions.includes(`${DISMISS_PREFIX}${type}`)
 }
 
 function computeSuggestionScore(type: SuggestionType, profile: UserProfile): number {
@@ -149,7 +149,7 @@ function computeSuggestionScore(type: SuggestionType, profile: UserProfile): num
       score += (profile.interests?.length ?? 0) > 0 ? 2 : 0
       break
     case 'event_nearby':
-      if (profile city) score += 2
+      if (profile.city) score += 2
       if (profile.availability?.length) score += 1
       break
     case 'start_prayer_circle':
@@ -184,13 +184,13 @@ export function buildSuggestions(profile: UserProfile): Suggestion[] {
     })
   }
 
-  if (!isTypeDismissed(profile, 'event_nearby') && (profile city || profile.availability?.length)) {
+  if (!isTypeDismissed(profile, 'event_nearby') && (profile.city || profile.availability?.length)) {
     suggestions.push({
       id: 'event-nearby',
       type: 'event_nearby',
       title: "There's an event near you",
       description: profile.city
-        ? Members in  are planning a meetup. See if the timing works for you.
+        ? `Members in ${profile.city} are planning a meetup. See if the timing works for you.`
         : 'We found gatherings that align with your availability. Take a look and RSVP.',
       actionUrl: '/events',
     })
@@ -226,7 +226,7 @@ export function buildSuggestions(profile: UserProfile): Suggestion[] {
     })
   }
 
-  const dismissedIds = new Set(profile dismissed_suggestions ?? [])
+  const dismissedIds = new Set(profile.dismissed_suggestions ?? [])
   return suggestions
     .filter((suggestion) => !dismissedIds.has(suggestion.id))
     .map((suggestion) => ({
@@ -237,15 +237,15 @@ export function buildSuggestions(profile: UserProfile): Suggestion[] {
 }
 
 export function rankFeed<T extends FeedRankingItem>(items: T[], profile?: UserProfile | null): T[] {
-  if (!Array.isArray(items) || items length === 0) {
+  if (!Array.isArray(items) || items.length === 0) {
     return []
   }
 
   const interests = (profile?.interests ?? []).map((interest) => interest.toLowerCase())
   const mutedTypes = new Set(
     (profile?.dismissed_suggestions ?? [])
-      .filter((value) => value startsWith(DISMISS_PREFIX))
-      .map((value) => value replace(DISMISS_PREFIX, ''))
+      .filter((value) => value.startsWith(DISMISS_PREFIX))
+      .map((value) => value.replace(DISMISS_PREFIX, ''))
   )
   const primaryFellowship = profile?.preferred_fellowship_id ?? null
 
@@ -253,7 +253,7 @@ export function rankFeed<T extends FeedRankingItem>(items: T[], profile?: UserPr
     let score = 0
 
     const itemType = item.type.toLowerCase()
-    if (interests includes(itemType)) {
+    if (interests.includes(itemType)) {
       score += 2
     }
 
@@ -261,7 +261,7 @@ export function rankFeed<T extends FeedRankingItem>(items: T[], profile?: UserPr
       score += 1
     }
 
-    if (mutedTypes has(itemType)) {
+    if (mutedTypes.has(itemType)) {
       score -= 1
     }
 

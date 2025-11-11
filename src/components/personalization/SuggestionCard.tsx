@@ -17,7 +17,7 @@ export default function SuggestionCard({ suggestion, onDismiss, onMuteType }: Su
       <div className="relative z-10 space-y-3">
         <header className="flex items-start justify-between">
           <div>
-            <span className="uppercase text-[10px] tracking-wider text-white/50">{suggestion.type.replaceAll('_', ' ')}</span>
+            <span className="uppercase text-[10px] tracking-wider text-white/50"> {suggestion.type.split('_').join(' ')}</span>
             <h3 className="text-base font-semibold text-white">{suggestion.title}</h3>
           </div>
           <button

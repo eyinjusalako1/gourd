@@ -4,9 +4,8 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Settings, Bell } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
 import FeedbackModal from '@/components/FeedbackModal'
 import Logo from '@/components/Logo'
 import BottomNavigation from '@/components/BottomNavigation'
@@ -29,12 +28,10 @@ export default function DashboardPage() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
   useEffect(() => {
-    // Determine user role from user metadata
     if (user?.user_metadata && 'role' in user.user_metadata) {
       setUserRole((user.user_metadata as any).role)
     }
-    
-    // Check if user has completed onboarding
+
     const savedUserType = localStorage.getItem('gathered_user_type')
     if (savedUserType) {
       setUserType(savedUserType as 'individual' | 'leader')
@@ -69,7 +66,6 @@ export default function DashboardPage() {
   }
 
   const handleTabChange = (tab: string) => {
-    // Handle navigation to different tabs
     switch (tab) {
       case 'profile':
         router.push('/profile')
@@ -84,37 +80,8 @@ export default function DashboardPage() {
         router.push('/fellowships')
         break
       default:
-        // Stay on dashboard
         break
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0F1433]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5C451] mx-auto"></div>
-          <p className="mt-4 text-white/80">Loading your dashboard...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Show onboarding flow for new users
-  if (showOnboarding) {
-    return <OnboardingFlow onComplete={handleOnboardingComplete} />
-  }
-
-  // Show demo dashboard for visitors
-  const displayUser = user ?? {
-    id: 'demo',
-    email: 'demo@gathered.com',
-    user_metadata: {
-      name: profile?.name || 'Demo User',
-      role: 'Member'
-    },
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   }
 
   const suggestions = useMemo(() => {
@@ -148,6 +115,32 @@ export default function DashboardPage() {
 
   useNotificationPlanner(profile ?? null)
 
+  const displayUser = user ?? {
+    id: 'demo',
+    email: 'demo@gathered.com',
+    user_metadata: {
+      name: profile?.name || 'Demo User',
+      role: 'Member'
+    },
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0F1433]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5C451] mx-auto"></div>
+          <p className="mt-4 text-white/80">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />
+  }
+
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
       {/* Header */}
@@ -168,13 +161,12 @@ export default function DashboardPage() {
                 </p>
               </div>
             </div>
-            
-                <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
               <button className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'} relative`}>
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#F5C451] rounded-full"></div>
               </button>
-              <button 
+              <button
                 onClick={() => setShowUserTypeSelector(true)}
                 className={`p-2 ${userType === 'leader' ? 'text-[#0F1433]/60 hover:text-[#0F1433]' : 'text-white/60 hover:text-white'}`}
                 title="Settings"
@@ -188,7 +180,6 @@ export default function DashboardPage() {
 
       {/* Main Content - Scrollable */}
       <div className="max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto">
-        {/* For Leaders: Stewardship Dashboard First */}
         {userType === 'leader' && profile && (
           <StewardHome
             profile={profile}
@@ -198,7 +189,6 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* For Youth: Simplified Focused Layout */}
         {userType === 'individual' && profile && (
           <DiscipleHome
             userId={user?.id || 'demo'}
@@ -210,10 +200,8 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
       <BottomNavigation activeTab="home" onTabChange={handleTabChange} />
 
-      {/* User Type Selector Modal */}
       {showUserTypeSelector && userType && (
         <UserTypeSelector
           currentType={userType}
@@ -222,9 +210,6 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Onboarding Tutorial moved to global layout */}
-
-      {/* Feedback Modal */}
       <FeedbackModal
         isOpen={showFeedbackModal}
         onClose={() => setShowFeedbackModal(false)}

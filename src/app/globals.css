@@ -6,6 +6,44 @@
   html {
     font-family: system-ui, sans-serif;
   }
+
+html.text-lg-base {
+  font-size: 112.5%;
+}
+
+@media (min-width: 768px) {
+  html.text-lg-base {
+    font-size: 115%;
+  }
+}
+
+html.theme-high-contrast,
+html.theme-high-contrast body {
+  background-color: #050817;
+  color: #ffffff;
+}
+
+html.theme-high-contrast .bg-[#0F1433] {
+  background-color: #050817 !important;
+}
+
+html.theme-high-contrast .bg-[#1B2048] {
+  background-color: #141a3b !important;
+}
+
+html.theme-high-contrast .text-white/60 {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+html.theme-high-contrast .text-white/70 {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-reduce-motion="true"] * {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
 }
 
 @layer components {

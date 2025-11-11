@@ -6,25 +6,21 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Settings, Bell } from 'lucide-react'
+import { useCallback, useMemo } from 'react'
 import FeedbackModal from '@/components/FeedbackModal'
 import Logo from '@/components/Logo'
-import VerseCard from '@/components/VerseCard'
-import LeaderDashboard from '@/components/LeaderDashboard'
 import BottomNavigation from '@/components/BottomNavigation'
 import OnboardingFlow from '@/components/OnboardingFlow'
 import UserTypeSelector from '@/components/UserTypeSelector'
-import FellowshipActivityFeed from '@/components/FellowshipActivityFeed'
-import UpcomingEvents from '@/components/UpcomingEvents'
-import QuickActions from '@/components/QuickActions'
-import CommunityHighlight from '@/components/CommunityHighlight'
-import FaithFlame from '@/components/FaithFlame'
-import EmberMeter, { EmberMeterCard } from '@/components/EmberMeter'
-import WeeklyChallenge from '@/components/WeeklyChallenge'
-import BlessingBadges from '@/components/BlessingBadges'
-import GamificationHighlight from '@/components/FellowshipHighlight'
+import DiscipleHome from '@/components/dashboard/DiscipleHome'
+import StewardHome from '@/components/dashboard/StewardHome'
+import { buildSuggestions } from '@/lib/prefs'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import { useNotificationPlanner } from '@/hooks/useNotificationPlanner'
 
 export default function DashboardPage() {
-  const { user, signOut, loading, setMockUserType, profile } = useAuth()
+  const { user, signOut, loading, setMockUserType } = useAuth()
+  const { profile, updateProfile } = useUserProfile()
   const router = useRouter()
   const [userRole, setUserRole] = useState<'Member' | 'Leader' | 'Church Admin'>('Member')
   const [userType, setUserType] = useState<'individual' | 'leader' | null>(null)
@@ -46,6 +42,13 @@ export default function DashboardPage() {
       setShowOnboarding(true)
     }
   }, [user, loading, router])
+
+  useEffect(() => {
+    if (profile?.role) {
+      const inferred = profile.role === 'steward' ? 'leader' : 'individual'
+      setUserType(inferred)
+    }
+  }, [profile])
 
   const handleSignOut = async () => {
     await signOut()
@@ -103,25 +106,47 @@ export default function DashboardPage() {
   }
 
   // Show demo dashboard for visitors
-  const displayUser = user
-    ? {
-        ...user,
-        user_metadata: {
-          ...user.user_metadata,
-          name: profile?.name || user.user_metadata?.name || 'Demo User',
-          role: user.user_metadata?.role || 'Member'
-        }
-      }
-    : {
-        id: 'demo',
-        email: 'demo@gathered.com',
-        user_metadata: {
-          name: profile?.name || 'Demo User',
-          role: 'Member'
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }
+  const displayUser = user ?? {
+    id: 'demo',
+    email: 'demo@gathered.com',
+    user_metadata: {
+      name: profile?.name || 'Demo User',
+      role: 'Member'
+    },
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+
+  const suggestions = useMemo(() => {
+    if (!profile) return []
+    const enabled = profile.personalization_enabled?.suggestions ?? true
+    return enabled ? buildSuggestions(profile) : []
+  }, [profile])
+
+  const handleDismissSuggestion = useCallback(
+    async (id: string) => {
+      if (!profile) return
+      const dismissed = new Set(profile.dismissed_suggestions ?? [])
+      if (dismissed.has(id)) return
+      dismissed.add(id)
+      await updateProfile({ dismissed_suggestions: Array.from(dismissed) })
+    },
+    [profile, updateProfile]
+  )
+
+  const handleMuteSuggestionType = useCallback(
+    async (type: string) => {
+      if (!profile) return
+      const dismissed = new Set(profile.dismissed_suggestions ?? [])
+      const key = `type:${type}`
+      if (dismissed.has(key)) return
+      dismissed.add(key)
+      await updateProfile({ dismissed_suggestions: Array.from(dismissed) })
+    },
+    [profile, updateProfile]
+  )
+
+  useNotificationPlanner(profile ?? null)
 
   return (
     <div className="min-h-screen bg-[#0F1433] pb-20">
@@ -164,70 +189,24 @@ export default function DashboardPage() {
       {/* Main Content - Scrollable */}
       <div className="max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto">
         {/* For Leaders: Stewardship Dashboard First */}
-        {userType === 'leader' && (
-          <>
-            <LeaderDashboard userRole={userRole as 'Leader' | 'Church Admin'} />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-            <VerseCard />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-            <FellowshipActivityFeed />
-          </>
+        {userType === 'leader' && profile && (
+          <StewardHome
+            profile={profile}
+            suggestions={suggestions}
+            onDismissSuggestion={handleDismissSuggestion}
+            onMuteType={handleMuteSuggestionType}
+          />
         )}
 
         {/* For Youth: Simplified Focused Layout */}
-        {userType === 'individual' && (
-          <>
-            {/* Section A: Personalized Greeting + Verse of the Day */}
-            <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Welcome back, {displayUser.user_metadata?.name || 'Friend'}! 🌿
-              </h2>
-              <p className="text-white/80">
-                Your fellowship community is here for you
-              </p>
-              
-              {/* Faith Flame Display */}
-              <div className="flex justify-center mt-3">
-                <FaithFlame userId={user?.id || 'demo'} fellowshipId="1" size="md" showText={true} />
-              </div>
-            </div>
-            
-            <VerseCard />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-
-            {/* Fellowship Highlight (if on fire) */}
-            <GamificationHighlight fellowshipId="1" />
-
-            {/* Section B: Unity Points Ember Meter */}
-            <EmberMeterCard fellowshipId="1" />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-
-            {/* Section C: Your Fellowship Activity */}
-            <FellowshipActivityFeed />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-
-            {/* Section D: Weekly Challenges */}
-            <WeeklyChallenge fellowshipId="1" />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-
-            {/* Section E: Upcoming Events (Top 3) */}
-            <UpcomingEvents />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-
-            {/* Section F: Quick Actions */}
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-3">Quick Actions</h3>
-              <QuickActions />
-            </div>
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-
-            {/* Section G: Blessing Badges */}
-            <BlessingBadges userId={user?.id || 'demo'} fellowshipId="1" />
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent"></div>
-
-            {/* Section H: Community Highlight */}
-            <CommunityHighlight />
-          </>
+        {userType === 'individual' && profile && (
+          <DiscipleHome
+            userId={user?.id || 'demo'}
+            profile={profile}
+            suggestions={suggestions}
+            onDismissSuggestion={handleDismissSuggestion}
+            onMuteType={handleMuteSuggestionType}
+          />
         )}
       </div>
 

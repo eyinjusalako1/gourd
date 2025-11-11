@@ -47,7 +47,7 @@ const sampleEvents: Event[] = [
   }
 ]
 
-export default function UpcomingEvents() {
+export default function UpcomingEvents({ limit }: { limit?: number }) {
   const router = useRouter()
   
   if (sampleEvents.length === 0) {
@@ -82,7 +82,7 @@ export default function UpcomingEvents() {
         
         <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
           <div className="flex space-x-3 snap-x snap-mandatory" style={{ scrollSnapType: 'x mandatory' }}>
-            {sampleEvents.map(event => (
+            {(limit ? sampleEvents.slice(0, limit) : sampleEvents).map(event => (
               <div
                 key={event.id}
                 onClick={() => router.push(`/events/${event.id}`)}

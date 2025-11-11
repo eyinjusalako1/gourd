@@ -137,6 +137,67 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['fellowship_highlights']['Row'], 'id' | 'created_at'>
         Update: Partial<Database['public']['Tables']['fellowship_highlights']['Row']>
       }
+      user_profiles: {
+        Row: {
+          id: string
+          role: 'disciple' | 'steward'
+          name: string | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          timezone: string | null
+          interests: string[]
+          availability: string[]
+          notif_cadence: 'daily' | 'weekly' | 'off'
+          notif_channel: 'push' | 'email'
+          quiet_hours_start: string | null
+          quiet_hours_end: string | null
+          accessibility: {
+            reduceMotion?: boolean
+            largeText?: boolean
+            highContrast?: boolean
+          } | null
+          personalization_enabled: {
+            interests?: boolean
+            location?: boolean
+            suggestions?: boolean
+          } | null
+          dismissed_suggestions: string[]
+          profile_complete: boolean
+          updated_at: string
+          last_seen_at: string | null
+        }
+        Insert: {
+          id: string
+          role?: 'disciple' | 'steward'
+          name?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          timezone?: string | null
+          interests?: string[]
+          availability?: string[]
+          notif_cadence?: 'daily' | 'weekly' | 'off'
+          notif_channel?: 'push' | 'email'
+          quiet_hours_start?: string | null
+          quiet_hours_end?: string | null
+          accessibility?: {
+            reduceMotion?: boolean
+            largeText?: boolean
+            highContrast?: boolean
+          } | null
+          personalization_enabled?: {
+            interests?: boolean
+            location?: boolean
+            suggestions?: boolean
+          } | null
+          dismissed_suggestions?: string[]
+          profile_complete?: boolean
+          updated_at?: string
+          last_seen_at?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['user_profiles']['Row']>
+      }
     }
   }
 }

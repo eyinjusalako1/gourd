@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTutorial } from '@/lib/tutorial-context'
 import AppHeader from '@/components/AppHeader'
-import { Bell, Shield, User, Palette, Smartphone, HelpCircle } from 'lucide-react'
+import { Bell, Shield, User, Palette, Smartphone, HelpCircle, Sparkles } from 'lucide-react'
 import { RoleSelector } from '@/components/settings/RoleSelector'
 import { useAuth } from '@/lib/auth-context'
 
@@ -15,6 +15,7 @@ export default function SettingsPage() {
 
   const sections = [
     { id: 'account', title: 'Account', icon: User, desc: 'Profile, email, password' },
+    { id: 'personalization', title: 'Personalization', icon: Sparkles, desc: 'Tailored feed & suggestions' },
     { id: 'notifications', title: 'Notifications', icon: Bell, desc: 'Push, email alerts' },
     { id: 'privacy', title: 'Privacy & Safety', icon: Shield, desc: 'Visibility, blocking' },
     { id: 'appearance', title: 'Appearance', icon: Palette, desc: 'Theme, text size' },

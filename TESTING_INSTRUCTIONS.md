@@ -33,14 +33,17 @@ Gathered is a Christian community platform where you can:
 
 ## Testing Flow
 
-### 1. First-Time Setup (5 minutes)
+### 1. First-Time Preferences (5–7 minutes)
 
-1. Click the Gathered app link
-2. You'll see a welcome screen
-3. Select your role:
-   - **"I'm looking for fellowship"** - As an individual member
-   - **"I'm a leader or church representative"** - As a leader
-4. Click "Get Started"
+1. Click the Gathered app link.
+2. Complete the **Preferences Setup** wizard:
+   - Add your name (avatar optional).
+   - Choose your role (Disciple or Steward).
+   - Select interests and availability; optionally enter your city.
+   - Pick notification cadence & channel, and toggle accessibility options (large text, reduce motion, high contrast).
+3. Confirm the summary screen and tap **Finish setup**. The tailored dashboard loads and the tutorial starts automatically.
+
+📹 **Capture this step** – record a quick mobile screen capture showing onboarding → dashboard for QA sign-off.
 
 ### 2. Dashboard Tour (10 minutes)
 
@@ -73,6 +76,21 @@ Once you're in, you'll see:
 - Open a fellowship chat
 - Send a test message
 
+#### 🎯 Personalization & Suggestions
+- On the home dashboard, look for **Suggestions for you** cards.
+- Tap **Dismiss** on one card and **Show less like this** on another; confirm they disappear.
+- Switch roles via Settings → Personalization → Update preferences and confirm the dashboard layout changes instantly.
+
+#### 🔔 Notifications & Quiet Hours
+- Visit **Settings → Notifications**.
+- Change cadence (Daily → Weekly → Off) and channel (Push/Email); watch for success toasts.
+- Adjust quiet hours start/end and check the browser console for `[notifications]` log entries honoring the new window.
+
+#### ♿ Accessibility & Appearance
+- Open **Settings → Appearance**.
+- Toggle Large Text, Reduce Motion, and High Contrast; confirm the UI updates immediately (fonts resize, animations pause, contrast increases).
+- Reload the page to ensure the settings persist.
+
 #### 📖 Testimonies
 - Click the book icon (📖) in the top-right header
 - Browse testimonies
@@ -99,10 +117,12 @@ Once you're in, you'll see:
 
 ### Scenario 1: New Member Journey
 1. Sign up as "looking for fellowship"
-2. Browse fellowships
-3. Join a fellowship
-4. RSVP to an event
-5. Send a message in the group chat
+2. Complete preferences onboarding
+3. Browse fellowships
+4. Join a fellowship
+5. RSVP to an event
+6. Send a message in the group chat
+7. Dismiss a suggestion card
 
 ### Scenario 2: Leader Journey
 1. Sign up as "leader or church representative"
@@ -111,12 +131,14 @@ Once you're in, you'll see:
 4. Create an event
 5. Send an announcement
 6. Invite members to your fellowship
+7. Review steward dashboard sections (engagement insights, quick actions)
 
 ### Scenario 3: Content Creation
 1. Share a testimony
 2. Create a prayer request
 3. RSVP to an event
 4. Send a chat message
+5. Toggle high contrast and verify testimonies remain readable
 
 ---
 
@@ -141,6 +163,7 @@ Once you're in, you'll see:
 - Any bugs or errors?
 - Any broken links?
 - Any slow loading pages?
+- Did personalization toggles behave as expected?
 
 ### 5. Overall Experience
 - Would you use this app regularly?
@@ -168,6 +191,7 @@ These are being worked on:
 - ⚠️ Email notifications not yet active (mock data)
 - ⚠️ Some forms save to browser only (localStorage)
 - ⚠️ Social features are MVP versions
+- ⚠️ Notification scheduler currently logs nudges locally (push delivery coming later)
 
 ---
 
@@ -209,6 +233,7 @@ The Gathered Team
 - Swipe down to refresh pages
 - Tap and hold for context menus
 - Use landscape mode for better tablet experience
+- Record onboarding & dashboard walkthroughs in portrait for the QA demo
 
 ### Troubleshooting
 **App won't load?**

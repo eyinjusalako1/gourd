@@ -32,6 +32,13 @@
 
 ## Core Features Implemented
 
+### Latest: Personalization & Mobile UX (Nov 2025)
+- **Preferences Onboarding** (`/onboarding/preferences`) collects name, role, interests, availability, optional city, notification cadence, and accessibility flags.
+- **Role-Aware Dashboards** now differentiate Disciple vs Steward home screens with tailored sections, suggestions, and smart quick actions.
+- **Feed Ranking & Suggestions** powered by `/lib/prefs.ts` rule-based weighting and dismissible suggestion cards.
+- **Notification & Quiet Hours Controls** with cadence/channel toggles and reduced-motion/high-contrast/large-text accessibility settings.
+- **Theme Adjustments** apply instantly via CSS classes (`text-lg-base`, `.theme-high-contrast`) and respect reduce-motion preferences.
+
 ### 1. User Onboarding & Role Selection
 
 **Components:**

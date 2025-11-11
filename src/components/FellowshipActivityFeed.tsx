@@ -1,8 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Heart, MessageCircle, Calendar, Users, MoreHorizontal, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import type { UserProfile } from '@/lib/prefs'
+import { rankFeed } from '@/lib/prefs'
 
 interface ActivityItem {
   id: string
@@ -12,6 +14,7 @@ interface ActivityItem {
   content: string
   author: string
   time: string
+  createdAt: string
   image?: string
   meta?: {
     attendees?: number
@@ -30,6 +33,7 @@ const sampleActivity: ActivityItem[] = [
     content: 'Join us this Sunday at 10:00 AM for worship and fellowship. We\'ll be diving into the book of Romans!',
     author: 'Pastor Johnson',
     time: '2 hours ago',
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     meta: { attendees: 12, maxAttendees: 30 }
   },
   {
@@ -40,6 +44,7 @@ const sampleActivity: ActivityItem[] = [
     content: 'Please keep my family in your prayers as we navigate through this difficult time. Thank you! 🙏',
     author: 'Sarah M.',
     time: '5 hours ago',
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     meta: { prayerCount: 8 }
   },
   {
@@ -50,6 +55,7 @@ const sampleActivity: ActivityItem[] = [
     content: 'I wanted to share how God has been working in my life this semester. His grace has been amazing!',
     author: 'Mike Chen',
     time: '1 day ago',
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     meta: { likes: 15 }
   },
   {
@@ -59,7 +65,8 @@ const sampleActivity: ActivityItem[] = [
     title: 'Retreat Sign-ups Open!',
     content: 'Our annual summer retreat registration is now live! Early bird pricing available until next Friday.',
     author: 'Leader Team',
-    time: '2 days ago'
+    time: '2 days ago',
+    createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
   }
 ]
 
@@ -89,11 +96,29 @@ const getActivityColor = (type: string) => {
   }
 }
 
-export default function FellowshipActivityFeed() {
+interface FellowshipActivityFeedProps {
+  profile?: UserProfile | null
+  limit?: number
+  title?: string
+  showViewAll?: boolean
+}
+
+export default function FellowshipActivityFeed({ profile, limit = 3, title = 'Your Fellowship Activity', showViewAll = true }: FellowshipActivityFeedProps) {
   const router = useRouter()
   const [activities] = useState<ActivityItem[]>(sampleActivity)
 
-  if (activities.length === 0) {
+  const rankedActivities = useMemo(() => {
+    const feedItems = activities.map((activity) => ({
+      id: activity.id,
+      type: activity.type,
+      createdAt: activity.createdAt,
+      fellowshipId: activity.fellowship,
+    }))
+    const sorted = rankFeed(feedItems, profile)
+    return sorted.map((sortedItem) => activities.find((activity) => activity.id === sortedItem.id)!).filter(Boolean)
+  }, [activities, profile])
+
+  if (rankedActivities.length === 0) {
     return (
       <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
@@ -113,18 +138,20 @@ export default function FellowshipActivityFeed() {
       <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">Your Fellowship Activity</h3>
-          <button
-            onClick={() => router.push('/fellowships')}
-            className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors flex items-center space-x-1"
-          >
-            <span>View All</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          {showViewAll && (
+            <button
+              onClick={() => router.push('/fellowships')}
+              className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors flex items-center space-x-1"
+            >
+              <span>View All</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
         </div>
         
         <div className="space-y-4">
-          {activities.slice(0, 3).map(activity => (
+          {rankedActivities.slice(0, limit).map(activity => (
             <div
               key={activity.id}
               className="bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30 hover:bg-white/10 transition-colors cursor-pointer"

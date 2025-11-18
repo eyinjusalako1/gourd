@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import FaithFlame from '@/components/FaithFlame'
 import VerseCard from '@/components/VerseCard'
 import GamificationHighlight from '@/components/FellowshipHighlight'
@@ -60,6 +61,21 @@ export default function DiscipleHome({
       <VerseCard />
       <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
 
+      <section>
+        <h3 className="text-lg font-semibold text-white mb-3">Read Scripture</h3>
+        <Link
+          href="/bible"
+          className="rounded-xl bg-white/5 border border-[#D4AF37]/30 px-4 py-4 flex items-center justify-between tappable hover:bg-white/10 transition-colors"
+        >
+          <div>
+            <div className="text-sm font-semibold text-white">Bible</div>
+            <div className="text-xs text-white/70">Read Scripture (WEB)</div>
+          </div>
+          <div className="text-2xl">📖</div>
+        </Link>
+      </section>
+      <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+
       <GamificationHighlight fellowshipId="1" />
       <EmberMeterCard fellowshipId="1" />
       <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
@@ -83,5 +99,6 @@ export default function DiscipleHome({
     </>
   )
 }
+
 
 

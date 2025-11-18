@@ -630,3 +630,4 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS achievement_badges JSONB DEFAULT '[]'
 
 
 
+

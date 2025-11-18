@@ -36,3 +36,4 @@ Node.js 24.11.0 is installed, but Next.js 13.5.6 requires Node.js 20 LTS for pro
 If you want to keep Node.js 24, you'd need to upgrade Next.js to version 14+, but this may require code changes.
 
 
+

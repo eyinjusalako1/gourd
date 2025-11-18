@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { HelpCircle, Users, User, LogOut, MessageCircle } from 'lucide-react'
+import { HelpCircle, Users, User, LogOut, MessageCircle, BookOpen } from 'lucide-react'
 
 export default function BottomMoreSheet() {
   const router = useRouter()
@@ -24,6 +24,18 @@ export default function BottomMoreSheet() {
       <div className="absolute left-0 right-0 bottom-0 bg-[#0F1433] border-t border-[#D4AF37]/40 rounded-t-2xl p-4 max-w-md mx-auto">
         <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-4" />
         <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => { setOpen(false); router.push('/bible') }}
+            className="flex items-center space-x-3 bg-white/5 hover:bg-white/10 border border-[#D4AF37]/30 rounded-xl p-3 text-left"
+          >
+            <div className="w-9 h-9 rounded-lg bg-[#F5C451]/15 border border-[#D4AF37]/40 flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-[#F5C451]" />
+            </div>
+            <div>
+              <span className="text-white text-sm font-medium block">Bible (WEB)</span>
+              <span className="text-white/60 text-xs">Open the Bible reader</span>
+            </div>
+          </button>
           <button
             onClick={() => { setOpen(false); router.push('/faq') }}
             className="flex items-center space-x-3 bg-white/5 hover:bg-white/10 border border-[#D4AF37]/30 rounded-xl p-3 text-left"
@@ -72,6 +84,7 @@ export default function BottomMoreSheet() {
     </div>
   )
 }
+
 
 
 

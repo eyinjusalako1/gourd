@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Info, Shield, Users } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
-import { BottomSheet } from '@/components/ui/BottomSheet'
+import BottomSheet from '@/components/ui/BottomSheet'
 import { useToast } from '@/components/ui/Toast'
 import { analytics } from '@/utils/analytics'
 

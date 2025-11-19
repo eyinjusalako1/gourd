@@ -23,6 +23,22 @@ export default function UserTypeSelector({ currentType, onTypeChange, onClose }:
       isOpen={true}
       onClose={onClose}
       title="Change User Type"
+      footer={
+        <div className="flex space-x-3 px-4 pb-4 pt-4">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-white/10 text-white py-3 rounded-xl font-medium hover:bg-white/20 transition-colors min-h-[44px]"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 bg-[#F5C451] text-[#0F1433] py-3 rounded-xl font-semibold hover:bg-[#D4AF37] transition-colors min-h-[44px]"
+          >
+            Save Changes
+          </button>
+        </div>
+      }
     >
       {/* Description */}
       <p className="text-white/80 text-center mb-6">
@@ -93,23 +109,6 @@ export default function UserTypeSelector({ currentType, onTypeChange, onClose }:
           </div>
         </button>
       </div>
-
-      footer={
-        <div className="flex space-x-3 px-4 pb-4 pt-4">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-white/10 text-white py-3 rounded-xl font-medium hover:bg-white/20 transition-colors min-h-[44px]"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="flex-1 bg-[#F5C451] text-[#0F1433] py-3 rounded-xl font-semibold hover:bg-[#D4AF37] transition-colors min-h-[44px]"
-          >
-            Save Changes
-          </button>
-        </div>
-      }
-    />
+    </BottomSheet>
   )
 }

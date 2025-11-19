@@ -118,6 +118,33 @@ export default function ProfileEditModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Edit Profile"
+      footer={
+        <div className="flex space-x-3 px-4 pb-4 pt-4">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-white/10 text-white py-3 rounded-xl font-medium hover:bg-white/20 transition-colors min-h-[44px]"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="flex-1 bg-[#F5C451] text-[#0F1433] py-3 rounded-xl font-semibold hover:bg-[#D4AF37] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px]"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#0F1433]"></div>
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save Changes</span>
+              </>
+            )}
+          </button>
+        </div>
+      }
     >
       <div className="space-y-6">
         {/* Profile Picture */}
@@ -322,33 +349,6 @@ export default function ProfileEditModal({
           </div>
         </div>
       </div>
-      footer={
-        <div className="flex space-x-3 px-4 pb-4 pt-4">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-white/10 text-white py-3 rounded-xl font-medium hover:bg-white/20 transition-colors min-h-[44px]"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isLoading}
-            className="flex-1 bg-[#F5C451] text-[#0F1433] py-3 rounded-xl font-semibold hover:bg-[#D4AF37] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px]"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#0F1433]"></div>
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                <span>Save Changes</span>
-              </>
-            )}
-          </button>
-        </div>
-      }
-    />
+    </BottomSheet>
   )
 }

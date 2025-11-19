@@ -1,220 +1,86 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X } from 'lucide-react'
 import ReactDOM from 'react-dom'
-import { AnimatePresence, motion, useMotionValue } from 'framer-motion'
 import { cn } from '@/utils/cn'
-import { useDisableBodyScroll } from '@/hooks/useDisableBodyScroll'
-import { useViewportVH } from '@/hooks/useViewportVH'
 
-const DEFAULT_SNAP_POINTS = [0.8, 0.5, 0.25]
-
-const focusableSelectors = [
-  'a[href]',
-  'button:not([disabled])',
-  'textarea:not([disabled])',
-  'input:not([type="hidden"]):not([disabled])',
-  'select:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(', ')
-
-interface BottomSheetProps {
+export interface BottomSheetProps {
   isOpen: boolean
   onClose: () => void
   title?: string
   children: React.ReactNode
   className?: string
-  snapPoints?: number[]
+  showCloseButton?: boolean
+  maxHeight?: string
+  disableDrag?: boolean
+  footer?: React.ReactNode
 }
 
-export function BottomSheet({
+export default function BottomSheet({
   isOpen,
   onClose,
   title,
   children,
   className,
-  snapPoints = DEFAULT_SNAP_POINTS,
+  showCloseButton = true,
+  maxHeight = '90vh',
+  disableDrag = false,
+  footer,
 }: BottomSheetProps) {
-  const [viewportHeight, setViewportHeight] = useState(
-    typeof window !== 'undefined' ? window.innerHeight : 0
-  )
-  const sheetRef = useRef<HTMLDivElement | null>(null)
-  const previouslyFocusedElement = useRef<HTMLElement | null>(null)
   const [mounted, setMounted] = useState(false)
-  const y = useMotionValue(0)
-  const [currentSnap, setCurrentSnap] = useState<number>(snapPoints[0])
-
-  useViewportVH()
-  useDisableBodyScroll(isOpen)
-
-  const sortedSnapPoints = useMemo(
-    () => [...snapPoints].sort((a, b) => b - a),
-    [snapPoints]
-  )
+  const sheetRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setMounted(true)
-    if (typeof window === 'undefined') return
-
-    const updateHeight = () => setViewportHeight(window.innerHeight)
-    updateHeight()
-    window.addEventListener('resize', updateHeight)
-    window.addEventListener('orientationchange', updateHeight)
-
-    return () => {
-      window.removeEventListener('resize', updateHeight)
-      window.removeEventListener('orientationchange', updateHeight)
-    }
   }, [])
 
   useEffect(() => {
     if (isOpen) {
-      previouslyFocusedElement.current = document.activeElement as HTMLElement
-      window.scrollTo({ top: 0, behavior: 'auto' })
-      setCurrentSnap(sortedSnapPoints[0])
-    } else if (previouslyFocusedElement.current) {
-      previouslyFocusedElement.current.focus({ preventScroll: true })
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
     }
-  }, [isOpen, sortedSnapPoints])
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
 
-  const applySnap = useCallback(
-    (snap: number) => {
-      const height = viewportHeight || window.innerHeight || 0
-      if (!height) return
-      const target = height - height * snap
-      y.stop()
-      y.set(target)
-    },
-    [viewportHeight, y]
-  )
-
-  useEffect(() => {
-    if (!isOpen) return
-    applySnap(currentSnap)
-  }, [applySnap, currentSnap, isOpen])
-
-  const onDragEnd = (_: any, info: { velocity: { y: number }; point: { y: number } }) => {
-    const height = viewportHeight || window.innerHeight || 0
-    const currentOffset = y.get()
-    const projected = currentOffset + info.velocity.y * 0.2
-
-    if (!height) {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && isOpen) {
       onClose()
-      return
     }
-
-    if (projected > height * 0.6 || info.velocity.y > 1000) {
-      onClose()
-      return
-    }
-
-    const distances = sortedSnapPoints.map((snap) => {
-      const offset = height - height * snap
-      return { snap, distance: Math.abs(projected - offset) }
-    })
-
-    const closest = distances.sort((a, b) => a.distance - b.distance)[0]
-    setCurrentSnap(closest.snap)
   }
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.stopPropagation()
-        onClose()
-      }
-      if (event.key === 'Tab' && sheetRef.current) {
-        const focusableEls = Array.from(
-          sheetRef.current.querySelectorAll<HTMLElement>(focusableSelectors)
-        )
-        if (focusableEls.length === 0) {
-          event.preventDefault()
-          return
-        }
-        const firstElement = focusableEls[0]
-        const lastElement = focusableEls[focusableEls.length - 1]
-
-        if (!event.shiftKey && document.activeElement === lastElement) {
-          event.preventDefault()
-          firstElement.focus()
-        } else if (event.shiftKey && document.activeElement === firstElement) {
-          event.preventDefault()
-          lastElement.focus()
-        }
-      }
-    },
-    [onClose]
-  )
-
   useEffect(() => {
-    if (!isOpen) return
-    const node = sheetRef.current
-    if (!node) return
-
-    const focusTarget =
-      node.querySelector<HTMLElement>(focusableSelectors) || node
-
-    focusTarget.focus({ preventScroll: true })
-    document.addEventListener('keydown', handleKeyDown, true)
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown, true)
+    if (mounted && isOpen) {
+      document.addEventListener('keydown', handleKeyDown)
+      return () => document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [handleKeyDown, isOpen])
+  }, [mounted, isOpen])
 
   if (!mounted) return null
 
-  const maxHeight = 'calc(var(--vh, 1vh) * 100)'
-
   const content = (
     <AnimatePresence>
-      {isOpen ? (
-        <div
-          aria-hidden="true"
-          className="fixed inset-0 z-[9999]"
-          style={{ height: maxHeight }}
-        >
+      {isOpen && (
+        <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
+          {/* Backdrop */}
           <motion.div
-            key="backdrop"
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
           />
+
+          {/* Bottom Sheet */}
           <motion.div
-            key="sheet"
             ref={sheetRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={title ? 'bottom-sheet-title' : undefined}
-            tabIndex={-1}
-            className={cn(
-              'absolute left-0 right-0 mx-auto mt-auto rounded-t-3xl bg-[#1B2048] border border-[#D4AF37]/30 shadow-2xl text-white',
-              'w-full max-w-xl',
-              className
-            )}
-            style={{
-              y,
-              top: 'auto',
-              bottom: 0,
-              maxHeight,
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)',
-              willChange: 'transform',
-            }}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            onDragEnd={onDragEnd}
-            dragElastic={{ top: 0, bottom: 0.3 }}
-            dragMomentum={false}
             initial={{ y: 300 }}
-            animate={{
-              y:
-                viewportHeight > 0
-                  ? viewportHeight - viewportHeight * currentSnap
-                  : 0,
-            }}
+            animate={{ y: 0 }}
             exit={{ y: 300 }}
             transition={{
               type: 'spring',
@@ -222,27 +88,65 @@ export function BottomSheet({
               stiffness: 300,
               mass: 0.8,
             }}
+            drag={disableDrag ? false : 'y'}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.3 }}
+            onDragEnd={(_, info) => {
+              if (!disableDrag && (info.offset.y > 100 || info.velocity.y > 500)) {
+                onClose()
+              }
+            }}
+            className={cn(
+              'absolute left-0 right-0 bottom-0 bg-[#0F1433] text-white rounded-t-2xl border-t border-[#D4AF37]/30 shadow-2xl flex flex-col max-w-md mx-auto',
+              className
+            )}
+            style={{
+              maxHeight,
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)',
+              willChange: 'transform',
+            }}
           >
-            <div className="flex flex-col">
-              <div className="relative py-3">
-                <div className="mx-auto h-1.5 w-12 rounded-full bg-white/30" />
-              </div>
-              <div className="px-6 pb-6 overflow-y-auto overscroll-contain">
-                {title ? (
-                  <h2 id="bottom-sheet-title" className="text-base font-semibold text-white mb-3">
-                    {title}
-                  </h2>
-                ) : null}
-                {children}
-              </div>
+            {/* Drag Handle */}
+            <div className="flex-shrink-0 pt-3 pb-2">
+              <div className="mx-auto h-1.5 w-12 rounded-full bg-white/30" />
             </div>
+
+            {/* Header */}
+            {(title || showCloseButton) && (
+              <div className="flex-shrink-0 flex items-center justify-between px-4 pb-4">
+                {title ? (
+                  <h2 className="text-xl font-bold text-white">{title}</h2>
+                ) : (
+                  <div />
+                )}
+                {showCloseButton && (
+                  <button
+                    onClick={onClose}
+                    className="p-2 text-white/60 hover:text-white transition-colors rounded-lg hover:bg-white/10 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
+              {children}
+            </div>
+
+            {/* Footer - Fixed at bottom */}
+            {footer && (
+              <div className="flex-shrink-0 border-t border-white/10">
+                {footer}
+              </div>
+            )}
           </motion.div>
         </div>
-      ) : null}
+      )}
     </AnimatePresence>
   )
 
   return ReactDOM.createPortal(content, document.body)
 }
-
-

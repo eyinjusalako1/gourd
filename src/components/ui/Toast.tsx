@@ -38,7 +38,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const publish = useCallback(
-    ({ id, title, description, variant = 'info', duration = 4000 }: ToastOptions) => {
+    ({ id, title, description, variant = 'info', duration = 3000 }: ToastOptions) => {
       const toastId = id ?? `toast-${Date.now()}-${Math.random().toString(16).slice(2)}`
       const toast: ActiveToast = { id: toastId, title, description, variant, duration }
       setToasts((current) => [...current, toast])
@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     mounted &&
     ReactDOM.createPortal(
       <div
-        className="fixed inset-x-0 bottom-0 z-[10000] flex flex-col items-center space-y-2 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] pointer-events-none"
+        className="fixed inset-x-0 bottom-0 z-[10001] flex flex-col items-center space-y-2 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] pointer-events-none"
         aria-live="polite"
         aria-atomic="true"
       >

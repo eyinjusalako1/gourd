@@ -6,12 +6,14 @@ import { Heart, ArrowLeft, Check } from 'lucide-react'
 import Logo from '@/components/Logo'
 import { useAuth } from '@/lib/auth-context'
 import { gamificationService } from '@/lib/gamification-service'
+import { useToast } from '@/components/ui/Toast'
 
 const categories = ['Healing', 'Provision', 'Relationships', 'Faith', 'Family', 'Work', 'Other']
 
 export default function CreatePrayerPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const toast = useToast()
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -31,43 +33,62 @@ export default function CreatePrayerPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Create new prayer request object
-    const newPrayer = {
-      id: Date.now().toString(),
-      author: formData.isAnonymous ? 'Anonymous' : 'Demo User',
-      title: formData.title,
-      content: formData.content,
-      date: 'Just now',
-      category: formData.category,
-      prayersCount: 0,
-      hasPrayed: false,
-      isAnonymous: formData.isAnonymous
-    }
-
-    // Save to localStorage
-    const existingPrayers = localStorage.getItem('gathered_prayers')
-    const prayers = existingPrayers ? JSON.parse(existingPrayers) : []
-    prayers.unshift(newPrayer) // Add to beginning
-    localStorage.setItem('gathered_prayers', JSON.stringify(prayers))
-
-    // Dispatch storage event to notify other components
-    window.dispatchEvent(new Event('storage'))
-
-    // Track activity for gamification
     try {
-      const userId = user?.id || 'demo'
-      const fellowshipId = '1' // TODO: Get from user's current fellowship
-      await gamificationService.trackDailyActivity(userId, fellowshipId, 'prayer')
-    } catch (error) {
-      console.error('Failed to track prayer activity:', error)
-      // Don't block submission if tracking fails
-    }
+      // Create new prayer request object
+      const newPrayer = {
+        id: Date.now().toString(),
+        author: formData.isAnonymous ? 'Anonymous' : 'Demo User',
+        title: formData.title,
+        content: formData.content,
+        date: 'Just now',
+        category: formData.category,
+        prayersCount: 0,
+        hasPrayed: false,
+        isAnonymous: formData.isAnonymous
+      }
 
-    // Simulate API call
-    setTimeout(() => {
+      // Save to localStorage
+      const existingPrayers = localStorage.getItem('gathered_prayers')
+      const prayers = existingPrayers ? JSON.parse(existingPrayers) : []
+      prayers.unshift(newPrayer) // Add to beginning
+      localStorage.setItem('gathered_prayers', JSON.stringify(prayers))
+
+      // Dispatch storage event to notify other components
+      window.dispatchEvent(new Event('storage'))
+
+      // Track activity for gamification
+      try {
+        const userId = user?.id || 'demo'
+        const fellowshipId = '1' // TODO: Get from user's current fellowship
+        await gamificationService.trackDailyActivity(userId, fellowshipId, 'prayer')
+      } catch (error) {
+        console.error('Failed to track prayer activity:', error)
+        // Don't block submission if tracking fails
+      }
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Show success toast
+      toast({
+        title: 'Shared successfully',
+        variant: 'success',
+        duration: 3000,
+      })
+
+      // Navigate after a brief delay to show toast
+      setTimeout(() => {
+        router.push('/prayers')
+      }, 500)
+    } catch (error) {
+      console.error('Error sharing prayer:', error)
       setIsLoading(false)
-      router.push('/prayers')
-    }, 1000)
+      toast({
+        title: 'Something went wrong, please try again',
+        variant: 'error',
+        duration: 3000,
+      })
+    }
   }
 
   return (

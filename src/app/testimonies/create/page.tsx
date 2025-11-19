@@ -6,6 +6,7 @@ import { BookOpen, Heart, ArrowLeft } from 'lucide-react'
 import Logo from '@/components/Logo'
 import { useAuth } from '@/lib/auth-context'
 import { gamificationService } from '@/lib/gamification-service'
+import { useToast } from '@/components/ui/Toast'
 
 const categories = ['Community', 'Faith', 'Service', 'Healing', 'Growth', 'Encouragement', 'Other']
 const tags = ['faith', 'prayer', 'hope', 'love', 'community', 'healing', 'growth', 'service', 'friendship', 'encouragement']
@@ -13,6 +14,7 @@ const tags = ['faith', 'prayer', 'hope', 'love', 'community', 'healing', 'growth
 export default function CreateTestimonyPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const toast = useToast()
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -45,45 +47,64 @@ export default function CreateTestimonyPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Create new testimony object
-    const newTestimony = {
-      id: Date.now().toString(),
-      author: formData.isAnonymous ? 'Anonymous' : 'Demo User',
-      title: formData.title,
-      content: formData.content,
-      date: 'Just now',
-      category: formData.category,
-      likes: 0,
-      comments: 0,
-      isLiked: false,
-      fellowship: formData.fellowship || undefined,
-      tags: selectedTags
-    }
-
-    // Save to localStorage
-    const existingTestimonies = localStorage.getItem('gathered_testimonies')
-    const testimonies = existingTestimonies ? JSON.parse(existingTestimonies) : []
-    testimonies.unshift(newTestimony) // Add to beginning
-    localStorage.setItem('gathered_testimonies', JSON.stringify(testimonies))
-
-    // Dispatch storage event to notify other components
-    window.dispatchEvent(new Event('storage'))
-
-    // Track activity for gamification
     try {
-      const userId = user?.id || 'demo'
-      const fellowshipId = formData.fellowship || '1' // Use selected fellowship or default
-      await gamificationService.trackDailyActivity(userId, fellowshipId, 'testimony')
-    } catch (error) {
-      console.error('Failed to track testimony activity:', error)
-      // Don't block submission if tracking fails
-    }
+      // Create new testimony object
+      const newTestimony = {
+        id: Date.now().toString(),
+        author: formData.isAnonymous ? 'Anonymous' : 'Demo User',
+        title: formData.title,
+        content: formData.content,
+        date: 'Just now',
+        category: formData.category,
+        likes: 0,
+        comments: 0,
+        isLiked: false,
+        fellowship: formData.fellowship || undefined,
+        tags: selectedTags
+      }
 
-    // Simulate API call
-    setTimeout(() => {
+      // Save to localStorage
+      const existingTestimonies = localStorage.getItem('gathered_testimonies')
+      const testimonies = existingTestimonies ? JSON.parse(existingTestimonies) : []
+      testimonies.unshift(newTestimony) // Add to beginning
+      localStorage.setItem('gathered_testimonies', JSON.stringify(testimonies))
+
+      // Dispatch storage event to notify other components
+      window.dispatchEvent(new Event('storage'))
+
+      // Track activity for gamification
+      try {
+        const userId = user?.id || 'demo'
+        const fellowshipId = formData.fellowship || '1' // Use selected fellowship or default
+        await gamificationService.trackDailyActivity(userId, fellowshipId, 'testimony')
+      } catch (error) {
+        console.error('Failed to track testimony activity:', error)
+        // Don't block submission if tracking fails
+      }
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Show success toast
+      toast({
+        title: 'Shared successfully',
+        variant: 'success',
+        duration: 3000,
+      })
+
+      // Navigate after a brief delay to show toast
+      setTimeout(() => {
+        router.push('/testimonies')
+      }, 500)
+    } catch (error) {
+      console.error('Error sharing testimony:', error)
       setIsLoading(false)
-      router.push('/testimonies')
-    }, 1000)
+      toast({
+        title: 'Something went wrong, please try again',
+        variant: 'error',
+        duration: 3000,
+      })
+    }
   }
 
   return (

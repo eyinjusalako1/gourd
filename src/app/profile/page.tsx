@@ -3,116 +3,70 @@
 import React, { useState, useMemo } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
-import Logo from '@/components/Logo'
 import ProfileEditModal from '@/components/ProfileEditModal'
-import StatsPanel from '@/components/StatsPanel'
+import UserTypeSelector from '@/components/UserTypeSelector'
 import { 
   ArrowLeft, 
-  Edit3, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Heart, 
-  BookOpen, 
-  Share2,
-  UserPlus,
+  Edit3,
+  Users,
+  Calendar,
+  Heart,
   MessageCircle,
   Settings,
-  Camera,
-  Award,
-  Clock,
-  CheckCircle
+  Bell,
+  Shield,
+  ChevronRight,
 } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user, profile, updateProfile } = useAuth()
   const router = useRouter()
-  const [isOwnProfile, setIsOwnProfile] = useState(true)
-  const [isFollowing, setIsFollowing] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showSettingsSheet, setShowSettingsSheet] = useState(false)
+
+  // Determine user role/type
+  const userType = useMemo(() => {
+    const savedType = typeof window !== 'undefined' ? localStorage.getItem('gathered_user_type') : null
+    if (savedType === 'leader') return 'steward'
+    if (savedType === 'individual') return 'disciple'
+    // Check if user has steward role in metadata
+    const userRole = (user?.user_metadata as any)?.role
+    if (userRole === 'Leader' || userRole === 'Church Admin') return 'steward'
+    return 'disciple'
+  }, [user])
 
   const profileStats = {
-    eventsAttended: 24,
     fellowshipsJoined: 3,
-    friends: 47,
+    eventsAttended: 24,
+    prayersShared: 12,
     testimoniesShared: 8,
   }
-
-  const recentActivity = [
-    {
-      id: '1',
-      type: 'event',
-      action: 'attended',
-      title: 'Sunday Morning Worship',
-      date: '2024-01-28',
-      icon: Calendar
-    },
-    {
-      id: '2',
-      type: 'fellowship',
-      action: 'joined',
-      title: 'Young Adults Bible Study',
-      date: '2024-01-25',
-      icon: Users
-    },
-    {
-      id: '3',
-      type: 'testimony',
-      action: 'shared',
-      title: 'God\'s Faithfulness in Difficult Times',
-      date: '2024-01-22',
-      icon: Heart
-    }
-  ]
-
-  const testimonies = [
-    {
-      id: '1',
-      title: 'God\'s Faithfulness in Difficult Times',
-      excerpt: 'Last year was incredibly challenging, but through prayer and community, I experienced God\'s faithfulness in ways I never imagined...',
-      date: '2024-01-22',
-      likes: 12,
-      comments: 3
-    },
-    {
-      id: '2',
-      title: 'Finding Purpose Through Service',
-      excerpt: 'Volunteering at the local shelter opened my eyes to how God uses us to be His hands and feet in the world...',
-      date: '2024-01-15',
-      likes: 8,
-      comments: 1
-    }
-  ]
 
   const profileDisplay = useMemo(() => ({
     id: user?.id || 'demo-user',
     name: profile?.name || user?.user_metadata?.name || 'Demo User',
     email: user?.email || 'demo@gathered.com',
-    bio: profile?.bio || 'Passionate about building Christian community and growing in faith together. Love connecting with fellow believers and sharing testimonies.',
-    location: profile?.location || 'San Francisco, CA',
-    denomination: profile?.denomination || 'Non-denominational',
-    joinDate: profile?.joinDate || 'January 2024',
     avatarUrl: profile?.avatarUrl,
-    coverImageUrl: profile?.coverImageUrl,
-    interests: profile?.interests || ['Bible Study', 'Prayer', 'Community Service', 'Worship'],
+    primaryFellowship: 'Young Adults Bible Study', // Could be fetched from profile in future
   }), [profile, user])
-
-  const handleFollow = () => {
-    setIsFollowing(!isFollowing)
-    // In real app, this would make an API call
-  }
 
   const handleEditProfile = () => {
     setShowEditModal(true)
   }
 
-  const handleShareProfile = () => {
-    navigator.clipboard.writeText(window.location.href)
-    alert('Profile link copied to clipboard!')
+  const handleSaveProfile = async (updatedData: any) => {
+    await updateProfile(updatedData)
   }
 
-  const handleSaveProfile = (updatedData: any) => {
-    updateProfile(updatedData)
+  const handleSettingsClick = () => {
+    setShowSettingsSheet(true)
+  }
+
+  const handleUserTypeChange = (type: 'individual' | 'leader') => {
+    localStorage.setItem('gathered_user_type', type)
+    setShowSettingsSheet(false)
+    // Force a refresh to update the role badge
+    window.location.reload()
   }
 
   return (
@@ -123,236 +77,151 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between py-4">
             <button
               onClick={() => router.back()}
-              className="p-2 text-white/60 hover:text-white transition-colors"
+              className="p-2 text-white/60 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
             
-            <div className="flex items-center space-x-3">
-              <Logo size="sm" showText={false} />
-              <h1 className="text-lg font-bold text-white">Profile</h1>
-            </div>
+            <h1 className="text-lg font-bold text-white">My Profile</h1>
 
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleShareProfile}
-                className="p-2 text-white/60 hover:text-white transition-colors"
-                title="Share profile"
-              >
-                <Share2 className="w-5 h-5" />
-              </button>
-              {isOwnProfile && (
-                <button
-                  onClick={handleEditProfile}
-                  className="p-2 text-white/60 hover:text-white transition-colors"
-                  title="Edit profile"
-                  data-tutorial="edit-profile"
-                >
-                  <Edit3 className="w-5 h-5" />
-                </button>
-              )}
-            </div>
+            <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </div>
       </div>
 
-      <div className="max-w-md mx-auto">
-        {/* Cover Photo */}
-        <div className="relative h-32 bg-gradient-to-r from-[#D4AF37] to-[#F5C451]">
-          {profileDisplay.coverImageUrl ? (
-            <img
-              src={profileDisplay.coverImageUrl}
-              alt={`${profileDisplay.name} cover`}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : null
-          }
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0F1433]/50"></div>
-          {isOwnProfile && (
-            <button
-              onClick={() => setShowEditModal(true)}
-              className="absolute top-4 right-4 p-2 bg-black/20 rounded-full text-white hover:bg-black/40 transition-colors"
-            >
-              <Camera className="w-4 h-4" />
-            </button>
-          )}
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        {/* Header Section */}
+        <div className="flex items-center gap-4">
+          {/* Avatar */}
+          <div className="relative flex-shrink-0">
+            {profileDisplay.avatarUrl ? (
+              <img
+                src={profileDisplay.avatarUrl}
+                alt={profileDisplay.name}
+                className="w-20 h-20 rounded-full object-cover border-2 border-[#D4AF37]/50"
+              />
+            ) : (
+              <div className="w-20 h-20 bg-[#F5C451] rounded-full flex items-center justify-center border-2 border-[#D4AF37]/50">
+                <span className="text-2xl font-bold text-[#0F1433]">
+                  {profileDisplay.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Name and Role */}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-bold text-white mb-1 truncate">
+              {profileDisplay.name}
+            </h2>
+            
+            {/* Role Badge */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                userType === 'steward'
+                  ? 'bg-[#F5C451] text-[#0F1433]'
+                  : 'bg-white/10 text-white border border-[#D4AF37]/50'
+              }`}>
+                {userType === 'steward' ? 'Steward' : 'Disciple'}
+              </span>
+            </div>
+
+            {/* Email or Primary Fellowship */}
+            <p className="text-sm text-white/70 truncate">
+              {profileDisplay.email}
+            </p>
+          </div>
         </div>
 
-        {/* Profile Info */}
-        <div className="px-4 -mt-16 relative z-10">
-          {/* Profile Picture */}
-          <div className="flex items-end space-x-4 mb-4">
-            <div className="relative">
-              {profileDisplay.avatarUrl ? (
-                <img
-                  src={profileDisplay.avatarUrl}
-                  alt={profileDisplay.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-[#0F1433]"
-                />
-              ) : (
-                <div className="w-24 h-24 bg-[#F5C451] rounded-full flex items-center justify-center border-4 border-[#0F1433]">
-                  <span className="text-2xl font-bold text-[#0F1433]">
-                    {profileDisplay.name.charAt(0)}
-                  </span>
+        {/* Edit Profile Button */}
+        <button
+          onClick={handleEditProfile}
+          className="w-full bg-[#F5C451] text-[#0F1433] py-3 rounded-xl font-semibold hover:bg-[#D4AF37] transition-colors flex items-center justify-center gap-2 min-h-[44px]"
+          data-tutorial="edit-profile"
+        >
+          <Edit3 className="w-5 h-5" />
+          <span>Edit Profile</span>
+        </button>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white/5 border border-[#D4AF37]/30 rounded-xl p-4 text-center">
+            <div className="text-lg font-bold text-[#F5C451] mb-1">
+              {profileStats.fellowshipsJoined}
+            </div>
+            <div className="text-sm text-white/80">Fellowships</div>
+          </div>
+          
+          <div className="bg-white/5 border border-[#D4AF37]/30 rounded-xl p-4 text-center">
+            <div className="text-lg font-bold text-[#F5C451] mb-1">
+              {profileStats.eventsAttended}
+            </div>
+            <div className="text-sm text-white/80">Events</div>
+          </div>
+          
+          <div className="bg-white/5 border border-[#D4AF37]/30 rounded-xl p-4 text-center">
+            <div className="text-lg font-bold text-[#F5C451] mb-1">
+              {profileStats.prayersShared}
+            </div>
+            <div className="text-sm text-white/80">Prayers</div>
+          </div>
+          
+          <div className="bg-white/5 border border-[#D4AF37]/30 rounded-xl p-4 text-center">
+            <div className="text-lg font-bold text-[#F5C451] mb-1">
+              {profileStats.testimoniesShared}
+            </div>
+            <div className="text-sm text-white/80">Testimonies</div>
+          </div>
+        </div>
+
+        {/* Account & Settings Section */}
+        <div className="bg-white/5 border border-[#D4AF37]/30 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-white/10">
+            <h3 className="text-base font-semibold text-white">Account & Settings</h3>
+          </div>
+          
+          <div className="divide-y divide-white/10">
+            {/* Settings */}
+            <button
+              onClick={handleSettingsClick}
+              className="w-full px-4 py-4 flex items-center justify-between hover:bg-white/5 transition-colors min-h-[44px]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#F5C451]/15 border border-[#D4AF37]/40 flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-[#F5C451]" />
                 </div>
-              )}
-              {isOwnProfile && (
-                <button className="absolute -bottom-1 -right-1 p-1 bg-[#0F1433] border-2 border-[#F5C451] rounded-full text-[#F5C451] hover:bg-[#0F1433]/90 transition-colors">
-                  <Camera className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex-1 flex space-x-2">
-              {!isOwnProfile && (
-                <>
-                  <button
-                    onClick={handleFollow}
-                    className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-colors ${
-                      isFollowing
-                        ? 'bg-white/10 text-white border border-[#D4AF37]/50'
-                        : 'bg-[#F5C451] text-[#0F1433] hover:bg-[#D4AF37]'
-                    }`}
-                  >
-                    {isFollowing ? 'Following' : 'Follow'}
-                  </button>
-                  <button className="bg-white/10 text-white py-2 px-4 rounded-lg font-semibold hover:bg-white/20 transition-colors border border-[#D4AF37]/50">
-                    <MessageCircle className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Basic Info */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white mb-1">{profileDisplay.name}</h1>
-            <p className="text-white/80 mb-2">{profileDisplay.bio}</p>
-            
-            <div className="flex items-center space-x-4 text-sm text-white/70 mb-3">
-              <div className="flex items-center space-x-1">
-                <MapPin className="w-4 h-4 text-[#F5C451]" />
-                <span>{profileDisplay.location}</span>
+                <span className="text-white font-medium">Settings</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <BookOpen className="w-4 h-4 text-[#F5C451]" />
-                <span>{profileDisplay.denomination}</span>
-              </div>
-            </div>
+              <ChevronRight className="w-5 h-5 text-white/40" />
+            </button>
 
-            <div className="flex items-center space-x-1 text-sm text-white/60">
-              <Clock className="w-4 h-4" />
-              <span>Joined {profileDisplay.joinDate}</span>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-4 mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
-            <div className="grid grid-cols-2 gap-4 relative z-10">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.eventsAttended}</div>
-                <div className="text-sm text-white/80">Events Attended</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.fellowshipsJoined}</div>
-                <div className="text-sm text-white/80">Fellowships</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.friends}</div>
-                <div className="text-sm text-white/80">Friends</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[#F5C451]">{profileStats.testimoniesShared}</div>
-                <div className="text-sm text-white/80">Testimonies</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Growth & Analytics Stats Panel */}
-          <StatsPanel />
-
-          {/* Interests */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-4 mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
-            <h3 className="text-lg font-semibold text-white mb-3 relative z-10">Interests</h3>
-            <div className="flex flex-wrap gap-2 relative z-10">
-              {profileDisplay.interests.map((interest, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-white/10 text-white/80 text-sm rounded-full border border-[#D4AF37]/30"
-                >
-                  {interest}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-4 mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
-            <h3 className="text-lg font-semibold text-white mb-3 relative z-10">Recent Activity</h3>
-            <div className="space-y-3 relative z-10">
-              {recentActivity.map((activity) => {
-                const IconComponent = activity.icon
-                return (
-                  <div key={activity.id} className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-[#F5C451] rounded-full flex items-center justify-center">
-                      <IconComponent className="w-4 h-4 text-[#0F1433]" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm text-white">
-                        {activity.action === 'attended' && 'Attended'}
-                        {activity.action === 'joined' && 'Joined'}
-                        {activity.action === 'shared' && 'Shared'}
-                        {' '}
-                        <span className="font-medium">{activity.title}</span>
-                      </div>
-                      <div className="text-xs text-white/60">{activity.date}</div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Testimonies */}
-          <div className="bg-white/5 border border-[#D4AF37] rounded-2xl p-4 mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
-            <div className="flex items-center justify-between mb-3 relative z-10">
-              <h3 className="text-lg font-semibold text-white">Testimonies</h3>
-              {isOwnProfile && (
-                <button
-                  type="button"
-                  onClick={() => router.push('/testimonies/create')}
-                  className="text-[#F5C451] text-sm font-medium hover:text-[#D4AF37] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] rounded-lg px-2 py-1"
-                >
-                  Share New
-                </button>
-              )}
-            </div>
-            <div className="space-y-4 relative z-10">
-              {testimonies.map((testimony) => (
-                <div key={testimony.id} className="bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30">
-                  <h4 className="font-semibold text-white mb-2">{testimony.title}</h4>
-                  <p className="text-white/80 text-sm mb-3 leading-relaxed">{testimony.excerpt}</p>
-                  <div className="flex items-center justify-between text-xs text-white/60">
-                    <span>{testimony.date}</span>
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-1">
-                        <Heart className="w-3 h-3" />
-                        <span>{testimony.likes}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <MessageCircle className="w-3 h-3" />
-                        <span>{testimony.comments}</span>
-                      </div>
-                    </div>
-                  </div>
+            {/* Notifications */}
+            <button
+              onClick={() => router.push('/settings/notifications')}
+              className="w-full px-4 py-4 flex items-center justify-between hover:bg-white/5 transition-colors min-h-[44px]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#F5C451]/15 border border-[#D4AF37]/40 flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-[#F5C451]" />
                 </div>
-              ))}
-            </div>
+                <span className="text-white font-medium">Notifications</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-white/40" />
+            </button>
+
+            {/* Privacy & Safety */}
+            <button
+              onClick={() => router.push('/settings/privacy')}
+              className="w-full px-4 py-4 flex items-center justify-between hover:bg-white/5 transition-colors min-h-[44px]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#F5C451]/15 border border-[#D4AF37]/40 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-[#F5C451]" />
+                </div>
+                <span className="text-white font-medium">Privacy & Safety</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-white/40" />
+            </button>
           </div>
         </div>
       </div>
@@ -364,6 +233,15 @@ export default function ProfilePage() {
         onSave={handleSaveProfile}
         currentProfile={profileDisplay}
       />
+
+      {/* Settings Sheet */}
+      {showSettingsSheet && (
+        <UserTypeSelector
+          currentType={userType === 'steward' ? 'leader' : 'individual'}
+          onTypeChange={handleUserTypeChange}
+          onClose={() => setShowSettingsSheet(false)}
+        />
+      )}
     </div>
   )
 }

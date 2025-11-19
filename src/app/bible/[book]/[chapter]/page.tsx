@@ -83,11 +83,6 @@ export default function BibleChapterPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1433]">
-      <AppHeader
-        title={`${book.name} ${chapter}`}
-        subtitle="World English Bible"
-        backHref={`/bible/${bookId}`}
-      />
       <BibleReader book={bookId} chapter={chapter} />
     </div>
   )

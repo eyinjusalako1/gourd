@@ -16,11 +16,13 @@ import StewardHome from '@/components/dashboard/StewardHome'
 import { buildSuggestions } from '@/lib/prefs'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useNotificationPlanner } from '@/hooks/useNotificationPlanner'
+import { useToast } from '@/components/ui/Toast'
 
 export default function DashboardPage() {
   const { user, signOut, loading, setMockUserType } = useAuth()
   const { profile, updateProfile } = useUserProfile()
   const router = useRouter()
+  const toast = useToast()
   const [userRole, setUserRole] = useState<'Member' | 'Leader' | 'Church Admin'>('Member')
   const [userType, setUserType] = useState<'individual' | 'leader' | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -59,11 +61,31 @@ export default function DashboardPage() {
     setMockUserType(type)
   }
 
-  const handleUserTypeChange = (type: 'individual' | 'leader') => {
-    setUserType(type)
+  const handleUserTypeChange = useCallback((type: 'individual' | 'leader') => {
+    // Close modal immediately
     setShowUserTypeSelector(false)
+    
+    // Update user type state
+    setUserType(type)
     setMockUserType(type)
-  }
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('gathered_user_type', type)
+    
+    // Show success toast
+    toast({
+      title: 'Role updated',
+      variant: 'success',
+      duration: 2000,
+    })
+    
+    // Smooth transition - the state update will trigger re-render
+    // Using requestAnimationFrame to ensure smooth visual transition
+    requestAnimationFrame(() => {
+      // Scroll to top smoothly to prevent layout shift
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
+  }, [toast, setMockUserType])
 
   const handleTabChange = (tab: string) => {
     switch (tab) {
@@ -180,8 +202,10 @@ export default function DashboardPage() {
 
       {/* Main Content - Scrollable */}
       <div className="max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto">
+        {/* Use key prop to force smooth remount on role change, preventing layout shift */}
         {userType === 'leader' && profile && (
           <StewardHome
+            key="steward-home"
             profile={profile}
             suggestions={suggestions}
             onDismissSuggestion={handleDismissSuggestion}
@@ -191,6 +215,7 @@ export default function DashboardPage() {
 
         {userType === 'individual' && profile && (
           <DiscipleHome
+            key="disciple-home"
             userId={user?.id || 'demo'}
             profile={profile}
             suggestions={suggestions}

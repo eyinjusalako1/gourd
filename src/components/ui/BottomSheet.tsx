@@ -180,7 +180,7 @@ export function BottomSheet({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             onClick={onClose}
           />
           <motion.div
@@ -201,21 +201,27 @@ export function BottomSheet({
               bottom: 0,
               maxHeight,
               paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)',
+              willChange: 'transform',
             }}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
             onDragEnd={onDragEnd}
-            dragElastic={{ top: 0.2, bottom: 0.6 }}
+            dragElastic={{ top: 0, bottom: 0.3 }}
             dragMomentum={false}
-            initial={{ y: '100%' }}
+            initial={{ y: 300 }}
             animate={{
               y:
                 viewportHeight > 0
                   ? viewportHeight - viewportHeight * currentSnap
-                  : '0%',
+                  : 0,
             }}
-            exit={{ y: '100%' }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ y: 300 }}
+            transition={{
+              type: 'spring',
+              damping: 25,
+              stiffness: 300,
+              mass: 0.8,
+            }}
           >
             <div className="flex flex-col">
               <div className="relative py-3">

@@ -60,9 +60,9 @@ export default function QuickActions() {
           <button
             key={action.id}
             onClick={action.onClick}
-            className="bg-white/5 border border-[#D4AF37] rounded-xl p-4 text-center hover:bg-white/10 transition-colors group"
+            className="bg-white/5 border border-[#D4AF37] rounded-xl py-4 px-3 text-center hover:bg-white/10 transition-colors group min-h-[44px] flex flex-col items-center justify-center"
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 bg-gradient-to-r from-[#D4AF37] to-[#F5C451] rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <Icon className="w-5 h-5 text-[#0F1433]" />
             </div>
             <p className="text-white text-xs font-medium">{action.label}</p>

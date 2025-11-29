@@ -469,3 +469,9 @@ export default function PostDetailsPage({ params }: { params: { id: string } }) 
 }
 
 
+
+
+
+
+
+

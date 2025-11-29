@@ -191,3 +191,9 @@ npm install
 **Your Gathered app will be live and ready to serve the Christian community!** 🙏
 
 
+
+
+
+
+
+

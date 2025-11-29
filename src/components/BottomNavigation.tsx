@@ -65,3 +65,9 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
     </div>
   )
 }
+
+
+
+
+
+

@@ -142,3 +142,9 @@ export const EVENT_CATEGORIES = {
   OUTREACH: 'Outreach',
   SOCIAL: 'Social'
 } as const
+
+
+
+
+
+

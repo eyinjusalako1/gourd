@@ -1,32 +1,25 @@
 'use client'
 
 import { useAuth } from '@/lib/auth-context'
+import { usePrefs } from '@/hooks/usePrefs'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import Link from 'next/link'
 import { Settings, LogOut, Bell, Crown } from 'lucide-react'
-import VerseCard from '@/components/VerseCard'
-import EventList from '@/components/EventList'
-import FellowshipGroups from '@/components/FellowshipGroups'
-import AnnouncementFeed from '@/components/AnnouncementFeed'
-import StatsPanel from '@/components/StatsPanel'
-import LeaderDashboard from '@/components/LeaderDashboard'
+import DiscipleHome from '@/components/DiscipleHome'
+import StewardHome from '@/components/StewardHome'
 import BottomNavigation from '@/components/BottomNavigation'
 
 export default function DashboardPage() {
-  const { user, signOut, loading } = useAuth()
+  const { user, signOut, loading: authLoading } = useAuth()
+  const { userType, isLoading: prefsLoading } = usePrefs()
   const router = useRouter()
-  const [userRole, setUserRole] = useState<'Member' | 'Leader' | 'Church Admin'>('Member')
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/auth/login')
     }
-    
-    // Determine user role from user metadata
-    if (user?.user_metadata?.role) {
-      setUserRole(user.user_metadata.role)
-    }
-  }, [user, loading, router])
+  }, [user, authLoading, router])
 
   const handleSignOut = async () => {
     await signOut()
@@ -54,7 +47,8 @@ export default function DashboardPage() {
     }
   }
 
-  if (loading) {
+  // Show loading state while auth or prefs are loading, or if userType is not yet determined
+  if (authLoading || prefsLoading || !userType) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-beige-50 dark:bg-navy-900">
         <div className="text-center">
@@ -68,8 +62,6 @@ export default function DashboardPage() {
   if (!user) {
     return null
   }
-
-  const isLeader = userRole === 'Leader' || userRole === 'Church Admin'
 
   return (
     <div className="min-h-screen bg-beige-50 dark:bg-navy-900 pb-20">
@@ -92,13 +84,19 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center space-x-2">
-              <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 relative">
+              <Link 
+                href="/settings/notifications" 
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 relative"
+              >
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-gold-500 rounded-full"></div>
-              </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              </Link>
+              <Link 
+                href="/settings" 
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
                 <Settings className="w-5 h-5" />
-              </button>
+              </Link>
               <button
                 onClick={handleSignOut}
                 className="flex items-center space-x-1 px-3 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -112,39 +110,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        {/* Section A: Spiritual Touchpoint */}
-        <VerseCard />
-
-        {/* Section B: Engagement & Community */}
-        <div className="space-y-6">
-          <EventList />
-          <FellowshipGroups userRole={userRole} />
-          <AnnouncementFeed />
-        </div>
-
-        {/* Section C: Growth & Analytics */}
-        <StatsPanel />
-
-        {/* Section D: Leader/Admin Features */}
-        {isLeader && (
-          <LeaderDashboard userRole={userRole} />
-        )}
-
-        {/* Monetization Integration Placeholder */}
-        {userRole === 'Member' && (
-          <div className="bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl p-4 text-navy-900">
-            <div className="text-center">
-              <h3 className="font-bold text-lg mb-2">Upgrade to Gathered+</h3>
-              <p className="text-sm mb-4 opacity-90">
-                Host your own fellowship groups and unlock advanced features
-              </p>
-              <button className="bg-white text-navy-900 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                Learn More
-              </button>
-            </div>
-          </div>
-        )}
+      <div className="max-w-md mx-auto px-4 py-6">
+        {userType === 'Disciple' && <DiscipleHome />}
+        {userType === 'Steward' && <StewardHome />}
       </div>
 
       {/* Bottom Navigation */}

@@ -187,3 +187,9 @@ yarn dev
 **Ready to start? Let's begin with Step 1 - creating your Supabase project!** 🚀
 
 
+
+
+
+
+
+

@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { usePrefs } from '@/hooks/usePrefs'
+import { useUnreadActivity } from '@/hooks/useUnreadActivity'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
@@ -13,6 +14,7 @@ import BottomNavigation from '@/components/BottomNavigation'
 export default function DashboardPage() {
   const { user, signOut, loading: authLoading } = useAuth()
   const { userType, isLoading: prefsLoading } = usePrefs()
+  const { hasUnread, clearUnread } = useUnreadActivity()
   const router = useRouter()
 
   useEffect(() => {
@@ -86,10 +88,14 @@ export default function DashboardPage() {
             <div className="flex items-center space-x-2">
               <Link 
                 href="/settings/notifications" 
+                onClick={clearUnread}
                 className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 relative"
               >
                 <Bell className="w-5 h-5" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gold-500 rounded-full"></div>
+                {/* Unread Activity Badge */}
+                {hasUnread && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-navy-800 animate-pulse"></div>
+                )}
               </Link>
               <Link 
                 href="/settings" 

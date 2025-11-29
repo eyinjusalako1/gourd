@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Home, Calendar, MessageCircle, Users, BookOpen } from 'lucide-react'
+import { useUnreadActivity } from '@/hooks/useUnreadActivity'
 
 interface BottomNavProps {
   activeTab?: string
@@ -18,6 +19,7 @@ const tabs = [
 
 export default function BottomNavigation({ activeTab = 'home', onTabChange }: BottomNavProps) {
   const [currentTab, setCurrentTab] = useState(activeTab)
+  const { hasUnread } = useUnreadActivity()
 
   const handleTabClick = (tabId: string) => {
     setCurrentTab(tabId)
@@ -50,6 +52,10 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
                   }`} />
                   {isActive && (
                     <div className="absolute -top-1 -right-1 w-2 h-2 bg-gold-500 rounded-full animate-pulse" />
+                  )}
+                  {/* Unread Activity Badge - shows on home tab when there's unread activity */}
+                  {tab.id === 'home' && hasUnread && !isActive && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-gray-800" />
                   )}
                 </div>
                 <span className={`text-xs font-medium mt-1 ${

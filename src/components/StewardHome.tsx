@@ -1,5 +1,7 @@
 'use client'
 
+import { useAuth } from '@/lib/auth-context'
+import WelcomeBanner from '@/components/WelcomeBanner'
 import VerseCard from '@/components/VerseCard'
 import EventList from '@/components/EventList'
 import FellowshipGroups from '@/components/FellowshipGroups'
@@ -8,8 +10,14 @@ import StatsPanel from '@/components/StatsPanel'
 import LeaderDashboard from '@/components/LeaderDashboard'
 
 export default function StewardHome() {
+  const { user } = useAuth()
+  const firstName = user?.user_metadata?.name?.split(' ')[0] || 'Leader'
+
   return (
     <div className="space-y-6">
+      {/* Quick Welcome Banner */}
+      <WelcomeBanner firstName={firstName} message="Your community is waiting" />
+
       {/* Section A: Spiritual Touchpoint */}
       <VerseCard />
 

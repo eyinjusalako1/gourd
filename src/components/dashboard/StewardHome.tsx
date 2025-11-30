@@ -1,14 +1,13 @@
 'use client'
 
-import Link from 'next/link'
 import LeaderDashboard from '@/components/LeaderDashboard'
 import VerseCard from '@/components/VerseCard'
 import FellowshipActivityFeed from '@/components/FellowshipActivityFeed'
 import WeeklyChallenge from '@/components/WeeklyChallenge'
 import UpcomingEvents from '@/components/UpcomingEvents'
-import QuickActions from '@/components/QuickActions'
 import SuggestionCard from '@/components/personalization/SuggestionCard'
 import type { Suggestion, UserProfile } from '@/lib/prefs'
+import QuickActions from '@/components/QuickActions'
 
 interface StewardHomeProps {
   profile: UserProfile
@@ -30,7 +29,8 @@ export default function StewardHome({
 
       {!!suggestions.length && (
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold text-white">Opportunities for this week</h3>
+          <h3 className="text-lg font-semibold text-white">
+  Opportunities for this week (BETA)</h3>
           <div className="space-y-3">
             {suggestions.map((suggestion) => (
               <SuggestionCard
@@ -45,21 +45,6 @@ export default function StewardHome({
       )}
 
       <VerseCard />
-      <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
-
-      <section>
-        <h3 className="text-lg font-semibold text-white mb-3">Read Scripture</h3>
-        <Link
-          href="/bible"
-          className="rounded-xl bg-white/5 border border-[#D4AF37]/30 px-4 py-4 flex items-center justify-between tappable hover:bg-white/10 transition-colors"
-        >
-          <div>
-            <div className="text-sm font-semibold text-white">Bible</div>
-            <div className="text-xs text-white/70">Read Scripture (WEB)</div>
-          </div>
-          <div className="text-2xl">📖</div>
-        </Link>
-      </section>
       <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
 
       <section>
@@ -83,12 +68,14 @@ export default function StewardHome({
       <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
 
       <section>
-        <h3 className="text-lg font-semibold text-white mb-3">Steward Quick Actions</h3>
+        <h3 className="text-lg font-semibold text-white mb-3">text-lg font-semibold text-white mb-3">
+        Steward Quick Actions (BETA)</h3>
         <QuickActions />
       </section>
     </>
   )
 }
+
 
 
 

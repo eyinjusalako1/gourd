@@ -356,7 +356,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
                 {userRsvp ? (
                   <div className="space-y-3">
                     <div className={`px-3 py-2 rounded-lg text-sm font-medium ${getRsvpStatusColor(userRsvp.status)}`}>
-                      You're {userRsvp.status === 'going' ? 'going' : userRsvp.status === 'maybe' ? 'maybe going' : 'not going'}
+                      You&apos;re {userRsvp.status === 'going' ? 'going' : userRsvp.status === 'maybe' ? 'maybe going' : 'not going'}
                     </div>
                     {userRsvp.guest_count && userRsvp.guest_count > 0 && (
                       <div className="text-sm text-gray-600 dark:text-gray-400">

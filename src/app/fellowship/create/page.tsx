@@ -15,7 +15,7 @@ import {
   Globe,
   Heart,
   BookOpen,
-  Prayer
+  Sparkles
 } from 'lucide-react'
 
 export default function CreateGroupPage() {
@@ -80,7 +80,7 @@ export default function CreateGroupPage() {
       case 'bible_study':
         return <BookOpen className="w-5 h-5" />
       case 'prayer_group':
-        return <Prayer className="w-5 h-5" />
+        return <Sparkles className="w-5 h-5" />
       default:
         return <Heart className="w-5 h-5" />
     }
@@ -146,7 +146,7 @@ export default function CreateGroupPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
                     { value: 'bible_study', label: 'Bible Study', icon: <BookOpen className="w-4 h-4" /> },
-                    { value: 'prayer_group', label: 'Prayer Group', icon: <Prayer className="w-4 h-4" /> },
+                    { value: 'prayer_group', label: 'Sparkles Group', icon: <Sparkles className="w-4 h-4" /> },
                     { value: 'fellowship', label: 'Fellowship', icon: <Heart className="w-4 h-4" /> },
                     { value: 'youth_group', label: 'Youth Group', icon: <Users className="w-4 h-4" /> },
                     { value: 'senior_group', label: 'Senior Group', icon: <Users className="w-4 h-4" /> },

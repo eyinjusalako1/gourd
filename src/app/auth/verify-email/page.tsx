@@ -21,7 +21,7 @@ export default function VerifyEmailPage() {
             Check Your Email
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            We've sent you a verification link
+            We&apos;ve sent you a verification link
           </p>
         </div>
 
@@ -39,7 +39,7 @@ export default function VerifyEmailPage() {
           
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Please check your email and click the verification link to activate your Gathered account. 
-            If you don't see the email, check your spam folder.
+            If you don&apos;t see the email, check your spam folder.
           </p>
 
           <div className="space-y-4">
@@ -51,7 +51,7 @@ export default function VerifyEmailPage() {
             </div>
 
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              <p>Didn't receive the email?</p>
+              <p>Didn&apos;t receive the email?</p>
               <button 
                 onClick={() => setEmailSent(true)}
                 className="text-primary-600 hover:text-primary-500 font-medium"

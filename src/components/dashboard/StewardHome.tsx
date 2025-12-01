@@ -68,8 +68,9 @@ export default function StewardHome({
       <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
 
       <section>
-        <h3 className="text-lg font-semibold text-white mb-3">text-lg font-semibold text-white mb-3">
-        Steward Quick Actions (BETA)</h3>
+        <h3 className="text-lg font-semibold text-white mb-3">
+          Steward Quick Actions (BETA)
+        </h3>
         <QuickActions />
       </section>
     </>

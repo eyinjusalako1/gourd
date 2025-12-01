@@ -13,8 +13,8 @@ import {
   Pin,
   Star,
   BookOpen,
-  Prayer,
-  HandHeart,
+  Sparkles,
+  HeartHandshake,
   Clock,
   Users,
   Calendar,
@@ -107,9 +107,9 @@ export default function PostDetailsPage({ params }: { params: { id: string } }) 
       case 'scripture':
         return <BookOpen className="w-6 h-6" />
       case 'prayer_request':
-        return <Prayer className="w-6 h-6" />
+        return <Sparkles className="w-6 h-6" />
       case 'encouragement':
-        return <HandHeart className="w-6 h-6" />
+        return <HeartHandshake className="w-6 h-6" />
       default:
         return <MessageCircle className="w-6 h-6" />
     }
@@ -172,7 +172,7 @@ export default function PostDetailsPage({ params }: { params: { id: string } }) 
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Post Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">The post you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The post you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <button onClick={() => router.push('/feed')} className="btn-primary">
             Back to Feed
           </button>
@@ -273,7 +273,7 @@ export default function PostDetailsPage({ params }: { params: { id: string } }) 
                   </div>
                 )}
 
-                {/* Prayer Category */}
+                {/* Sparkles Category */}
                 {post.prayer_category && (
                   <div className="mt-4 inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full">
                     {post.prayer_category} prayer

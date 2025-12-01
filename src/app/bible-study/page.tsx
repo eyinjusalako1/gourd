@@ -184,7 +184,7 @@ export default function BibleStudyPage() {
                 
                 <div className="bg-gold-50 dark:bg-gold-900/20 border border-gold-200 dark:border-gold-800 rounded-lg p-8 mb-6">
                   <blockquote className="text-xl text-gray-900 dark:text-white leading-relaxed mb-4">
-                    "{dailyVerse.text}"
+                    &quot;{dailyVerse.text}&quot;
                   </blockquote>
                   <cite className="text-lg font-medium text-gold-700 dark:text-gold-300">
                     — {dailyVerse.book} {dailyVerse.chapter}:{dailyVerse.verse} ({dailyVerse.translation})
@@ -222,7 +222,7 @@ export default function BibleStudyPage() {
                   return verses.slice(0, 2).map((verse, index) => (
                     <div key={`${category}_${index}`} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                       <blockquote className="text-gray-900 dark:text-white mb-3">
-                        "{verse.text}"
+                        &quot;{verse.text}&quot;
                       </blockquote>
                       <cite className="text-sm text-gray-600 dark:text-gray-400">
                         {verse.book} {verse.chapter}:{verse.verse}
@@ -340,7 +340,7 @@ export default function BibleStudyPage() {
                             {verse.verse_reference}
                           </h3>
                           <blockquote className="text-gray-700 dark:text-gray-300 mb-4">
-                            "{verse.verse_text}"
+                            &quot;{verse.verse_text}&quot;
                           </blockquote>
                           <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                             <span>Mastery: {verse.mastery_level}/10</span>
@@ -406,7 +406,7 @@ export default function BibleStudyPage() {
                   {searchResults.map((verse, index) => (
                     <div key={index} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                       <blockquote className="text-gray-900 dark:text-white mb-3">
-                        "{verse.text}"
+                        &quot;{verse.text}&quot;
                       </blockquote>
                       <cite className="text-sm text-gray-600 dark:text-gray-400 mb-3 block">
                         {verse.book} {verse.chapter}:{verse.verse} ({verse.translation})

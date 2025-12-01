@@ -13,8 +13,8 @@ import {
   ArrowLeft, 
   Heart,
   BookOpen,
-  Prayer,
-  HandHeart,
+  Sparkles,
+  HeartHandshake,
   MessageCircle,
   Tag,
   Users,
@@ -126,9 +126,9 @@ export default function CreatePostPage() {
       case 'scripture':
         return <BookOpen className="w-4 h-4" />
       case 'prayer_request':
-        return <Prayer className="w-4 h-4" />
+        return <Sparkles className="w-4 h-4" />
       case 'encouragement':
-        return <HandHeart className="w-4 h-4" />
+        return <HeartHandshake className="w-4 h-4" />
       default:
         return <MessageCircle className="w-4 h-4" />
     }
@@ -187,8 +187,8 @@ export default function CreatePostPage() {
               {[
                 { value: 'testimony', label: 'Testimony', icon: <Heart className="w-4 h-4" />, color: 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400' },
                 { value: 'scripture', label: 'Scripture', icon: <BookOpen className="w-4 h-4" />, color: 'bg-gold-100 text-gold-600 dark:bg-gold-900 dark:text-gold-400' },
-                { value: 'prayer_request', label: 'Prayer Request', icon: <Prayer className="w-4 h-4" />, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400' },
-                { value: 'encouragement', label: 'Encouragement', icon: <HandHeart className="w-4 h-4" />, color: 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400' },
+                { value: 'prayer_request', label: 'Sparkles Request', icon: <Sparkles className="w-4 h-4" />, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400' },
+                { value: 'encouragement', label: 'Encouragement', icon: <HeartHandshake className="w-4 h-4" />, color: 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400' },
                 { value: 'general', label: 'General', icon: <MessageCircle className="w-4 h-4" />, color: 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400' },
               ].map((type) => (
                 <label key={type.value} className="relative">
@@ -275,16 +275,16 @@ export default function CreatePostPage() {
                   onChange={handleChange}
                 />
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Include the book, chapter, and verse(s) for the scripture you're sharing
+                  Include the book, chapter, and verse(s) for the scripture you&apos;re sharing
                 </p>
               </div>
             </div>
           )}
 
-          {/* Prayer Category */}
+          {/* Sparkles Category */}
           {formData.post_type === 'prayer_request' && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Prayer Category</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Sparkles Category</h2>
               
               <div>
                 <label htmlFor="prayer_category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -376,7 +376,7 @@ export default function CreatePostPage() {
                 {suggestedVerses.map((verse, index) => (
                   <div key={index} className="bg-gold-50 dark:bg-gold-900/20 border border-gold-200 dark:border-gold-800 rounded-lg p-4">
                     <blockquote className="text-gray-900 dark:text-white mb-2">
-                      "{verse.text}"
+                      &quot;{verse.text}&quot;
                     </blockquote>
                     <cite className="text-sm text-gold-700 dark:text-gold-300 mb-3 block">
                       {verse.book} {verse.chapter}:{verse.verse} ({verse.translation})

@@ -15,7 +15,7 @@ import {
   Globe,
   Heart,
   BookOpen,
-  Prayer,
+  Sparkles,
   Settings,
   UserPlus,
   Check,
@@ -112,7 +112,7 @@ export default function GroupDetailsPage({ params }: { params: { id: string } })
       case 'bible_study':
         return <BookOpen className="w-6 h-6" />
       case 'prayer_group':
-        return <Prayer className="w-6 h-6" />
+        return <Sparkles className="w-6 h-6" />
       default:
         return <Heart className="w-6 h-6" />
     }
@@ -145,7 +145,7 @@ export default function GroupDetailsPage({ params }: { params: { id: string } })
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Group Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">The group you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The group you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <button onClick={() => router.push('/fellowship')} className="btn-primary">
             Back to Groups
           </button>
@@ -345,7 +345,7 @@ export default function GroupDetailsPage({ params }: { params: { id: string } })
                       </div>
                       {request.message && (
                         <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          "{request.message}"
+                          &quot;{request.message}&quot;
                         </div>
                       )}
                       <div className="flex space-x-2">

@@ -15,9 +15,9 @@ import {
   Pin,
   Star,
   BookOpen,
-  Prayer,
+  Sparkles,
   Megaphone,
-  HandHeart,
+  HeartHandshake,
   Calendar,
   Users,
   Clock,
@@ -119,9 +119,9 @@ export default function FeedPage() {
       case 'scripture':
         return <BookOpen className="w-5 h-5" />
       case 'prayer_request':
-        return <Prayer className="w-5 h-5" />
+        return <Sparkles className="w-5 h-5" />
       case 'encouragement':
-        return <HandHeart className="w-5 h-5" />
+        return <HeartHandshake className="w-5 h-5" />
       default:
         return <MessageCircle className="w-5 h-5" />
     }
@@ -223,7 +223,7 @@ export default function FeedPage() {
                 <option value="all">All Posts</option>
                 <option value="testimony">Testimonies</option>
                 <option value="scripture">Scripture</option>
-                <option value="prayer_request">Prayer Requests</option>
+                <option value="prayer_request">Sparkles Requests</option>
                 <option value="encouragement">Encouragement</option>
                 <option value="general">General</option>
               </select>
@@ -311,7 +311,7 @@ export default function FeedPage() {
                     </div>
                   )}
 
-                  {/* Prayer Category */}
+                  {/* Sparkles Category */}
                   {post.prayer_category && (
                     <div className="mt-3 inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full">
                       {post.prayer_category} prayer

@@ -15,10 +15,10 @@ import {
   Globe,
   Tag,
   BookOpen,
-  Prayer,
+  Sparkles,
   Heart,
   Megaphone,
-  HandHeart,
+  HeartHandshake,
   Settings,
   CheckCircle,
   UserPlus,
@@ -95,13 +95,13 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       case 'bible_study':
         return <BookOpen className="w-6 h-6" />
       case 'prayer_meeting':
-        return <Prayer className="w-6 h-6" />
+        return <Sparkles className="w-6 h-6" />
       case 'worship':
         return <Heart className="w-6 h-6" />
       case 'evangelism':
         return <Megaphone className="w-6 h-6" />
       case 'community_service':
-        return <HandHeart className="w-6 h-6" />
+        return <HeartHandshake className="w-6 h-6" />
       default:
         return <Calendar className="w-6 h-6" />
     }
@@ -170,7 +170,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Event Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">The event you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The event you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <button onClick={() => router.push('/events')} className="btn-primary">
             Back to Events
           </button>

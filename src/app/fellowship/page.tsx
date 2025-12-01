@@ -16,7 +16,7 @@ import {
   Filter,
   Heart,
   BookOpen,
-  Prayer
+  Sparkles
 } from 'lucide-react'
 
 export default function FellowshipPage() {
@@ -61,7 +61,7 @@ export default function FellowshipPage() {
       case 'bible_study':
         return <BookOpen className="w-5 h-5" />
       case 'prayer_group':
-        return <Prayer className="w-5 h-5" />
+        return <Sparkles className="w-5 h-5" />
       default:
         return <Heart className="w-5 h-5" />
     }
@@ -142,7 +142,7 @@ export default function FellowshipPage() {
               >
                 <option value="all">All Types</option>
                 <option value="bible_study">Bible Study</option>
-                <option value="prayer_group">Prayer Group</option>
+                <option value="prayer_group">Sparkles Group</option>
                 <option value="fellowship">Fellowship</option>
                 <option value="youth_group">Youth Group</option>
                 <option value="senior_group">Senior Group</option>

@@ -16,10 +16,10 @@ import {
   Globe,
   Tag,
   BookOpen,
-  Prayer,
+  Sparkles,
   Heart,
   Megaphone,
-  HandHeart,
+  HeartHandshake,
   Settings,
   Repeat
 } from 'lucide-react'
@@ -118,13 +118,13 @@ export default function CreateEventPage() {
       case 'bible_study':
         return <BookOpen className="w-4 h-4" />
       case 'prayer_meeting':
-        return <Prayer className="w-4 h-4" />
+        return <Sparkles className="w-4 h-4" />
       case 'worship':
         return <Heart className="w-4 h-4" />
       case 'evangelism':
         return <Megaphone className="w-4 h-4" />
       case 'community_service':
-        return <HandHeart className="w-4 h-4" />
+        return <HeartHandshake className="w-4 h-4" />
       default:
         return <Calendar className="w-4 h-4" />
     }
@@ -190,11 +190,11 @@ export default function CreateEventPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
                     { value: 'bible_study', label: 'Bible Study', icon: <BookOpen className="w-4 h-4" /> },
-                    { value: 'prayer_meeting', label: 'Prayer Meeting', icon: <Prayer className="w-4 h-4" /> },
+                    { value: 'prayer_meeting', label: 'Sparkles Meeting', icon: <Sparkles className="w-4 h-4" /> },
                     { value: 'worship', label: 'Worship', icon: <Heart className="w-4 h-4" /> },
                     { value: 'fellowship', label: 'Fellowship', icon: <Users className="w-4 h-4" /> },
                     { value: 'evangelism', label: 'Evangelism', icon: <Megaphone className="w-4 h-4" /> },
-                    { value: 'community_service', label: 'Community Service', icon: <HandHeart className="w-4 h-4" /> },
+                    { value: 'community_service', label: 'Community Service', icon: <HeartHandshake className="w-4 h-4" /> },
                     { value: 'other', label: 'Other', icon: <Calendar className="w-4 h-4" /> },
                   ].map((type) => (
                     <label key={type.value} className="relative">

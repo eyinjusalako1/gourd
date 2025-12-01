@@ -50,10 +50,11 @@ export default function CreatePostPage() {
   }, [user])
 
   const loadUserData = async () => {
+    if (!user?.id) return
     try {
       const [groups, events] = await Promise.all([
-        FellowshipService.getGroups(user?.id),
-        EventService.getUserEvents(user?.id)
+        FellowshipService.getGroups(user.id),
+        EventService.getUserEvents(user.id)
       ])
       setUserGroups(groups)
       setUserEvents(events)

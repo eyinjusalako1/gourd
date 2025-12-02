@@ -21,6 +21,11 @@ export type UserProfile = {
   updated_at?: string | null
   preferred_fellowship_id?: string | null
   last_activity_at?: string | null
+  accessibility?: {
+    reduceMotion?: boolean
+    largeText?: boolean
+    highContrast?: boolean
+  } | null
 }
 
 export type UserProfileUpdate = Partial<Omit<UserProfile, 'id'>> & { id?: never }

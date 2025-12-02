@@ -1,12 +1,24 @@
-import { isSupabaseConfigured, supabase, type Database } from '@/lib/supabase'
+import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 
 const PROFILE_CACHE_KEY = 'gathered_user_profile'
 const DISMISS_PREFIX = 'type:'
 
-type Tables = Database['public']['Tables']
-type UserProfilesRow = Tables['user_profiles']['Row']
-
-export type UserProfile = UserProfilesRow & {
+// Define UserProfile type directly (without Database type dependency)
+export type UserProfile = {
+  id: string
+  email?: string | null
+  name?: string | null
+  avatar_url?: string | null
+  bio?: string | null
+  city?: string | null
+  role?: string | null
+  interests?: string[] | null
+  availability?: string[] | null
+  notif_cadence?: string | null
+  dismissed_suggestions?: string[] | null
+  last_seen_at?: string | null
+  created_at?: string | null
+  updated_at?: string | null
   preferred_fellowship_id?: string | null
   last_activity_at?: string | null
 }

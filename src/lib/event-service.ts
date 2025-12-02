@@ -222,17 +222,22 @@ export class EventService {
     return data || []
   }
 
-  // Get user's events (created by user)
+  // Get user's events (from event_attendees)
   static async getUserEvents(userId: string): Promise<Event[]> {
     const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .eq('created_by', userId)
-      .eq('is_active', true)
-      .order('start_time', { ascending: true })
+      .from('event_attendees')
+      .select('event(*)')
+      .eq('user_id', userId)
 
     if (error) throw error
-    return data || []
+
+    // Safely map + filter and make TS happy
+    const events =
+      (data ?? [])
+        .map((item: any) => item.event as Event | null)
+        .filter((event): event is Event => event !== null)
+
+    return events
   }
 
   // Get user's RSVPed events

@@ -27,8 +27,11 @@ export function usePrefs(): Prefs {
     }
 
     let isMounted = true
+    const userId = user.id // Store user.id before async function
 
     async function loadPrefs() {
+      if (!userId) return // Guard clause
+      
       try {
         // First, try to load from local cache for instant hydration
         const cached = localStorage.getItem(PREFS_CACHE_KEY)
@@ -53,7 +56,7 @@ export function usePrefs(): Prefs {
         const { data, error } = await supabase
           .from(PREFS_TABLE)
           .select('user_type')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .single()
 
         if (!isMounted) return

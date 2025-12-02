@@ -92,12 +92,24 @@ export default function EventList() {
   const handleRSVP = (eventId: string, action: 'going' | 'interested' | 'not-going') => {
     setEvents(events.map(event => {
       if (event.id === eventId) {
+        const wasJoined = event.isJoined
+        const isNowGoing = action === 'going'
+        let newAttendees = event.attendees
+        
+        // If user was going and now isn't, decrease count
+        if (wasJoined && !isNowGoing) {
+          newAttendees = Math.max(0, event.attendees - 1)
+        }
+        // If user wasn't going and now is, increase count
+        else if (!wasJoined && isNowGoing) {
+          newAttendees = event.attendees + 1
+        }
+        
         return {
           ...event,
-          isJoined: action === 'going',
+          isJoined: isNowGoing,
           isInterested: action === 'interested',
-          attendees: action === 'going' ? event.attendees + 1 : 
-                    (event.isJoined && action !== 'going') ? event.attendees - 1 : event.attendees
+          attendees: newAttendees
         }
       }
       return event

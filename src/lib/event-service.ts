@@ -254,7 +254,13 @@ export class EventService {
       .order('rsvp_date', { ascending: false })
 
     if (error) throw error
-    return data?.map(item => item.event).filter(Boolean) || []
+
+    // Normalise and type the events properly
+    const events = (data ?? [])
+      .map((item: any) => item.event)
+      .filter(Boolean) as Event[]
+
+    return events
   }
 
   // Search events

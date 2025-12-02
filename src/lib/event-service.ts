@@ -229,15 +229,13 @@ export class EventService {
       .select('event(*)')
       .eq('user_id', userId)
 
-    if (error) throw error
+    if (error) throw error;
 
-    // Safely map + filter and make TS happy
-    const events =
-      (data ?? [])
-        .map((item: any) => item.event as Event | null)
-        .filter((event): event is Event => event !== null)
+    const events = (data ?? [])
+      .map((item: any) => item.event)
+      .filter(Boolean) as Event[];
 
-    return events
+    return events;
   }
 
   // Get user's RSVPed events
@@ -253,14 +251,13 @@ export class EventService {
       .eq('status', 'going')
       .order('rsvp_date', { ascending: false })
 
-    if (error) throw error
+    if (error) throw error;
 
-    // Normalise and type the events properly
     const events = (data ?? [])
       .map((item: any) => item.event)
-      .filter(Boolean) as Event[]
+      .filter(Boolean) as Event[];
 
-    return events
+    return events;
   }
 
   // Search events

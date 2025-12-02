@@ -33,7 +33,7 @@ export type UserProfile = {
   } | null
 }
 
-export type UserProfileUpdate = Partial<Omit<UserProfile, 'id'>> & { id?: never }
+export type UserProfileUpdate = Partial<Omit<UserProfile, 'id'>> & { id?: never } & Record<string, any>
 
 export type SuggestionType =
   | 'join_fellowship'

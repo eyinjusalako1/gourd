@@ -26,6 +26,11 @@ export type UserProfile = {
     largeText?: boolean
     highContrast?: boolean
   } | null
+  personalization_enabled?: {
+    interests?: boolean
+    location?: boolean
+    suggestions?: boolean
+  } | null
 }
 
 export type UserProfileUpdate = Partial<Omit<UserProfile, 'id'>> & { id?: never }

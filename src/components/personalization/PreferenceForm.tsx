@@ -27,6 +27,14 @@ function isValidRole(value: string | null | undefined): value is Role {
   return value === 'disciple' || value === 'steward'
 }
 
+function isValidCadence(value: string | null | undefined): value is Cadence {
+  return value === 'daily' || value === 'weekly' || value === 'off'
+}
+
+function isValidChannel(value: string | null | undefined): value is Channel {
+  return value === 'push' || value === 'email'
+}
+
 export default function PreferenceForm() {
   const router = useRouter()
   const { profile, updateProfile, markProfileComplete, isLoading } = useUserProfile()
@@ -61,8 +69,8 @@ export default function PreferenceForm() {
     setCity(profile.city ?? '')
     setBio(profile.bio ?? '')
     setAvatarPreview(profile.avatar_url ?? null)
-    setNotifCadence(profile.notif_cadence ?? 'weekly')
-    setNotifChannel(profile.notif_channel ?? 'push')
+    setNotifCadence(isValidCadence(profile.notif_cadence) ? profile.notif_cadence : 'weekly')
+    setNotifChannel(isValidChannel(profile.notif_channel) ? profile.notif_channel : 'push')
     setQuietHours({
       start: profile.quiet_hours_start ?? '22:00',
       end: profile.quiet_hours_end ?? '07:00',

@@ -23,6 +23,10 @@ interface QuietHours {
   end: string
 }
 
+function isValidRole(value: string | null | undefined): value is Role {
+  return value === 'disciple' || value === 'steward'
+}
+
 export default function PreferenceForm() {
   const router = useRouter()
   const { profile, updateProfile, markProfileComplete, isLoading } = useUserProfile()
@@ -51,7 +55,7 @@ export default function PreferenceForm() {
   useEffect(() => {
     if (!profile) return
     setName(profile.name ?? '')
-    setRole(profile.role ?? 'disciple')
+    setRole(isValidRole(profile.role) ? profile.role : 'disciple')
     setInterests(profile.interests ?? [])
     setAvailability(profile.availability ?? [])
     setCity(profile.city ?? '')

@@ -15,6 +15,9 @@ export type UserProfile = {
   interests?: string[] | null
   availability?: string[] | null
   notif_cadence?: string | null
+  notif_channel?: string | null
+  quiet_hours_start?: string | null
+  quiet_hours_end?: string | null
   dismissed_suggestions?: string[] | null
   last_seen_at?: string | null
   created_at?: string | null

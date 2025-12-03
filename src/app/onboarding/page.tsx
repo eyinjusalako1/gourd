@@ -28,9 +28,10 @@ export default function OnboardingPage() {
       // Use router.replace instead of router.push to avoid async race
       // and prevent loading the dashboard before userType exists
       router.replace('/dashboard')
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving user type:', err)
-      setError('Failed to save your selection. Please try again.')
+      const errorMessage = err?.message || 'Unknown error occurred'
+      setError(`Failed to save your selection: ${errorMessage}. Please try again or contact support if the issue persists.`)
       setLoading(false)
     }
   }
@@ -102,4 +103,5 @@ export default function OnboardingPage() {
     </div>
   )
 }
+
 

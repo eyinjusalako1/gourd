@@ -51,9 +51,9 @@ export function usePrefs(): Prefs {
           }
         }
 
-        // Then fetch from Supabase to get the latest value
-        // isLoading stays true until this completes
-        const { data, error } = await supabase
+        // Try to fetch from user_prefs table first
+        let fetchedUserType: UserType = null
+        const { data: prefsData, error: prefsError } = await supabase
           .from(PREFS_TABLE)
           .select('user_type')
           .eq('user_id', userId)
@@ -61,20 +61,37 @@ export function usePrefs(): Prefs {
 
         if (!isMounted) return
 
-        if (error && error.code !== 'PGRST116') {
-          // PGRST116 is "not found" which is fine for new users
-          console.error('Error loading prefs:', error)
+        // If user_prefs works, use it
+        if (prefsData?.user_type && !prefsError) {
+          const role = prefsData.user_type
+          if (role === 'Disciple' || role === 'Steward') {
+            fetchedUserType = role as UserType
+          }
+        } else {
+          // Fallback: try user_profiles table
+          const { data: profileData, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('role')
+            .eq('id', userId)
+            .single()
+
+          if (profileData?.role && !profileError) {
+            // Map role from user_profiles to UserType
+            const role = profileData.role.toLowerCase()
+            if (role === 'disciple') {
+              fetchedUserType = 'Disciple'
+            } else if (role === 'steward') {
+              fetchedUserType = 'Steward'
+            }
+          }
         }
 
-        if (data?.user_type) {
-          const fetchedUserType = data.user_type as UserType
+        if (fetchedUserType) {
           setUserType(fetchedUserType)
-          
           // Update local cache
           localStorage.setItem(PREFS_CACHE_KEY, JSON.stringify({ userType: fetchedUserType }))
         } else if (!cachedUserType) {
           // No data in Supabase and no cache, user hasn't completed onboarding
-          // Ensure userType is never undefined - use null
           setUserType(null)
         }
 
@@ -107,25 +124,39 @@ export function usePrefs(): Prefs {
 // Helper function to save userType (can be called after onboarding)
 export async function saveUserType(userId: string, userType: 'Disciple' | 'Steward'): Promise<void> {
   try {
-    // Save to Supabase
-    const { error } = await supabase
-      .from(PREFS_TABLE)
+    // Try saving to user_profiles table first (more reliable)
+    const { error: profileError } = await supabase
+      .from('user_profiles')
       .upsert({
-        user_id: userId,
-        user_type: userType,
+        id: userId,
+        role: userType.toLowerCase(),
         updated_at: new Date().toISOString(),
       }, {
-        onConflict: 'user_id',
+        onConflict: 'id',
       })
 
-    if (error) {
-      console.error('Error saving userType to Supabase:', error)
-      throw error
+    if (profileError) {
+      console.error('Error saving to user_profiles:', profileError)
+      // Try user_prefs as fallback
+      const { error: prefsError } = await supabase
+        .from(PREFS_TABLE)
+        .upsert({
+          user_id: userId,
+          user_type: userType,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id',
+        })
+
+      if (prefsError) {
+        console.error('Error saving to user_prefs:', prefsError)
+        throw new Error(`Failed to save role: ${profileError.message || prefsError.message}`)
+      }
     }
 
     // Save to local cache for instant hydration
     localStorage.setItem(PREFS_CACHE_KEY, JSON.stringify({ userType }))
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in saveUserType:', error)
     throw error
   }

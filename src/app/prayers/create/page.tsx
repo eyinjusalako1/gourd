@@ -8,6 +8,8 @@ import { useAuth } from '@/lib/auth-context'
 import { gamificationService } from '@/lib/gamification-service'
 import { useToast } from '@/components/ui/Toast'
 
+export const dynamic = 'force-dynamic'
+
 const categories = ['Healing', 'Provision', 'Relationships', 'Faith', 'Family', 'Work', 'Other']
 
 export default function CreatePrayerPage() {

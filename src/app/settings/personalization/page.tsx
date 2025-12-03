@@ -6,6 +6,8 @@ import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default function PersonalizationSettingsPage() {
   const { profile, updateProfile, isLoading } = useUserProfile()
   const toast = useToast()

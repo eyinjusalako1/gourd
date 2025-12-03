@@ -8,6 +8,8 @@ import { useAuth } from '@/lib/auth-context'
 import { gamificationService } from '@/lib/gamification-service'
 import { useToast } from '@/components/ui/Toast'
 
+export const dynamic = 'force-dynamic'
+
 const categories = ['Community', 'Faith', 'Service', 'Healing', 'Growth', 'Encouragement', 'Other']
 const tags = ['faith', 'prayer', 'hope', 'love', 'community', 'healing', 'growth', 'service', 'friendship', 'encouragement']
 

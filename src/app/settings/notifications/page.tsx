@@ -1,11 +1,14 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Bell, Mail, MessageSquare, Calendar, Users } from 'lucide-react'
 import BottomNavigation from '@/components/BottomNavigation'
 
-export default function NotificationsSettingsPage() {
+export const dynamic = 'force-dynamic'
+
+function NotificationsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const from = searchParams.get('from')
@@ -152,6 +155,14 @@ export default function NotificationsSettingsPage() {
       {/* Bottom Navigation */}
       <BottomNavigation activeTab="home" onTabChange={handleTabChange} />
     </div>
+  )
+}
+
+export default function NotificationsSettingsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-beige-50 dark:bg-navy-900 flex items-center justify-center">Loading...</div>}>
+      <NotificationsContent />
+    </Suspense>
   )
 }
 

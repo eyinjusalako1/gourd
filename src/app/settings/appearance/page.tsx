@@ -5,6 +5,8 @@ import AppHeader from '@/components/AppHeader'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
 
+export const dynamic = 'force-dynamic'
+
 export default function AppearanceSettingsPage() {
   const { profile, updateProfile, isLoading } = useUserProfile()
   const toast = useToast()

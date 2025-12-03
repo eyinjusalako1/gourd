@@ -10,6 +10,7 @@ import { Settings, LogOut, Bell, Crown } from 'lucide-react'
 import DiscipleHome from '@/components/DiscipleHome'
 import StewardHome from '@/components/StewardHome'
 import BottomNavigation from '@/components/BottomNavigation'
+import OnboardingTutorial from '@/components/OnboardingTutorial'
 
 export default function DashboardPage() {
   const { user, signOut, loading: authLoading } = useAuth()
@@ -123,6 +124,9 @@ export default function DashboardPage() {
 
       {/* Bottom Navigation */}
       <BottomNavigation activeTab="home" onTabChange={handleTabChange} />
+
+      {/* Onboarding Tutorial - shows automatically for new users */}
+      <OnboardingTutorial />
     </div>
   )
 }

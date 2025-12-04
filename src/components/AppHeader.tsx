@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import Logo from '@/components/Logo'
 import { ArrowLeft, Search } from 'lucide-react'
 
@@ -14,13 +15,14 @@ interface AppHeaderProps {
 
 export default function AppHeader({ title, subtitle, backHref, rightSlot }: AppHeaderProps) {
   const router = useRouter()
+  const { theme } = useTheme()
   const handleBack = () => {
     if (backHref) router.push(backHref)
     else router.back()
   }
 
   return (
-    <div className="bg-[#0F1433] shadow-sm border-b border-[#D4AF37]/30 sticky top-0 z-40">
+    <div className="bg-[#0F1433] dark:bg-navy-800 shadow-sm border-b border-[#D4AF37]/30 dark:border-gray-700 sticky top-0 z-40">
       <div className="max-w-md mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           <div className="flex items-center space-x-3">

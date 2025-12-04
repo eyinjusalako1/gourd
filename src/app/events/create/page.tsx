@@ -29,6 +29,8 @@ import {
 export default function CreateEventPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const toast = useToast()
+  const { profile, isSteward, isLoading: profileLoading } = useUserProfile()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [userGroups, setUserGroups] = useState<FellowshipGroup[]>([])
@@ -53,11 +55,26 @@ export default function CreateEventPage() {
     tags: '',
   })
 
+  // Redirect if user is not a steward
   useEffect(() => {
-    if (user) {
+    if (!profileLoading && profile) {
+      if (!isSteward) {
+        toast({
+          title: 'Access Restricted',
+          description: 'Only stewards can create events or groups.',
+          variant: 'error',
+          duration: 4000,
+        })
+        router.replace('/dashboard')
+      }
+    }
+  }, [profile, isSteward, profileLoading, router, toast])
+
+  useEffect(() => {
+    if (user && isSteward) {
       loadUserGroups()
     }
-  }, [user])
+  }, [user, isSteward])
 
   const loadUserGroups = async () => {
     try {

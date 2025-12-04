@@ -191,44 +191,46 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       <BackButton label={event.title} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getEventTypeColor(event.event_type)}`}>
-            {getEventTypeIcon(event.event_type)}
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{event.title}</h1>
-            <div className="flex items-center space-x-4 mt-2">
-              <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
-                {event.is_virtual ? (
-                  <Monitor className="w-4 h-4" />
-                ) : (
-                  <MapPin className="w-4 h-4" />
-                )}
-                <span>{event.is_virtual ? 'Virtual Event' : 'In-Person Event'}</span>
-              </div>
-              <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
-                <Users className="w-4 h-4" />
-                <span>{event.rsvp_count} going</span>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getEventTypeColor(event.event_type)}`}>
+              {getEventTypeIcon(event.event_type)}
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{event.title}</h1>
+              <div className="flex items-center space-x-4 mt-2">
+                <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
+                  {event.is_virtual ? (
+                    <Monitor className="w-4 h-4" />
+                  ) : (
+                    <MapPin className="w-4 h-4" />
+                  )}
+                  <span>{event.is_virtual ? 'Virtual Event' : 'In-Person Event'}</span>
+                </div>
+                <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
+                  <Users className="w-4 h-4" />
+                  <span>{event.rsvp_count} going</span>
+                </div>
               </div>
             </div>
           </div>
+          
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={copyEventLink}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              title="Share event"
+            >
+              <Share2 className="w-5 h-5" />
+            </button>
+            {event.created_by === user?.id && (
+              <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <Settings className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={copyEventLink}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            title="Share event"
-          >
-            <Share2 className="w-5 h-5" />
-          </button>
-          {event.created_by === user?.id && (
-            <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-              <Settings className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">

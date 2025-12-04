@@ -95,6 +95,8 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
   const handleComplete = () => {
     localStorage.setItem('gathered_tutorial_completed', 'true')
     setIsVisible(false)
+    // Always route to dashboard after tutorial, not profile page
+    router.push('/dashboard')
     if (onComplete) onComplete()
   }
 
@@ -106,20 +108,21 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
   const isLastStep = currentStep === tutorialSteps.length - 1
 
   // Auto-navigation for steps that reference controls on specific pages
+  // Only navigate if we're not already on the right page to avoid loops
   useEffect(() => {
-    // Define simple routing map for tutorial icons if needed
     const routeMap: Record<string, string> = {
       profile: '/dashboard',
-      'profile-edit': '/profile',
+      'profile-edit': '/dashboard', // Changed from /profile to avoid forcing profile page
       testimonies: '/dashboard',
       prayers: '/dashboard',
       'bottom-nav': '/dashboard'
     }
     const desired = routeMap[step.id]
-    if (desired && pathname !== desired) {
+    // Only navigate if we're not on the desired route and tutorial is visible
+    if (desired && pathname !== desired && isVisible) {
       router.push(desired)
     }
-  }, [currentStep, step.id, pathname, router])
+  }, [currentStep, step.id, pathname, router, isVisible])
 
   // Measure and highlight target if provided (must run before early return to keep hook order consistent)
   useEffect(() => {
@@ -139,8 +142,9 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
     el.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }, [currentStep, step.target])
 
-  // Auto-click targets to guide users directly into the flow
+  // Auto-click targets to guide users directly into the flow (only if tutorial is visible)
   useEffect(() => {
+    if (!isVisible) return
     const autoClickIds = new Set(['profile', 'profile-edit', 'testimonies', 'prayers'])
     if (!autoClickIds.has(step.id)) return
     const el = document.querySelector(step.target) as HTMLElement | null
@@ -149,7 +153,7 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
       el.click()
     }, 500)
     return () => clearTimeout(timer)
-  }, [currentStep, step.id, step.target])
+  }, [currentStep, step.id, step.target, isVisible])
 
   // Auto-advance after auto actions to keep the flow moving
   useEffect(() => {

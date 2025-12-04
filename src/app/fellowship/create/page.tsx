@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import { useToast } from '@/components/ui/Toast'
+import BackButton from '@/components/BackButton'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup } from '@/types'
 import { 
-  ArrowLeft, 
   MapPin, 
   Users, 
   Calendar, 
@@ -21,8 +23,25 @@ import {
 export default function CreateGroupPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const toast = useToast()
+  const { profile, isSteward, isLoading: profileLoading } = useUserProfile()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Redirect if user is not a steward
+  useEffect(() => {
+    if (!profileLoading && profile) {
+      if (!isSteward) {
+        toast({
+          title: 'Access Restricted',
+          description: 'Only stewards can create events or groups.',
+          variant: 'error',
+          duration: 4000,
+        })
+        router.replace('/dashboard')
+      }
+    }
+  }, [profile, isSteward, profileLoading, router, toast])
   
   const [formData, setFormData] = useState({
     name: '',
@@ -86,29 +105,28 @@ export default function CreateGroupPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center py-6">
-            <button
-              onClick={() => router.back()}
-              className="mr-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create Fellowship Group</h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Start a new Christian fellowship group in your community
-              </p>
-            </div>
-          </div>
+  // Show loading while checking role
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
+    )
+  }
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  // Don't render form if user is not a steward
+  if (!isSteward) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+      <BackButton label="Create Fellowship Group" />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">

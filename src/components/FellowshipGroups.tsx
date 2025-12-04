@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUserProfile } from '@/hooks/useUserProfile'
 import { Users, MessageCircle, Plus, Settings, Crown } from 'lucide-react'
 
 interface Fellowship {
@@ -58,9 +60,12 @@ const sampleFellowships: Fellowship[] = [
 ]
 
 export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: 'Member' | 'Leader' | 'Church Admin' }) {
+  const router = useRouter()
+  const { isSteward } = useUserProfile()
   const [fellowships, setFellowships] = useState<Fellowship[]>(sampleFellowships)
 
-  const canCreateGroup = userRole === 'Leader' || userRole === 'Church Admin'
+  // Only stewards can create groups
+  const canCreateGroup = isSteward
 
   const handleJoinGroup = (groupId: string) => {
     // Navigate to group details or join logic
@@ -68,8 +73,7 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
   }
 
   const handleCreateGroup = () => {
-    // Navigate to create group page
-    console.log('Creating new group')
+    router.push('/fellowship/create')
   }
 
   const handleManageGroup = (groupId: string) => {
@@ -87,7 +91,7 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
         {canCreateGroup && (
           <button
             onClick={handleCreateGroup}
-            className="flex items-center space-x-2 px-3 py-2 bg-gold-500 text-navy-900 rounded-lg hover:bg-gold-400 transition-colors"
+            className="flex items-center space-x-2 px-3 py-2 bg-[#F5C451] text-navy-900 rounded-lg hover:bg-[#D4AF37] transition-colors font-semibold"
           >
             <Plus className="w-4 h-4" />
             <span className="text-sm font-medium">Create Group</span>
@@ -96,9 +100,9 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
       </div>
 
       {/* Groups Grid */}
-      <div className="grid gap-3">
+      <div className="grid gap-4">
         {fellowships.map(fellowship => (
-          <div key={fellowship.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div key={fellowship.id} className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
@@ -106,7 +110,7 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
                     {fellowship.name}
                   </h3>
                   {fellowship.isLeader && (
-                    <Crown className="w-4 h-4 text-gold-500" />
+                    <Crown className="w-4 h-4 text-[#F5C451]" />
                   )}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -123,7 +127,7 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
               
               {/* Unread Messages Badge */}
               {fellowship.unreadMessages > 0 && (
-                <div className="bg-gold-500 text-navy-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <div className="bg-[#F5C451] text-navy-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {fellowship.unreadMessages}
                 </div>
               )}
@@ -133,7 +137,7 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
             <div className="flex space-x-2">
               <button
                 onClick={() => handleJoinGroup(fellowship.id)}
-                className="flex-1 py-2 px-3 bg-gold-500 text-navy-900 rounded-lg text-sm font-medium hover:bg-gold-400 transition-colors"
+                className="flex-1 py-2 px-3 bg-[#F5C451] text-navy-900 rounded-lg text-sm font-semibold hover:bg-[#D4AF37] transition-colors"
               >
                 View Group
               </button>
@@ -176,7 +180,7 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
       )}
 
       {/* Quick Join Suggestions */}
-      <div className="bg-beige-100 dark:bg-beige-800 rounded-xl p-4">
+      <div className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
         <h3 className="font-medium text-navy-900 dark:text-white mb-2">
           Suggested Groups
         </h3>
@@ -190,6 +194,7 @@ export default function FellowshipGroups({ userRole = 'Member' }: { userRole?: '
     </div>
   )
 }
+
 
 
 

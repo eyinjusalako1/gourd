@@ -3,14 +3,12 @@
 import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Users, Calendar, Megaphone, BookOpen, Heart, MessageCircle, FileText, HelpCircle } from 'lucide-react'
-import { useAuth } from '@/lib/auth-context'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function QuickActionsFab() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const { user } = useAuth()
-  const role = user?.user_metadata?.role
-  const isSteward = role === 'Leader' || role === 'Church Admin'
+  const { isSteward } = useUserProfile()
 
   const actions = useMemo(() => {
     const base = [

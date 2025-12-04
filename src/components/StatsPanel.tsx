@@ -56,13 +56,13 @@ export default function StatsPanel() {
         <h2 className="text-xl font-semibold text-navy-900 dark:text-white">
           Your Growth Journey
         </h2>
-        <button className="text-sm text-gold-600 dark:text-gold-400 hover:text-gold-500 font-medium">
+        <button className="text-sm text-[#F5C451] dark:text-[#F5C451] hover:text-[#D4AF37] font-medium">
           View Full Stats
         </button>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -117,7 +117,7 @@ export default function StatsPanel() {
       </div>
 
       {/* Additional Stats */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
         <h3 className="font-semibold text-navy-900 dark:text-white mb-3">
           Community Impact
         </h3>
@@ -142,7 +142,7 @@ export default function StatsPanel() {
       </div>
 
       {/* Badges Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-navy-900 dark:text-white">
             Faith Badges ({earnedBadges.length}/{badges.length})
@@ -150,7 +150,7 @@ export default function StatsPanel() {
           {earnedBadges.length > 4 && (
             <button
               onClick={() => setShowAllBadges(!showAllBadges)}
-              className="text-sm text-gold-600 dark:text-gold-400 hover:text-gold-500 font-medium flex items-center space-x-1"
+              className="text-sm text-[#F5C451] dark:text-[#F5C451] hover:text-[#D4AF37] font-medium flex items-center space-x-1"
             >
               <span>{showAllBadges ? 'Show Less' : 'Show All'}</span>
               <ChevronRight className={`w-4 h-4 transition-transform ${showAllBadges ? 'rotate-90' : ''}`} />
@@ -158,7 +158,7 @@ export default function StatsPanel() {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {displayedBadges.map((badge, index) => (
             <div
               key={index}
@@ -197,7 +197,7 @@ export default function StatsPanel() {
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
-              className="bg-gradient-to-r from-gold-500 to-gold-600 h-2 rounded-full transition-all duration-300"
+              className="bg-[#F5C451] h-2 rounded-full transition-all duration-300"
               style={{ width: `${(earnedBadges.length / badges.length) * 100}%` }}
             />
           </div>
@@ -206,6 +206,7 @@ export default function StatsPanel() {
     </div>
   )
 }
+
 
 
 

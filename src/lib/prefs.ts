@@ -3,6 +3,9 @@ import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 const PROFILE_CACHE_KEY = 'gathered_user_profile'
 const DISMISS_PREFIX = 'type:'
 
+// Role type for type safety
+export type Role = 'disciple' | 'steward'
+
 // Define UserProfile type directly (without Database type dependency)
 export type UserProfile = {
   id: string
@@ -11,7 +14,7 @@ export type UserProfile = {
   avatar_url?: string | null
   bio?: string | null
   city?: string | null
-  role?: string | null
+  role?: Role | string | null
   interests?: string[] | null
   availability?: string[] | null
   notif_cadence?: string | null
@@ -302,4 +305,40 @@ export function rankFeed<T extends FeedRankingItem>(items: T[], profile?: UserPr
 
   scored.sort((a, b) => b.score - a.score)
   return scored.map((entry) => entry.item)
+}
+
+/**
+ * Check if a user profile has the steward role
+ * @param profile - User profile to check (can be null/undefined)
+ * @returns true if the user is a steward, false otherwise
+ */
+export function isSteward(profile?: UserProfile | null): boolean {
+  if (!profile?.role) return false
+  const role = typeof profile.role === 'string' ? profile.role.toLowerCase() : profile.role
+  return role === 'steward'
+}
+
+/**
+ * Check if a user profile has the disciple role
+ * @param profile - User profile to check (can be null/undefined)
+ * @returns true if the user is a disciple, false otherwise
+ */
+export function isDisciple(profile?: UserProfile | null): boolean {
+  if (!profile?.role) return false
+  const role = typeof profile.role === 'string' ? profile.role.toLowerCase() : profile.role
+  return role === 'disciple'
+}
+
+/**
+ * Normalize role string to Role type
+ * @param role - Role string (case-insensitive)
+ * @returns Normalized Role or null if invalid
+ */
+export function normalizeRole(role: string | null | undefined): Role | null {
+  if (!role) return null
+  const normalized = role.toLowerCase()
+  if (normalized === 'disciple' || normalized === 'steward') {
+    return normalized as Role
+  }
+  return null
 }

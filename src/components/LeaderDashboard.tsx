@@ -76,9 +76,9 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Leader Header */}
-      <div className="bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl p-4 text-navy-900">
+      <div className="bg-gradient-to-r from-[#F5C451] to-[#D4AF37] rounded-2xl p-4 text-navy-900">
         <div className="flex items-center space-x-3 mb-2">
           <Crown className="w-6 h-6" />
           <div>
@@ -93,8 +93,8 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
       </div>
 
       {/* Weekly Stats */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-        <h3 className="font-semibold text-navy-900 dark:text-white mb-3">
+      <div className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
+        <h3 className="text-xl font-semibold text-navy-900 dark:text-white mb-4">
           This Week&apos;s Overview
         </h3>
         <div className="grid grid-cols-2 gap-4">
@@ -135,17 +135,17 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
 
       {/* Quick Actions */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-navy-900 dark:text-white">
+        <h3 className="text-xl font-semibold text-navy-900 dark:text-white">
           Quick Actions
         </h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {quickActions.map(action => {
             const Icon = action.icon
             return (
               <button
                 key={action.id}
                 onClick={action.onClick}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow text-left"
+                className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm hover:shadow-md transition-shadow text-left"
               >
                 <div className="flex items-center space-x-3 mb-2">
                   <div className={`w-8 h-8 ${action.color} rounded-lg flex items-center justify-center`}>
@@ -168,12 +168,12 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
 
       {/* Church Admin Specific Features */}
       {userRole === 'Church Admin' && (
-        <div className="bg-gradient-to-br from-navy-50 to-beige-50 dark:from-navy-900 dark:to-beige-900 rounded-xl p-4">
-          <h3 className="font-semibold text-navy-900 dark:text-white mb-3">
+        <div className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
+          <h3 className="text-xl font-semibold text-navy-900 dark:text-white mb-4">
             Church Administration
           </h3>
-          <div className="space-y-3">
-            <button className="w-full bg-white dark:bg-gray-800 rounded-lg p-3 text-left hover:shadow-sm transition-shadow">
+          <div className="space-y-4">
+            <button className="w-full bg-white/50 dark:bg-navy-900/50 rounded-xl p-3 text-left hover:shadow-sm transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-navy-900 dark:text-white">
@@ -187,7 +187,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
               </div>
             </button>
             
-            <button className="w-full bg-white dark:bg-gray-800 rounded-lg p-3 text-left hover:shadow-sm transition-shadow">
+            <button className="w-full bg-white/50 dark:bg-navy-900/50 rounded-xl p-3 text-left hover:shadow-sm transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-navy-900 dark:text-white">
@@ -201,7 +201,7 @@ export default function LeaderDashboard({ userRole }: LeaderDashboardProps) {
               </div>
             </button>
             
-            <button className="w-full bg-white dark:bg-gray-800 rounded-lg p-3 text-left hover:shadow-sm transition-shadow">
+            <button className="w-full bg-white/50 dark:bg-navy-900/50 rounded-xl p-3 text-left hover:shadow-sm transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-navy-900 dark:text-white">

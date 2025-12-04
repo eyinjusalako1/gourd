@@ -138,7 +138,7 @@ export default function AnnouncementFeed() {
       </div>
 
       {/* Announcements List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {announcements
           .sort((a, b) => {
             // Pinned announcements first, then by timestamp
@@ -147,7 +147,7 @@ export default function AnnouncementFeed() {
             return 0
           })
           .map(announcement => (
-          <div key={announcement.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div key={announcement.id} className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-start space-x-3">
@@ -247,6 +247,7 @@ export default function AnnouncementFeed() {
     </div>
   )
 }
+
 
 
 

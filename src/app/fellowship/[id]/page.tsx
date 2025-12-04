@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import BackButton from '@/components/BackButton'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup, GroupMembership, JoinRequest } from '@/types'
 import { 
-  ArrowLeft, 
   MapPin, 
   Users, 
   Calendar, 
@@ -155,52 +155,40 @@ export default function GroupDetailsPage({ params }: { params: { id: string } })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center py-6">
-            <button
-              onClick={() => router.back()}
-              className="mr-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <div className="flex-1">
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getGroupTypeColor(group.group_type)}`}>
-                  {getGroupTypeIcon(group.group_type)}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+      <BackButton label={group.name} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getGroupTypeColor(group.group_type)}`}>
+              {getGroupTypeIcon(group.group_type)}
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
+              <div className="flex items-center space-x-4 mt-2">
+                <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
+                  {group.is_private ? (
+                    <Lock className="w-4 h-4" />
+                  ) : (
+                    <Globe className="w-4 h-4" />
+                  )}
+                  <span>{group.is_private ? 'Private' : 'Public'}</span>
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
-                      {group.is_private ? (
-                        <Lock className="w-4 h-4" />
-                      ) : (
-                        <Globe className="w-4 h-4" />
-                      )}
-                      <span>{group.is_private ? 'Private' : 'Public'}</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
-                      <Users className="w-4 h-4" />
-                      <span>{group.member_count} members</span>
-                    </div>
-                  </div>
+                <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
+                  <Users className="w-4 h-4" />
+                  <span>{group.member_count} members</span>
                 </div>
               </div>
             </div>
-            
-            {isAdmin && (
-              <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                <Settings className="w-6 h-6" />
-              </button>
-            )}
           </div>
+          
+          {isAdmin && (
+            <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <Settings className="w-6 h-6" />
+            </button>
+          )}
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">

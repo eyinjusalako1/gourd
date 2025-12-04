@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import { useUserProfile } from '@/hooks/useUserProfile'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup } from '@/types'
 import { 
@@ -22,6 +23,7 @@ import {
 export default function FellowshipPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const { isSteward } = useUserProfile()
   const [groups, setGroups] = useState<FellowshipGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -102,7 +104,7 @@ export default function FellowshipPage() {
               </p>
             </div>
             
-            {user && (
+            {user && isSteward && (
               <button
                 onClick={() => router.push('/fellowship/create')}
                 className="btn-primary flex items-center space-x-2"
@@ -178,7 +180,7 @@ export default function FellowshipPage() {
                 : 'Be the first to create a fellowship group in your area!'
               }
             </p>
-            {user && (
+            {user && isSteward && (
               <button
                 onClick={() => router.push('/fellowship/create')}
                 className="btn-primary"

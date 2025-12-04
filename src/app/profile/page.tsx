@@ -4,7 +4,6 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Settings, Bell, User, Mail, MapPin, Church, Calendar } from 'lucide-react'
-import BottomNavigation from '@/components/BottomNavigation'
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth()
@@ -151,8 +150,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNavigation activeTab="home" onTabChange={handleTabChange} />
     </div>
   )
 }

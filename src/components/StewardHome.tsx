@@ -14,7 +14,7 @@ export default function StewardHome() {
   const firstName = user?.user_metadata?.name?.split(' ')[0] || 'Leader'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Quick Welcome Banner */}
       <WelcomeBanner firstName={firstName} message="Your community is waiting" />
 
@@ -22,7 +22,7 @@ export default function StewardHome() {
       <VerseCard />
 
       {/* Section B: Engagement & Community */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         <EventList />
         <FellowshipGroups userRole="Leader" />
         <AnnouncementFeed />

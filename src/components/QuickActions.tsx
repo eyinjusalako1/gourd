@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Heart, MessageSquare, Calendar } from 'lucide-react'
-import { useAuth } from '@/lib/auth-context'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 interface QuickAction {
   id: string
@@ -14,9 +14,7 @@ interface QuickAction {
 
 export default function QuickActions() {
   const router = useRouter()
-  const { user } = useAuth()
-  const role = user?.user_metadata?.role
-  const isSteward = role === 'Leader' || role === 'Church Admin'
+  const { isSteward } = useUserProfile()
 
   const actions: QuickAction[] = useMemo(() => {
     const items: QuickAction[] = []

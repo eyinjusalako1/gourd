@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import BackButton from '@/components/BackButton'
 import { EventService } from '@/lib/event-service'
 import { Event, EventRSVP } from '@/types'
 import { 
-  ArrowLeft, 
   MapPin, 
   Calendar, 
   Clock,
@@ -187,61 +187,48 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
   })
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center py-6">
-            <button
-              onClick={() => router.back()}
-              className="mr-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <div className="flex-1">
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getEventTypeColor(event.event_type)}`}>
-                  {getEventTypeIcon(event.event_type)}
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{event.title}</h1>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
-                      {event.is_virtual ? (
-                        <Monitor className="w-4 h-4" />
-                      ) : (
-                        <MapPin className="w-4 h-4" />
-                      )}
-                      <span>{event.is_virtual ? 'Virtual Event' : 'In-Person Event'}</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
-                      <Users className="w-4 h-4" />
-                      <span>{event.rsvp_count} going</span>
-                    </div>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+      <BackButton label={event.title} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center space-x-4 mb-6">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getEventTypeColor(event.event_type)}`}>
+            {getEventTypeIcon(event.event_type)}
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{event.title}</h1>
+            <div className="flex items-center space-x-4 mt-2">
+              <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
+                {event.is_virtual ? (
+                  <Monitor className="w-4 h-4" />
+                ) : (
+                  <MapPin className="w-4 h-4" />
+                )}
+                <span>{event.is_virtual ? 'Virtual Event' : 'In-Person Event'}</span>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={copyEventLink}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                title="Share event"
-              >
-                <Share2 className="w-5 h-5" />
-              </button>
-              {event.created_by === user?.id && (
-                <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                  <Settings className="w-5 h-5" />
-                </button>
-              )}
+              <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
+                <Users className="w-4 h-4" />
+                <span>{event.rsvp_count} going</span>
+              </div>
             </div>
           </div>
         </div>
+        
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={copyEventLink}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            title="Share event"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+          {event.created_by === user?.id && (
+            <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <Settings className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">

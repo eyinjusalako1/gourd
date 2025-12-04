@@ -64,7 +64,7 @@ export default function VerseCard() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-navy-900 to-navy-800 rounded-2xl p-6 text-white shadow-xl">
+    <div className="bg-gradient-to-br from-navy-900 to-navy-800 rounded-2xl p-6 text-white shadow-xl border border-white/5 backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
@@ -104,7 +104,7 @@ export default function VerseCard() {
             onClick={handleLike}
             className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
               isLiked 
-                ? 'bg-gold-500 text-navy-900' 
+                ? 'bg-[#F5C451] text-navy-900' 
                 : 'bg-white/10 hover:bg-white/20'
             }`}
           >
@@ -131,7 +131,7 @@ export default function VerseCard() {
 
         <button
           onClick={startPrayer}
-          className="bg-gradient-to-r from-gold-500 to-gold-600 text-navy-900 px-4 py-2 rounded-lg font-medium hover:from-gold-400 hover:to-gold-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="bg-[#F5C451] text-navy-900 px-4 py-2 rounded-lg font-semibold hover:bg-[#D4AF37] transition-colors shadow-lg hover:shadow-xl"
         >
           Start Day in Prayer
         </button>

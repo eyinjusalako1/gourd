@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import { useUserProfile } from '@/hooks/useUserProfile'
 import { EventService } from '@/lib/event-service'
 import { Event } from '@/types'
 import { 
@@ -26,6 +27,7 @@ import {
 export default function EventsPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const { isSteward } = useUserProfile()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -123,7 +125,7 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -135,7 +137,7 @@ export default function EventsPage() {
               </p>
             </div>
             
-            {user && (
+            {user && isSteward && (
               <button
                 onClick={() => router.push('/events/create')}
                 className="btn-primary flex items-center space-x-2"
@@ -236,7 +238,7 @@ export default function EventsPage() {
                 : 'Be the first to create an event in your community!'
               }
             </p>
-            {user && (
+            {user && isSteward && (
               <button
                 onClick={() => router.push('/events/create')}
                 className="btn-primary"

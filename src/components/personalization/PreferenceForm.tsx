@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Camera, ChevronRight, Loader2 } from 'lucide-react'
 import { useUserProfile } from '@/hooks/useUserProfile'
-import { isSupabaseConfigured, supabase } from '@/lib/supabase'
+import { useToast } from '@/components/ui/Toast'
 import { cacheProfile } from '@/lib/prefs'
 
 const INTEREST_OPTIONS = ['Prayer', 'Bible Study', 'Worship', 'Outreach', 'Youth Hangouts'] as const
@@ -37,7 +37,8 @@ function isValidChannel(value: string | null | undefined): value is Channel {
 
 export default function PreferenceForm() {
   const router = useRouter()
-  const { profile, updateProfile, markProfileComplete, isLoading } = useUserProfile()
+  const toast = useToast()
+  const { profile, updateProfile, markProfileComplete, uploadAvatar, isLoading, isConfigured } = useUserProfile()
   const [name, setName] = useState('')
   const [role, setRole] = useState<Role>('disciple')
   const [interests, setInterests] = useState<string[]>([])
@@ -97,23 +98,6 @@ export default function PreferenceForm() {
     reader.readAsDataURL(file)
   }
 
-  const uploadAvatar = async (): Promise<string | null> => {
-    if (!avatarFile) return avatarPreview
-    if (!isSupabaseConfigured()) return avatarPreview
-
-    const filePath = `avatars/${Date.now()}-${avatarFile.name}`
-    const { error } = await supabase.storage.from('avatars').upload(filePath, avatarFile, {
-      cacheControl: '3600',
-      upsert: true,
-    })
-    if (error) {
-      console.warn('Avatar upload failed:', error.message)
-      return avatarPreview
-    }
-    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
-    return data.publicUrl
-  }
-
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     if (!name.trim()) {
@@ -124,7 +108,25 @@ export default function PreferenceForm() {
     setSaving(true)
 
     try {
-      const avatarUrl = await uploadAvatar()
+      let avatarUrl: string | null = avatarPreview
+
+      // Upload avatar if file exists and Supabase is configured
+      if (avatarFile && isConfigured && uploadAvatar) {
+        try {
+          avatarUrl = await uploadAvatar(avatarFile)
+          // uploadAvatar already updates the profile, so we can continue
+        } catch (avatarError: any) {
+          console.error('Avatar upload failed:', avatarError)
+          // Continue with rest of profile update even if avatar upload fails
+          toast({
+            title: 'Avatar upload failed',
+            description: avatarError.message || 'Using previous avatar. Profile will still be saved.',
+            variant: 'error',
+            duration: 3000,
+          })
+        }
+      }
+
       const accessibility = { reduceMotion, largeText, highContrast }
 
       const updated = await updateProfile({
@@ -151,10 +153,24 @@ export default function PreferenceForm() {
 
       if (updated) cacheProfile(updated)
       await markProfileComplete()
+      
+      toast({
+        title: 'Profile saved successfully',
+        variant: 'success',
+        duration: 3000,
+      })
+      
       router.replace('/dashboard')
     } catch (err: any) {
       console.error(err)
-      setError(err.message ?? 'Failed to save preferences. Please try again.')
+      const errorMessage = err.message ?? 'Failed to save preferences. Please try again.'
+      setError(errorMessage)
+      toast({
+        title: 'Failed to save profile',
+        description: errorMessage,
+        variant: 'error',
+        duration: 4000,
+      })
       setSaving(false)
     }
   }
@@ -411,6 +427,13 @@ export default function PreferenceForm() {
         </div>
       </section>
 
+      {!isConfigured && (
+        <div className="bg-yellow-500/10 border border-yellow-500/40 text-yellow-200 text-sm rounded-xl px-4 py-3">
+          <p className="font-semibold mb-1">Demo Mode</p>
+          <p>Profile changes won&apos;t be saved. Configure Supabase to enable full functionality.</p>
+        </div>
+      )}
+
       {error ? (
         <div className="bg-red-500/10 border border-red-500/40 text-red-200 text-sm rounded-xl px-4 py-3">
           {error}
@@ -419,7 +442,7 @@ export default function PreferenceForm() {
 
       <button
         type="submit"
-        disabled={formDisabled}
+        disabled={formDisabled || !isConfigured}
         className="w-full bg-[#D4AF37] text-[#0F1433] font-semibold py-3 rounded-xl hover:bg-[#F5C451] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {saving ? (

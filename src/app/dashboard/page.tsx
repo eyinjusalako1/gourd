@@ -9,7 +9,6 @@ import Link from 'next/link'
 import { Settings, LogOut, Bell, Crown } from 'lucide-react'
 import DiscipleHome from '@/components/DiscipleHome'
 import StewardHome from '@/components/StewardHome'
-import BottomNavigation from '@/components/BottomNavigation'
 import OnboardingTutorial from '@/components/OnboardingTutorial'
 
 export default function DashboardPage() {
@@ -67,13 +66,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-beige-50 dark:bg-navy-900 pb-20">
+    <div className="min-h-screen bg-beige-50 dark:bg-navy-900 pb-24">
       {/* Header */}
       <div className="bg-white dark:bg-navy-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
-        <div className="max-w-md mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-4">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl">
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#F5C451] to-[#D4AF37] rounded-xl">
                 <Crown className="w-6 h-6 text-navy-900" />
               </div>
               <div>
@@ -117,13 +116,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 py-6">
         {userType === 'Disciple' && <DiscipleHome />}
         {userType === 'Steward' && <StewardHome />}
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNavigation activeTab="home" onTabChange={handleTabChange} />
 
       {/* Onboarding Tutorial - shows automatically for new users */}
       <OnboardingTutorial />

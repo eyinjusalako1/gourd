@@ -9,7 +9,7 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export default function PersonalizationSettingsPage() {
-  const { profile, updateProfile, isLoading } = useUserProfile()
+  const { profile, updateProfile, isLoading, isConfigured } = useUserProfile()
   const toast = useToast()
 
   const personalization = profile?.personalization_enabled ?? {
@@ -19,12 +19,31 @@ export default function PersonalizationSettingsPage() {
   }
 
   const togglePreference = async (field: 'interests' | 'location' | 'suggestions', value: boolean) => {
-    const next = {
-      ...personalization,
-      [field]: value,
+    if (!isConfigured) {
+      toast({
+        title: 'Demo mode',
+        description: 'Profile changes won\'t be saved. Configure Supabase to enable full functionality.',
+        variant: 'error',
+        duration: 4000,
+      })
+      return
     }
-    await updateProfile({ personalization_enabled: next })
-    toast({ title: 'Preferences updated', variant: 'success' })
+
+    try {
+      const next = {
+        ...personalization,
+        [field]: value,
+      }
+      await updateProfile({ personalization_enabled: next })
+      toast({ title: 'Preferences updated', variant: 'success' })
+    } catch (error: any) {
+      toast({
+        title: 'Failed to update preferences',
+        description: error.message || 'Please try again.',
+        variant: 'error',
+        duration: 4000,
+      })
+    }
   }
 
   return (
@@ -32,6 +51,13 @@ export default function PersonalizationSettingsPage() {
       <AppHeader title="Personalization" subtitle="Adjust tailored experiences" backHref="/settings" />
 
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        {!isConfigured && (
+          <div className="bg-yellow-500/10 border border-yellow-500/40 text-yellow-200 text-sm rounded-xl px-4 py-3">
+            <p className="font-semibold mb-1">Demo Mode</p>
+            <p>Profile changes won&apos;t be saved. Configure Supabase to enable full functionality.</p>
+          </div>
+        )}
+
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Control what we personalize</h2>
           <p className="text-sm text-white/60">
@@ -53,7 +79,7 @@ export default function PersonalizationSettingsPage() {
             <input
               type="checkbox"
               checked={personalization.interests}
-              disabled={isLoading}
+              disabled={isLoading || !isConfigured}
               onChange={(event) => togglePreference('interests', event.target.checked)}
             />
           </label>
@@ -71,7 +97,7 @@ export default function PersonalizationSettingsPage() {
             <input
               type="checkbox"
               checked={personalization.location}
-              disabled={isLoading}
+              disabled={isLoading || !isConfigured}
               onChange={(event) => togglePreference('location', event.target.checked)}
             />
           </label>
@@ -89,7 +115,7 @@ export default function PersonalizationSettingsPage() {
             <input
               type="checkbox"
               checked={personalization.suggestions}
-              disabled={isLoading}
+              disabled={isLoading || !isConfigured}
               onChange={(event) => togglePreference('suggestions', event.target.checked)}
             />
           </label>

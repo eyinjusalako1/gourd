@@ -27,8 +27,8 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50">
-      <div className="max-w-md mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-navy-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-white/5 z-50">
+      <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-around py-2">
           {tabs.map(tab => {
             const Icon = tab.icon
@@ -38,9 +38,9 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
               <button
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
-                className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${
+                className={`flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-200 min-w-[60px] ${
                   isActive
-                    ? 'text-gold-600 dark:text-gold-400'
+                    ? 'text-[#F5C451] bg-[#F5C451]/10 dark:bg-[#F5C451]/10'
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
@@ -48,18 +48,15 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange }: Bo
                   isActive ? 'scale-110' : 'scale-100'
                 } transition-transform duration-200`}>
                   <Icon className={`w-5 h-5 ${
-                    isActive ? 'text-gold-600 dark:text-gold-400' : ''
+                    isActive ? 'text-[#F5C451]' : ''
                   }`} />
-                  {isActive && (
-                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-gold-500 rounded-full animate-pulse" />
-                  )}
                   {/* Unread Activity Badge - shows on home tab when there's unread activity */}
                   {tab.id === 'home' && hasUnread && !isActive && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-gray-800" />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-navy-900" />
                   )}
                 </div>
-                <span className={`text-xs font-medium mt-1 ${
-                  isActive ? 'text-gold-600 dark:text-gold-400' : ''
+                <span className={`text-xs font-semibold mt-1 ${
+                  isActive ? 'text-[#F5C451]' : ''
                 }`}>
                   {tab.label}
                 </span>

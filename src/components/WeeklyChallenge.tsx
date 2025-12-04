@@ -63,7 +63,7 @@ export default function WeeklyChallenge({ fellowshipId, stewardView = false }: W
         <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
         <div className="relative z-10 text-center">
           <Target className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-white mb-2">No Active Challenges</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">No Active Challenges</h3>
           <p className="text-white/60 text-sm">
             {stewardView 
               ? 'Create a weekly challenge for your fellowship'
@@ -79,7 +79,7 @@ export default function WeeklyChallenge({ fellowshipId, stewardView = false }: W
       <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">Weekly Challenges</h3>
+          <h3 className="text-xl font-semibold text-white">Weekly Challenges</h3>
           {stewardView && (
             <button
               onClick={() => router.push(`/fellowships/${fellowshipId}/manage/challenges`)}
@@ -95,10 +95,10 @@ export default function WeeklyChallenge({ fellowshipId, stewardView = false }: W
           {challenges.map(challenge => (
             <div
               key={challenge.id}
-              className={`bg-white/5 rounded-xl p-4 border transition-colors ${
+              className={`bg-white/5 rounded-2xl p-4 border transition-colors backdrop-blur-sm ${
                 challenge.isCompleted 
                   ? 'border-green-500/50 bg-green-500/5' 
-                  : 'border-[#D4AF37]/30'
+                  : 'border-white/5'
               }`}
             >
               <div className="flex items-start space-x-3">

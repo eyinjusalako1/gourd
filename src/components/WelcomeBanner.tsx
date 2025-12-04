@@ -13,7 +13,7 @@ export default function WelcomeBanner({ firstName, message = "Your fellowship is
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl p-4 shadow-lg mb-6"
+      className="bg-gradient-to-r from-[#F5C451] to-[#D4AF37] rounded-2xl p-4 shadow-lg"
     >
       <div className="flex items-center justify-between">
         <div>
@@ -46,4 +46,5 @@ export default function WelcomeBanner({ firstName, message = "Your fellowship is
     </motion.div>
   )
 }
+
 

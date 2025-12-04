@@ -151,7 +151,7 @@ export default function EventList() {
               onClick={() => setSelectedCategory(category)}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                 selectedCategory === category
-                  ? 'bg-gold-500 text-navy-900'
+                  ? 'bg-[#F5C451] text-navy-900'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
@@ -162,9 +162,9 @@ export default function EventList() {
       )}
 
       {/* Events List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filteredEvents.map(event => (
-          <div key={event.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div key={event.id} className="bg-white dark:bg-navy-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-white/5 backdrop-blur-sm">
             {/* Event Header */}
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
@@ -205,9 +205,9 @@ export default function EventList() {
             <div className="flex space-x-2">
               <button
                 onClick={() => handleRSVP(event.id, 'going')}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-colors ${
                   event.isJoined
-                    ? 'bg-gold-500 text-navy-900'
+                    ? 'bg-[#F5C451] text-navy-900 hover:bg-[#D4AF37]'
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >

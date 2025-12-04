@@ -4,7 +4,6 @@ import { Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Bell, Mail, MessageSquare, Calendar, Users } from 'lucide-react'
-import BottomNavigation from '@/components/BottomNavigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -153,7 +152,6 @@ function NotificationsContent() {
       </div>
 
       {/* Bottom Navigation */}
-      <BottomNavigation activeTab="home" onTabChange={handleTabChange} />
     </div>
   )
 }

@@ -124,7 +124,7 @@ export default function FellowshipActivityFeed({ profile, limit = 3, title = 'Yo
         <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
         <div className="relative z-10 text-center">
           <Users className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-white mb-2">You&apos;re caught up! 🌿</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">You&apos;re caught up! 🌿</h3>
           <p className="text-white/60 text-sm">
             No updates yet? Start by sharing an encouragement with your fellowship.
           </p>
@@ -138,7 +138,7 @@ export default function FellowshipActivityFeed({ profile, limit = 3, title = 'Yo
       <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <h3 className="text-xl font-semibold text-white">{title}</h3>
           {showViewAll && (
             <button
               onClick={() => router.push('/fellowships')}
@@ -154,7 +154,7 @@ export default function FellowshipActivityFeed({ profile, limit = 3, title = 'Yo
           {rankedActivities.slice(0, limit).map(activity => (
             <div
               key={activity.id}
-              className="bg-white/5 rounded-xl p-4 border border-[#D4AF37]/30 hover:bg-white/10 transition-colors cursor-pointer"
+              className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer backdrop-blur-sm"
               onClick={() => {
                 if (activity.type === 'event') {
                   router.push(`/events/${activity.id}`)

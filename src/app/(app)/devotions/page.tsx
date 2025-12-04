@@ -94,7 +94,7 @@ export default function DevotionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1433] pb-20">
+    <>
       <AppHeader
         title="Devotions"
         subtitle="Daily Bible readings"
@@ -248,7 +248,7 @@ export default function DevotionsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

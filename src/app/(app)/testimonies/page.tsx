@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Heart, Plus, Search, Filter, Share2, MessageCircle, ThumbsUp, BookOpen } from 'lucide-react'
 import AppHeader from '@/components/AppHeader'
+import { useToast } from '@/components/ui/Toast'
 
 interface Testimony {
   id: string
@@ -78,6 +79,7 @@ const categories = ['All', 'Community', 'Faith', 'Service', 'Healing', 'Growth',
 
 export default function TestimoniesPage() {
   const router = useRouter()
+  const toast = useToast()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [testimonies, setTestimonies] = useState<Testimony[]>(mockTestimonies)
@@ -234,7 +236,25 @@ export default function TestimoniesPage() {
                       <span className="text-sm font-medium">{testimony.comments}</span>
                     </button>
                   </div>
-                  <button className="bg-white/10 p-2 rounded-lg border border-[#D4AF37]/30 hover:bg-white/20 transition-colors">
+                  <button 
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: testimony.title,
+                          text: testimony.content,
+                          url: window.location.href
+                        }).catch(() => {})
+                      } else {
+                        navigator.clipboard.writeText(window.location.href)
+                        toast({
+                          title: 'Link copied',
+                          description: 'Testimony link copied to clipboard',
+                          variant: 'success',
+                        })
+                      }
+                    }}
+                    className="bg-white/10 p-2 rounded-lg border border-[#D4AF37]/30 hover:bg-white/20 transition-colors"
+                  >
                     <Share2 className="w-4 h-4 text-[#F5C451]" />
                   </button>
                 </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useUserProfile } from '@/hooks/useUserProfile'
+import { useToast } from '@/components/ui/Toast'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup } from '@/types'
 import { 
@@ -24,11 +25,13 @@ export default function FellowshipPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { isSteward } = useUserProfile()
+  const toast = useToast()
   const [groups, setGroups] = useState<FellowshipGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
   const [filterPrivacy, setFilterPrivacy] = useState<string>('all')
+  const [joiningGroupId, setJoiningGroupId] = useState<string | null>(null)
 
   useEffect(() => {
     loadGroups()
@@ -57,6 +60,47 @@ export default function FellowshipPage() {
     
     return matchesSearch && matchesType && matchesPrivacy
   })
+
+  const handleJoinGroup = async (e: React.MouseEvent, group: FellowshipGroup) => {
+    e.stopPropagation() // Prevent card click
+    if (!user) {
+      toast({
+        title: 'Please sign in',
+        description: 'You must be signed in to join a group',
+        variant: 'error',
+      })
+      return
+    }
+
+    setJoiningGroupId(group.id)
+    try {
+      if (group.is_private) {
+        await FellowshipService.requestToJoinGroup(group.id, user.id)
+        toast({
+          title: 'Join request sent',
+          description: 'Your request to join this group has been sent',
+          variant: 'success',
+        })
+      } else {
+        await FellowshipService.joinGroup(group.id, user.id)
+        toast({
+          title: 'Joined group',
+          description: 'You have successfully joined this fellowship group',
+          variant: 'success',
+        })
+        await loadGroups() // Refresh the list
+      }
+    } catch (error: any) {
+      console.error('Error joining group:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to join group',
+        variant: 'error',
+      })
+    } finally {
+      setJoiningGroupId(null)
+    }
+  }
 
   const getGroupTypeIcon = (type: string) => {
     switch (type) {
@@ -266,8 +310,19 @@ export default function FellowshipPage() {
                 )}
 
                 {/* Action Button */}
-                <button className="w-full btn-primary">
-                  {group.is_private ? 'Request to Join' : 'Join Group'}
+                <button 
+                  onClick={(e) => handleJoinGroup(e, group)}
+                  disabled={joiningGroupId === group.id}
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {joiningGroupId === group.id ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Joining...</span>
+                    </>
+                  ) : (
+                    <span>{group.is_private ? 'Request to Join' : 'Join Group'}</span>
+                  )}
                 </button>
               </div>
             ))}

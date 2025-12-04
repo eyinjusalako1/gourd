@@ -34,7 +34,7 @@ export default function ChatPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0F1433] pb-20">
+    <>
       <AppHeader title="Chats" backHref="/dashboard" />
 
       {/* Fellowship Chats List */}
@@ -83,7 +83,7 @@ export default function ChatPage() {
           </button>
         </div>
       )}
-    </div>
+    </>
   )
 }
 

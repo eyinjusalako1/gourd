@@ -1,13 +1,20 @@
 'use client'
 
+import { useState, useRef } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Settings, Bell, User, Mail, MapPin, Church, Calendar } from 'lucide-react'
+import { ArrowLeft, Settings, Bell, User, Mail, MapPin, Church, Calendar, Camera } from 'lucide-react'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import { useToast } from '@/components/ui/Toast'
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
+  const { profile, uploadAvatar } = useUserProfile()
+  const toast = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
 
   const handleTabChange = (tab: string) => {
     switch (tab) {
@@ -28,6 +35,57 @@ export default function ProfilePage() {
         break
       default:
         break
+    }
+  }
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please select an image file',
+        variant: 'error',
+      })
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please select an image smaller than 5MB',
+        variant: 'error',
+      })
+      return
+    }
+
+    setUploading(true)
+    try {
+      await uploadAvatar(file)
+      toast({
+        title: 'Profile picture updated',
+        description: 'Your profile picture has been updated successfully',
+        variant: 'success',
+      })
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error)
+      toast({
+        title: 'Upload failed',
+        description: error.message || 'Failed to upload profile picture',
+        variant: 'error',
+      })
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
@@ -69,12 +127,41 @@ export default function ProfilePage() {
         {/* Profile Header */}
         <div className="bg-white dark:bg-navy-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-4 mb-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-gold-500 to-gold-600 rounded-full flex items-center justify-center">
-              <User className="w-10 h-10 text-white" />
+            <div className="relative">
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt="Profile"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-gold-500"
+                />
+              ) : (
+                <div className="w-20 h-20 bg-gradient-to-br from-gold-500 to-gold-600 rounded-full flex items-center justify-center">
+                  <User className="w-10 h-10 text-white" />
+                </div>
+              )}
+              <button
+                onClick={handleAvatarClick}
+                disabled={uploading}
+                className="absolute bottom-0 right-0 w-7 h-7 bg-[#F5C451] rounded-full flex items-center justify-center border-2 border-white dark:border-navy-800 hover:bg-[#D4AF37] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Change profile picture"
+              >
+                {uploading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#0F1433]"></div>
+                ) : (
+                  <Camera className="w-4 h-4 text-[#0F1433]" />
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-bold text-navy-900 dark:text-white">
-                {user?.user_metadata?.name || 'User'}
+                {user?.user_metadata?.name || profile?.name || 'User'}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {user?.email}

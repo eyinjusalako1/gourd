@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Bell, User, Shield, Moon, Globe, LogOut, Crown, Users } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { ArrowLeft, Bell, User, Shield, Moon, Globe, LogOut, Crown, Users, Sun } from 'lucide-react'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
 import type { Role } from '@/lib/prefs'
@@ -16,11 +17,18 @@ function isValidRole(value: string | null | undefined): value is Role {
 export default function SettingsPage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
+  const { theme, setTheme } = useTheme()
   const { profile, role, updateProfile, invalidate } = useUserProfile()
   const toast = useToast()
   const [isSwitchingRole, setIsSwitchingRole] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [targetRole, setTargetRole] = useState<Role | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const currentRole = role || (isValidRole(profile?.role) ? profile.role : null)
   const isDisciple = currentRole === 'disciple'
@@ -219,12 +227,23 @@ export default function SettingsPage() {
               Preferences
             </h3>
             <div className="space-y-2">
-              <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <button 
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
                 <div className="flex items-center space-x-3">
-                  <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  <span className="text-gray-900 dark:text-white">Dark Mode</span>
+                  {mounted && theme === 'dark' ? (
+                    <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  )}
+                  <span className="text-gray-900 dark:text-white">
+                    {mounted && theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                  </span>
                 </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">→</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {mounted && theme === 'dark' ? 'On' : 'Off'}
+                </span>
               </button>
               <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex items-center space-x-3">

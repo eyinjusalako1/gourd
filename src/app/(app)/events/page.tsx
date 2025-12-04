@@ -326,7 +326,13 @@ export default function EventsPage() {
                   )}
 
                   {/* Action Button */}
-                  <button className="w-full btn-primary">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/events/${event.id}`)
+                    }}
+                    className="w-full btn-primary"
+                  >
                     {event.requires_rsvp ? 'RSVP Now' : 'View Details'}
                   </button>
                 </div>

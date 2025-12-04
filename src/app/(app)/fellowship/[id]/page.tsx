@@ -34,6 +34,7 @@ export default function FellowshipDetailPage({ params }: { params: { id: string 
 
   useEffect(() => {
     loadGroupData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, user])
 
   const loadGroupData = async () => {
@@ -129,7 +130,7 @@ export default function FellowshipDetailPage({ params }: { params: { id: string 
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Group Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">The group you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The group you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <button onClick={() => router.push('/fellowship')} className="btn-primary">
             Back to Groups
           </button>

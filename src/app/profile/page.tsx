@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -129,9 +130,11 @@ export default function ProfilePage() {
           <div className="flex items-center space-x-4 mb-4">
             <div className="relative">
               {profile?.avatar_url ? (
-                <img
+                <Image
                   src={profile.avatar_url}
                   alt="Profile"
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-full object-cover border-2 border-gold-500"
                 />
               ) : (

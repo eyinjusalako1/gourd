@@ -150,9 +150,7 @@ function NotificationsContent() {
           </div>
         </div>
       </div>
-
-      {/* Bottom Navigation */}
-    </div>
+    </>
   )
 }
 

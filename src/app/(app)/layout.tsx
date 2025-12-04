@@ -5,47 +5,6 @@ import { useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import BottomNavigation from '@/components/BottomNavigation'
 
-// Routes that should NOT have bottom navigation
-const NO_BOTTOM_NAV_ROUTES = [
-  '/auth',
-  '/onboarding',
-  '/',
-]
-
-// Routes that should have bottom navigation
-const BOTTOM_NAV_ROUTES = [
-  '/dashboard',
-  '/events',
-  '/fellowship',
-  '/feed',
-  '/bible-study',
-  '/prayers',
-  '/testimonies',
-  '/settings',
-  '/profile',
-  '/chat',
-  '/devotions',
-]
-
-function shouldShowBottomNav(pathname: string): boolean {
-  // Never show on auth or onboarding routes
-  if (NO_BOTTOM_NAV_ROUTES.some(route => pathname.startsWith(route))) {
-    return false
-  }
-
-  // Show on authenticated app routes
-  if (BOTTOM_NAV_ROUTES.some(route => pathname.startsWith(route))) {
-    return true
-  }
-
-  // Show on detail/create pages that are part of authenticated routes
-  if (pathname.match(/^\/(events|fellowship|feed|prayers|testimonies)\//)) {
-    return true
-  }
-
-  return false
-}
-
 function getActiveTab(pathname: string): string {
   if (pathname.startsWith('/dashboard') || pathname === '/') return 'home'
   if (pathname.startsWith('/events')) return 'events'
@@ -64,14 +23,30 @@ export default function AppLayout({
   const pathname = usePathname()
   const { user, loading } = useAuth()
 
-  // Redirect to login if not authenticated (only on mount)
+  // Redirect to login if not authenticated
   useEffect(() => {
-    if (!loading && !user && pathname !== '/auth/login') {
+    if (!loading && !user) {
       router.replace('/auth/login')
     }
-  }, [user, loading, router, pathname])
+  }, [user, loading, router])
 
-  const showBottomNav = shouldShowBottomNav(pathname)
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-beige-50 dark:bg-navy-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render anything if not authenticated (redirect will happen)
+  if (!user) {
+    return null
+  }
+
   const activeTab = getActiveTab(pathname)
 
   const handleTabChange = (tab: string) => {
@@ -97,12 +72,13 @@ export default function AppLayout({
   }
 
   return (
-    <>
-      {children}
-      {showBottomNav && (
-        <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
-      )}
-    </>
+    <div className="flex flex-col min-h-screen bg-beige-50 dark:bg-navy-900">
+      <main className="flex-1 pb-20">
+        {children}
+      </main>
+      <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+    </div>
   )
 }
+
 

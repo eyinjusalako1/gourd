@@ -108,8 +108,6 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
       }
 
       // Get public URL using the successful bucket name
-      const bucketName = successfulBucket
-
       const { data: { publicUrl } } = supabase.storage.from(successfulBucket).getPublicUrl(filePath)
       
       // Update profile with new avatar URL

@@ -111,8 +111,18 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
       const { data: { publicUrl } } = supabase.storage.from(successfulBucket).getPublicUrl(filePath)
       
       // Update profile with new avatar URL
-      const updated = await updateProfile({ avatar_url: publicUrl })
-      return publicUrl
+      try {
+        const updated = await updateProfile({ avatar_url: publicUrl })
+        return publicUrl
+      } catch (profileError: any) {
+        // If profile update fails but upload succeeded, still return the URL
+        // The user can manually update their profile later
+        console.error('Profile update failed, but file uploaded successfully:', profileError)
+        if (profileError.message?.includes('row-level security') || profileError.message?.includes('RLS')) {
+          throw new Error('Avatar uploaded successfully, but profile update was blocked. Please configure Row Level Security (RLS) policies in Supabase to allow users to update their own profiles. See README.md for setup instructions.')
+        }
+        throw profileError
+      }
     } catch (error: any) {
       console.error('Error uploading avatar:', error)
       throw error

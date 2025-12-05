@@ -144,7 +144,11 @@ export async function upsertUserProfile(userId: string, payload: UserProfileUpda
 
     if (error) {
       console.warn('[prefs] failed to upsert profile', error.message)
-      return null
+      // Provide more helpful error message for RLS policy errors
+      if (error.message?.includes('row-level security') || error.message?.includes('RLS')) {
+        throw new Error('Profile update blocked by security policy. Please ensure Row Level Security (RLS) policies are configured in Supabase to allow users to update their own profiles.')
+      }
+      throw error
     }
 
     const profile = { ...data, last_activity_at: data.last_seen_at ?? null }

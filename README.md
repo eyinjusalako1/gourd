@@ -88,9 +88,31 @@ cp .env.local.example .env.local
 - **Create storage bucket for avatars:**
   - Go to Storage in your Supabase dashboard
   - Click "New bucket"
-  - Name it `avatars`
+  - Name it `Avatars` (or `avatars`)
   - Make it **Public** (uncheck "Private bucket")
   - Click "Create bucket"
+- **Set up Row Level Security (RLS) policies for user_profiles:**
+  - Go to Authentication > Policies in your Supabase dashboard
+  - Or run this SQL in the SQL Editor:
+  ```sql
+  -- Enable RLS on user_profiles table
+  ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+  -- Allow users to read their own profile
+  CREATE POLICY "Users can view own profile"
+    ON user_profiles FOR SELECT
+    USING (auth.uid() = id);
+
+  -- Allow users to update their own profile
+  CREATE POLICY "Users can update own profile"
+    ON user_profiles FOR UPDATE
+    USING (auth.uid() = id);
+
+  -- Allow users to insert their own profile
+  CREATE POLICY "Users can insert own profile"
+    ON user_profiles FOR INSERT
+    WITH CHECK (auth.uid() = id);
+  ```
 
 5. **Run development server**
 ```bash

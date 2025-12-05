@@ -82,7 +82,7 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
       
       if (!avatarsBucket) {
         // Provide a helpful error message with setup instructions
-        throw new Error('Avatar storage bucket is not configured. To enable profile picture uploads, please create a public storage bucket named "avatars" in your Supabase dashboard under Storage > New bucket.')
+        throw new Error('Profile picture upload is not available yet. The storage bucket needs to be set up. Please contact your administrator or check the setup documentation.')
       }
 
       const filePath = `avatars/${userId}/${Date.now()}-${file.name}`

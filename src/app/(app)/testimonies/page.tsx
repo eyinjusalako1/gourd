@@ -177,11 +177,29 @@ export default function TestimoniesPage() {
 
       {/* Testimonies List */}
       <div className="max-w-md mx-auto px-4 space-y-4">
+        {/* Prominent Share Button */}
+        <div className="mb-4">
+          <button
+            onClick={handleCreateTestimony}
+            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold text-lg"
+          >
+            <Plus className="w-6 h-6" />
+            <span>Share Your Testimony</span>
+          </button>
+        </div>
+
         {filteredTestimonies.length === 0 ? (
           <div className="text-center py-12">
             <BookOpen className="w-16 h-16 text-white/40 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">No testimonies found</h3>
-            <p className="text-white/80">Try adjusting your search or filters</p>
+            <p className="text-white/80 mb-4">Try adjusting your search or filters</p>
+            <button
+              onClick={handleCreateTestimony}
+              className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+            >
+              <Plus className="w-5 h-5 inline mr-2" />
+              Share Your First Testimony
+            </button>
           </div>
         ) : (
           filteredTestimonies.map(testimony => (
@@ -265,12 +283,14 @@ export default function TestimoniesPage() {
       </div>
 
       {/* Create Testimony Button - Floating */}
-      <div className="fixed bottom-24 right-6 z-50">
+      <div className="fixed bottom-24 right-4 z-50">
         <button
           onClick={handleCreateTestimony}
-          className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+          className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] px-6 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center space-x-2 font-semibold"
+          title="Share Your Testimony"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">Share</span>
         </button>
       </div>
     </>

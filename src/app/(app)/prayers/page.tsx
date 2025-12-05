@@ -157,11 +157,29 @@ export default function PrayersPage() {
 
       {/* Prayer Requests List */}
       <div className="max-w-md mx-auto px-4 space-y-4 pb-6">
+        {/* Prominent Share Button */}
+        <div className="mb-4">
+          <button
+            onClick={handleCreatePrayer}
+            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold text-lg"
+          >
+            <Plus className="w-6 h-6" />
+            <span>Share Prayer Request</span>
+          </button>
+        </div>
+
         {filteredPrayerRequests.length === 0 ? (
           <div className="text-center py-12">
             <Heart className="w-16 h-16 text-white/40 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">No prayer requests found</h3>
-            <p className="text-white/80">Be the first to share a prayer request</p>
+            <p className="text-white/80 mb-4">Be the first to share a prayer request</p>
+            <button
+              onClick={handleCreatePrayer}
+              className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+            >
+              <Plus className="w-5 h-5 inline mr-2" />
+              Share Your First Prayer Request
+            </button>
           </div>
         ) : (
           filteredPrayerRequests.map(request => (
@@ -219,12 +237,14 @@ export default function PrayersPage() {
       </div>
 
       {/* Create Prayer Request Button - Floating */}
-      <div className="fixed bottom-24 right-6 z-50">
+      <div className="fixed bottom-24 right-4 z-50">
         <button
           onClick={handleCreatePrayer}
-          className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+          className="bg-gradient-to-r from-[#D4AF37] to-[#F5C451] text-[#0F1433] px-6 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center space-x-2 font-semibold"
+          title="Share Prayer Request"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">Share</span>
         </button>
       </div>
     </>

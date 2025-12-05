@@ -78,15 +78,18 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
         throw new Error('Unable to access storage. Please contact support.')
       }
 
-      const avatarsBucket = buckets?.find(b => b.name === 'avatars')
+      // Check for bucket with case-insensitive matching (Supabase bucket names are case-sensitive)
+      const avatarsBucket = buckets?.find(b => b.name.toLowerCase() === 'avatars')
       
       if (!avatarsBucket) {
         // Provide a helpful error message with setup instructions
         throw new Error('Profile picture upload is not available yet. The storage bucket needs to be set up. Please contact your administrator or check the setup documentation.')
       }
 
-      const filePath = `avatars/${userId}/${Date.now()}-${file.name}`
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
+      // Use the actual bucket name (case-sensitive)
+      const bucketName = avatarsBucket.name
+      const filePath = `${bucketName.toLowerCase()}/${userId}/${Date.now()}-${file.name}`
+      const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, file, {
         cacheControl: '3600',
         upsert: true,
       })
@@ -102,7 +105,7 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
         throw new Error(`Failed to upload avatar: ${uploadError.message}`)
       }
 
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath)
+      const { data: { publicUrl } } = supabase.storage.from(bucketName).getPublicUrl(filePath)
       
       // Update profile with new avatar URL
       const updated = await updateProfile({ avatar_url: publicUrl })

@@ -136,14 +136,38 @@ export async function upsertUserProfile(userId: string, payload: UserProfileUpda
   }
 
   if (isSupabaseConfigured()) {
-    const { data, error } = await supabase
+    // Try update first, then insert if it doesn't exist
+    // This works better with RLS than upsert
+    const { data: existing } = await supabase
       .from('user_profiles')
-      .upsert(nextPayload, { onConflict: 'id' })
-      .select('*')
+      .select('id')
+      .eq('id', userId)
       .single()
 
+    let data, error
+    if (existing) {
+      // Profile exists, update it
+      const result = await supabase
+        .from('user_profiles')
+        .update(nextPayload)
+        .eq('id', userId)
+        .select('*')
+        .single()
+      data = result.data
+      error = result.error
+    } else {
+      // Profile doesn't exist, insert it
+      const result = await supabase
+        .from('user_profiles')
+        .insert(nextPayload)
+        .select('*')
+        .single()
+      data = result.data
+      error = result.error
+    }
+
     if (error) {
-      console.warn('[prefs] failed to upsert profile', error.message)
+      console.warn('[prefs] failed to upsert profile', error.message, { userId, payload })
       // Provide more helpful error message for RLS policy errors
       if (error.message?.includes('row-level security') || error.message?.includes('RLS')) {
         throw new Error('Profile update blocked by security policy. Please ensure Row Level Security (RLS) policies are configured in Supabase to allow users to update their own profiles.')

@@ -92,21 +92,28 @@ cp .env.local.example .env.local
   - Make it **Public** (uncheck "Private bucket")
   - Click "Create bucket"
 - **Set up Row Level Security (RLS) policies for user_profiles:**
-  - Go to Authentication > Policies in your Supabase dashboard
-  - Or run this SQL in the SQL Editor:
+  - Go to SQL Editor in your Supabase dashboard
+  - Copy and paste the contents of `supabase-rls-setup.sql` from the project root
+  - Or run this SQL (drops existing policies first to avoid conflicts):
   ```sql
   -- Enable RLS on user_profiles table
   ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+  -- Drop existing policies if they exist (safe to run multiple times)
+  DROP POLICY IF EXISTS "Users can view own profile" ON user_profiles;
+  DROP POLICY IF EXISTS "Users can update own profile" ON user_profiles;
+  DROP POLICY IF EXISTS "Users can insert own profile" ON user_profiles;
 
   -- Allow users to read their own profile
   CREATE POLICY "Users can view own profile"
     ON user_profiles FOR SELECT
     USING (auth.uid() = id);
 
-  -- Allow users to update their own profile
+  -- Allow users to update their own profile (including avatar_url)
   CREATE POLICY "Users can update own profile"
     ON user_profiles FOR UPDATE
-    USING (auth.uid() = id);
+    USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
 
   -- Allow users to insert their own profile
   CREATE POLICY "Users can insert own profile"

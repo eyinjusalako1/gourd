@@ -70,6 +70,21 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
     }
 
     try {
+      // First, check if the bucket exists by listing buckets
+      const { data: buckets, error: listError } = await supabase.storage.listBuckets()
+      
+      if (listError) {
+        console.error('Error listing buckets:', listError)
+        throw new Error('Unable to access storage. Please contact support.')
+      }
+
+      const avatarsBucket = buckets?.find(b => b.name === 'avatars')
+      
+      if (!avatarsBucket) {
+        // Provide a helpful error message with setup instructions
+        throw new Error('Avatar storage bucket is not configured. To enable profile picture uploads, please create a public storage bucket named "avatars" in your Supabase dashboard under Storage > New bucket.')
+      }
+
       const filePath = `avatars/${userId}/${Date.now()}-${file.name}`
       const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
         cacheControl: '3600',
@@ -78,6 +93,12 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
 
       if (uploadError) {
         console.error('Avatar upload failed:', uploadError)
+        
+        // Provide more helpful error messages based on error code
+        if (uploadError.message?.includes('Bucket') || uploadError.message?.includes('bucket')) {
+          throw new Error('Avatar storage bucket is not configured. Please contact an administrator to set up the "avatars" storage bucket in Supabase.')
+        }
+        
         throw new Error(`Failed to upload avatar: ${uploadError.message}`)
       }
 

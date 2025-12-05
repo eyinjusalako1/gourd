@@ -85,6 +85,12 @@ cp .env.local.example .env.local
 - Create a new Supabase project
 - Run the database schema from `DEPLOYMENT.md`
 - Copy your project URL and keys to `.env.local`
+- **Create storage bucket for avatars:**
+  - Go to Storage in your Supabase dashboard
+  - Click "New bucket"
+  - Name it `avatars`
+  - Make it **Public** (uncheck "Private bucket")
+  - Click "Create bucket"
 
 5. **Run development server**
 ```bash

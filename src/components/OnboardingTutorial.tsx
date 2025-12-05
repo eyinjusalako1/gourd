@@ -143,6 +143,7 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
   }, [currentStep, step.target])
 
   // Auto-click targets to guide users directly into the flow (only if tutorial is visible)
+  // Removed auto-advance - users must click "Next" button to proceed
   useEffect(() => {
     if (!isVisible) return
     const autoClickIds = new Set(['profile', 'profile-edit', 'testimonies', 'prayers'])
@@ -154,16 +155,6 @@ export default function OnboardingTutorial({ onComplete }: OnboardingTutorialPro
     }, 500)
     return () => clearTimeout(timer)
   }, [currentStep, step.id, step.target, isVisible])
-
-  // Auto-advance after auto actions to keep the flow moving
-  useEffect(() => {
-    const autoAdvanceIds = new Set(['profile', 'profile-edit', 'testimonies', 'prayers'])
-    if (!autoAdvanceIds.has(step.id)) return
-    const t = setTimeout(() => {
-      setCurrentStep(s => Math.min(s + 1, tutorialSteps.length - 1))
-    }, 1200)
-    return () => clearTimeout(t)
-  }, [currentStep, step.id])
 
   if (!isVisible) return null
 

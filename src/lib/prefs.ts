@@ -136,13 +136,39 @@ export async function upsertUserProfile(userId: string, payload: UserProfileUpda
   }
 
   if (isSupabaseConfigured()) {
-    // Try update first, then insert if it doesn't exist
-    // This works better with RLS than upsert
+    // Use RPC function if available, otherwise fall back to direct update/insert
+    try {
+      // Try using the database function first (if it exists)
+      const { data: functionData, error: functionError } = await supabase.rpc('update_user_profile_avatar', {
+        p_user_id: userId,
+        p_avatar_url: nextPayload.avatar_url || null
+      })
+
+      if (!functionError && nextPayload.avatar_url) {
+        // Function worked, now get the full profile
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', userId)
+          .single()
+        
+        if (!error && data) {
+          const profile = { ...data, last_activity_at: data.last_seen_at ?? null }
+          cacheProfile(profile)
+          return profile
+        }
+      }
+    } catch (rpcError) {
+      // Function doesn't exist or failed, continue with regular method
+      console.log('[prefs] RPC function not available, using direct method')
+    }
+
+    // Fallback: Try update first, then insert if it doesn't exist
     const { data: existing } = await supabase
       .from('user_profiles')
       .select('id')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
     let data, error
     if (existing) {
@@ -167,10 +193,10 @@ export async function upsertUserProfile(userId: string, payload: UserProfileUpda
     }
 
     if (error) {
-      console.warn('[prefs] failed to upsert profile', error.message, { userId, payload })
+      console.warn('[prefs] failed to upsert profile', error.message, { userId, payload, error })
       // Provide more helpful error message for RLS policy errors
-      if (error.message?.includes('row-level security') || error.message?.includes('RLS')) {
-        throw new Error('Profile update blocked by security policy. Please ensure Row Level Security (RLS) policies are configured in Supabase to allow users to update their own profiles.')
+      if (error.message?.includes('row-level security') || error.message?.includes('RLS') || error.message?.includes('violates row-level security')) {
+        throw new Error('Profile update blocked by security policy. The RLS policies may need to be reconfigured. Please check that policies allow users to update their own profiles with auth.uid() = id.')
       }
       throw error
     }

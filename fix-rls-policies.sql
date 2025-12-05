@@ -1,13 +1,11 @@
--- Row Level Security (RLS) Setup for Gathered App
--- Run this SQL in your Supabase SQL Editor to enable profile updates
--- 
--- IMPORTANT: If you get "policy already exists" errors, use fix-rls-policies.sql instead
--- This script uses a safer method that drops all existing policies first
+-- Fix RLS Policies for user_profiles table
+-- This script will safely update existing policies or create new ones
+-- Run this in your Supabase SQL Editor
 
--- Enable RLS on user_profiles table (if not already enabled)
+-- Step 1: Enable RLS (safe to run multiple times)
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
--- Drop ALL existing policies on user_profiles using a DO block (handles any policy names)
+-- Step 2: Drop ALL existing policies on user_profiles (we'll recreate them)
 DO $$ 
 DECLARE
     r RECORD;
@@ -17,13 +15,13 @@ BEGIN
     END LOOP;
 END $$;
 
+-- Step 3: Create the policies fresh
 -- Allow users to read their own profile
 CREATE POLICY "Users can view own profile"
   ON user_profiles FOR SELECT
   USING (auth.uid() = id);
 
--- Allow users to update their own profile (including avatar_url)
--- This is the critical policy for avatar uploads to work
+-- Allow users to update their own profile (CRITICAL for avatar uploads)
 CREATE POLICY "Users can update own profile"
   ON user_profiles FOR UPDATE
   USING (auth.uid() = id)
@@ -34,7 +32,7 @@ CREATE POLICY "Users can insert own profile"
   ON user_profiles FOR INSERT
   WITH CHECK (auth.uid() = id);
 
--- Verify the policies were created
+-- Step 4: Verify the policies were created
 SELECT 
   policyname,
   cmd,

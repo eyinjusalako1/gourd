@@ -70,42 +70,47 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
     }
 
     try {
-      // First, check if the bucket exists by listing buckets
-      const { data: buckets, error: listError } = await supabase.storage.listBuckets()
-      
-      if (listError) {
-        console.error('Error listing buckets:', listError)
-        throw new Error('Unable to access storage. Please contact support.')
+      // Try common bucket name variations (case-sensitive in Supabase)
+      const possibleBucketNames = ['Avatars', 'avatars', 'avatar', 'Avatar']
+      let uploadError: any = null
+      let successfulBucket: string | null = null
+      let filePath: string = ''
+
+      // Try each bucket name until one works
+      for (const bucketName of possibleBucketNames) {
+        filePath = `${bucketName.toLowerCase()}/${userId}/${Date.now()}-${file.name}`
+        const { error } = await supabase.storage.from(bucketName).upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+        if (!error) {
+          successfulBucket = bucketName
+          break
+        } else {
+          uploadError = error
+          // If it's not a bucket not found error, stop trying
+          if (!error.message?.includes('Bucket') && !error.message?.includes('bucket') && !error.message?.includes('not found')) {
+            break
+          }
+        }
       }
 
-      // Check for bucket with case-insensitive matching (Supabase bucket names are case-sensitive)
-      const avatarsBucket = buckets?.find(b => b.name.toLowerCase() === 'avatars')
-      
-      if (!avatarsBucket) {
-        // Provide a helpful error message with setup instructions
-        throw new Error('Profile picture upload is not available yet. The storage bucket needs to be set up. Please contact your administrator or check the setup documentation.')
-      }
-
-      // Use the actual bucket name (case-sensitive)
-      const bucketName = avatarsBucket.name
-      const filePath = `${bucketName.toLowerCase()}/${userId}/${Date.now()}-${file.name}`
-      const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true,
-      })
-
-      if (uploadError) {
+      // If no bucket worked, provide helpful error
+      if (!successfulBucket) {
         console.error('Avatar upload failed:', uploadError)
         
-        // Provide more helpful error messages based on error code
-        if (uploadError.message?.includes('Bucket') || uploadError.message?.includes('bucket')) {
-          throw new Error('Avatar storage bucket is not configured. Please contact an administrator to set up the "avatars" storage bucket in Supabase.')
+        if (uploadError?.message?.includes('Bucket') || uploadError?.message?.includes('bucket') || uploadError?.message?.includes('not found')) {
+          throw new Error('Storage bucket not found. Please ensure a bucket named "Avatars" (or "avatars") exists in your Supabase Storage and is set to PUBLIC. Check your Supabase dashboard: Storage > Buckets.')
         }
         
-        throw new Error(`Failed to upload avatar: ${uploadError.message}`)
+        throw new Error(`Failed to upload avatar: ${uploadError?.message || 'Unknown error'}`)
       }
 
-      const { data: { publicUrl } } = supabase.storage.from(bucketName).getPublicUrl(filePath)
+      // Get public URL using the successful bucket name
+      const bucketName = successfulBucket
+
+      const { data: { publicUrl } } = supabase.storage.from(successfulBucket).getPublicUrl(filePath)
       
       // Update profile with new avatar URL
       const updated = await updateProfile({ avatar_url: publicUrl })

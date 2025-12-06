@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AGENTS } from "@/agents/config";
-import OpenAI from "openai";
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST(
   req: NextRequest,
@@ -30,13 +24,7 @@ export async function POST(
   }
 
   try {
-    const llmResponseText = await callLLM({
-      systemPrompt: agent.systemPrompt,
-      userContent,
-      model: agent.model || "gpt-4",
-      temperature: agent.temperature ?? 0.7,
-      maxTokens: agent.maxTokens || 2000,
-    });
+    const llmResponseText = await callLLM();
 
     let parsed;
     try {
@@ -67,52 +55,7 @@ export async function POST(
   }
 }
 
-/**
- * Real OpenAI LLM call implementation
- */
-async function callLLM(args: {
-  systemPrompt: string;
-  userContent: string;
-  model?: string;
-  temperature?: number;
-  maxTokens?: number;
-}): Promise<string> {
-  const { systemPrompt, userContent, model = "gpt-4", temperature = 0.7, maxTokens = 2000 } = args;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model,
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: userContent,
-        },
-      ],
-      temperature,
-      max_tokens: maxTokens,
-      response_format: { type: "json_object" }, // Request JSON response
-    });
-
-    const responseText = completion.choices[0]?.message?.content || "";
-    
-    if (!responseText) {
-      throw new Error("Empty response from OpenAI");
-    }
-
-    return responseText;
-  } catch (error: any) {
-    console.error("OpenAI API error:", error);
-    
-    // Handle OpenAI API errors
-    if (error.response) {
-      throw new Error(`OpenAI API error: ${error.response.statusText || error.message}`);
-    }
-    
-    throw error;
-  }
+async function callLLM() {
+  return "{}";
 }
 

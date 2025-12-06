@@ -13,7 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAgentConfig, isAgentAvailable } from '@/agents/config'
-import type { AgentRequest, AgentResponse } from '@/types/agents'
+import type { AgentRequest, AgentResponse, AgentName } from '@/types/agents'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import OpenAI from 'openai'
 

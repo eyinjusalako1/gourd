@@ -3,22 +3,24 @@
  * Defines the structure for AI agents in the Gathered app
  */
 
-export type AgentRole = 
-  | 'moderator'      // Content moderation agent
-  | 'recommender'    // Recommendation agent
-  | 'assistant'      // General assistant agent
-  | 'analyst'        // Analytics agent
-  | 'developer'      // Development helper agent
+export type AgentName =
+  | "EJ"
+  | "Joshua"
+  | "Simi"
+  | "PROPHECY"
+  | "KING"
+  | "Jenny"
+  | "Joe"
 
 export interface AgentConfig {
-  name: string
-  role: AgentRole
+  name: AgentName
+  role: "user-facing" | "internal"
   description: string
   systemPrompt: string
   model?: string // OpenAI model to use (default: gpt-4)
   temperature?: number // 0-1, default: 0.7
   maxTokens?: number
-  enabled: boolean
+  enabled?: boolean
 }
 
 export interface AgentRequest {

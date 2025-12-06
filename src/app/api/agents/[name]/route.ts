@@ -1,220 +1,118 @@
-/**
- * Agent API Route
- * Handles requests to AI agents
- * 
- * POST /api/agents/[name]
- * 
- * Body: {
- *   message: string
- *   context?: Record<string, any>
- *   userId?: string
- * }
- */
-
-import { NextRequest, NextResponse } from 'next/server'
-import { getAgentConfig, isAgentAvailable } from '@/agents/config'
-import type { AgentRequest, AgentResponse, AgentName } from '@/types/agents'
-import { isSupabaseConfigured, supabase } from '@/lib/supabase'
-import OpenAI from 'openai'
+import { NextRequest, NextResponse } from "next/server";
+import { AGENTS } from "@/agents/config";
+import OpenAI from "openai";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-})
+});
 
 export async function POST(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { name: string } }
 ) {
+  const agentName = params.name;
+  const agent = AGENTS[agentName];
+
+  if (!agent) {
+    return NextResponse.json({ error: "Unknown agent" }, { status: 404 });
+  }
+
+  const body = await req.json();
+  const userContent = JSON.stringify(body);
+
+  // Check OpenAI API key
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json(
+      { error: "OpenAI API key is not configured" },
+      { status: 500 }
+    );
+  }
+
   try {
-    const agentName = params.name
+    const llmResponseText = await callLLM({
+      systemPrompt: agent.systemPrompt,
+      userContent,
+      model: agent.model || "gpt-4",
+      temperature: agent.temperature ?? 0.7,
+      maxTokens: agent.maxTokens || 2000,
+    });
 
-    // Check if agent exists and is enabled
-    if (!isAgentAvailable(agentName)) {
+    let parsed;
+    try {
+      parsed = JSON.parse(llmResponseText);
+    } catch (e) {
       return NextResponse.json(
         {
-          success: false,
-          message: `Agent "${agentName}" is not available or not enabled`,
-          error: 'AGENT_NOT_FOUND',
-        } as AgentResponse,
-        { status: 404 }
-      )
-    }
-
-    // Get agent configuration
-    const agentConfig = getAgentConfig(agentName)
-    if (!agentConfig) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: `Agent configuration not found for "${agentName}"`,
-          error: 'AGENT_CONFIG_NOT_FOUND',
-        } as AgentResponse,
-        { status: 404 }
-      )
-    }
-
-    // Parse request body
-    const body: AgentRequest = await request.json()
-    const { message, context, userId } = body
-
-    if (!message || typeof message !== 'string') {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'Message is required and must be a string',
-          error: 'INVALID_REQUEST',
-        } as AgentResponse,
-        { status: 400 }
-      )
-    }
-
-    // Check OpenAI API key
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'OpenAI API key is not configured',
-          error: 'OPENAI_NOT_CONFIGURED',
-        } as AgentResponse,
+          error: "Agent did not return valid JSON",
+          raw: llmResponseText,
+        },
         { status: 500 }
-      )
+      );
     }
 
-    // Get user context if userId is provided
-    let userContext = {}
-    if (userId && isSupabaseConfigured()) {
-      try {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('role, interests, city')
-          .eq('id', userId)
-          .single()
-
-        if (profile) {
-          userContext = {
-            userRole: profile.role,
-            interests: profile.interests,
-            location: profile.city,
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to fetch user context:', error)
-        // Continue without user context
-      }
-    }
-
-    // Build the full context for the agent
-    const fullContext = {
-      ...userContext,
-      ...context,
-      agentName: agentConfig.name,
-      agentRole: agentConfig.role,
-    }
-
-    // Prepare messages for OpenAI
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-      {
-        role: 'system',
-        content: agentConfig.systemPrompt,
-      },
-      {
-        role: 'user',
-        content: context
-          ? `${message}\n\nContext: ${JSON.stringify(fullContext, null, 2)}`
-          : message,
-      },
-    ]
-
-    // Call OpenAI API
-    const completion = await openai.chat.completions.create({
-      model: agentConfig.model || 'gpt-4',
-      messages,
-      temperature: agentConfig.temperature ?? 0.7,
-      max_tokens: agentConfig.maxTokens || 1000,
-    })
-
-    const responseMessage = completion.choices[0]?.message?.content || ''
-    const tokensUsed = completion.usage?.total_tokens || 0
-
-    // Return successful response
     return NextResponse.json({
-      success: true,
-      message: responseMessage,
-      data: {
-        agent: agentConfig.name,
-        role: agentConfig.role,
-        tokensUsed,
-      },
-    } as AgentResponse)
+      agent: agentName,
+      data: parsed,
+    });
   } catch (error: any) {
-    console.error('Agent API error:', error)
-
-    // Handle OpenAI API errors
-    if (error.response) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'OpenAI API error',
-          error: error.response.statusText || 'OPENAI_ERROR',
-        } as AgentResponse,
-        { status: error.response.status || 500 }
-      )
-    }
-
-    // Handle other errors
+    console.error("Agent API error:", error);
     return NextResponse.json(
       {
-        success: false,
-        message: error.message || 'An unexpected error occurred',
-        error: 'INTERNAL_ERROR',
-      } as AgentResponse,
+        error: error.message || "An unexpected error occurred",
+        details: error.response?.data || null,
+      },
       { status: 500 }
-    )
+    );
   }
 }
 
 /**
- * GET endpoint to retrieve agent information
+ * Real OpenAI LLM call implementation
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { name: string } }
-) {
-  const agentName = params.name
+async function callLLM(args: {
+  systemPrompt: string;
+  userContent: string;
+  model?: string;
+  temperature?: number;
+  maxTokens?: number;
+}): Promise<string> {
+  const { systemPrompt, userContent, model = "gpt-4", temperature = 0.7, maxTokens = 2000 } = args;
 
-  if (!isAgentAvailable(agentName)) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: `Agent "${agentName}" is not available`,
-        error: 'AGENT_NOT_FOUND',
-      },
-      { status: 404 }
-    )
+  try {
+    const completion = await openai.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: userContent,
+        },
+      ],
+      temperature,
+      max_tokens: maxTokens,
+      response_format: { type: "json_object" }, // Request JSON response
+    });
+
+    const responseText = completion.choices[0]?.message?.content || "";
+    
+    if (!responseText) {
+      throw new Error("Empty response from OpenAI");
+    }
+
+    return responseText;
+  } catch (error: any) {
+    console.error("OpenAI API error:", error);
+    
+    // Handle OpenAI API errors
+    if (error.response) {
+      throw new Error(`OpenAI API error: ${error.response.statusText || error.message}`);
+    }
+    
+    throw error;
   }
-
-  const agentConfig = getAgentConfig(agentName)
-  if (!agentConfig) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: `Agent configuration not found`,
-        error: 'AGENT_CONFIG_NOT_FOUND',
-      },
-      { status: 404 }
-    )
-  }
-
-  // Return agent info (without sensitive system prompt)
-  return NextResponse.json({
-    success: true,
-    data: {
-      name: agentConfig.name,
-      role: agentConfig.role,
-      description: agentConfig.description,
-      enabled: agentConfig.enabled,
-    },
-  })
 }
 

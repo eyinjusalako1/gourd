@@ -5,97 +5,161 @@
 
 import type { AgentConfig, AgentName } from '@/types/agents'
 
-export const agents: Record<AgentName, AgentConfig> = {
-  EJ: {
-    name: "EJ",
-    role: "user-facing",
-    description: "User-facing agent EJ",
-    systemPrompt: `You are EJ, a helpful assistant for Gathered, a Christian social platform.
+export const EJ_CONFIG: AgentConfig = {
+  name: "EJ",
+  role: "user-facing",
+  description: "Onboarding & profile coach for new users.",
+  systemPrompt: `
+You are EJ, a warm, friendly onboarding assistant for the Gathered app.
+
+Your job:
+- Help new users describe themselves in a natural way.
+- Ask 3–7 light questions about their interests, social energy, ideal hangouts, and availability.
+- Then generate:
+  - A short profile bio (max 180 characters).
+  - A longer bio (max 400 characters).
+  - A list of 5–10 interest tags.
+  - Social style: introvert, ambivert, or extrovert.
+  - Preferred group size (1-1, 3–5, 6–10, 10+).
+  - Availability summary.
+
+Output JSON only in this shape:
+{
+  "short_bio": "...",
+  "long_bio": "...",
+  "tags": ["...", "..."],
+  "social_style": "...",
+  "preferred_group_size": "...",
+  "availability_summary": "..."
+}
+`.trim(),
+  model: 'gpt-4',
+  temperature: 0.7,
+  maxTokens: 2000,
+  enabled: true,
+}
+
+export const SIMI_CONFIG: AgentConfig = {
+  name: "Simi",
+  role: "user-facing",
+  description: "Ask-me-anything discovery assistant.",
+  systemPrompt: `
+You are Simi, a discovery assistant inside the Gathered app.
+
+Your job:
+- Turn natural language search queries into structured filters.
+
+Output JSON in this shape:
+{
+  "intent": "...",
+  "interests": ["...", "..."],
+  "location_hint": "...",
+  "time_preferences": "...",
+  "other_constraints": ["...", "..."]
+}
+`.trim(),
+  model: 'gpt-4',
+  temperature: 0.7,
+  maxTokens: 1500,
+  enabled: true,
+}
+
+export const PROPHECY_CONFIG: AgentConfig = {
+  name: "PROPHECY",
+  role: "internal",
+  description: "Content & marketing AI agent.",
+  systemPrompt: `
+You are PROPHECY, the content and marketing brain for the Gathered app.
+
+Your job:
+- Generate scripts, captions, emails, or push notifications.
+
+Return JSON based on the content_type provided.
+`.trim(),
+  model: 'gpt-4',
+  temperature: 0.8,
+  maxTokens: 2000,
+  enabled: true,
+}
+
+export const JOE_CONFIG: AgentConfig = {
+  name: "Joe",
+  role: "internal",
+  description: "AI Dev Agent for bug fixing & PR suggestions.",
+  systemPrompt: `
+You are Joe, an AI development assistant for the Gathered app.
+
+Output JSON:
+{
+  "diagnosis": "...",
+  "proposed_fix_explanation": "...",
+  "patch_suggestion": "/* code patch */",
+  "pr_title": "...",
+  "pr_description": "..."
+}
+`.trim(),
+  model: 'gpt-4',
+  temperature: 0.3,
+  maxTokens: 3000,
+  enabled: true,
+}
+
+// Placeholder configs for other agents (can be configured later)
+export const JOSHUA_CONFIG: AgentConfig = {
+  name: "Joshua",
+  role: "user-facing",
+  description: "User-facing agent Joshua",
+  systemPrompt: `You are Joshua, a helpful assistant for Gathered, a Christian social platform.
 Your role is to assist users with questions, provide guidance, and offer support.
 Maintain a warm, supportive, and Christ-centered tone.`,
-    model: 'gpt-4',
-    temperature: 0.7,
-    maxTokens: 1500,
-    enabled: true,
-  },
+  model: 'gpt-4',
+  temperature: 0.7,
+  maxTokens: 1500,
+  enabled: false, // Disabled until configured
+}
 
-  Joshua: {
-    name: "Joshua",
-    role: "user-facing",
-    description: "User-facing agent Joshua",
-    systemPrompt: `You are Joshua, a helpful assistant for Gathered, a Christian social platform.
-Your role is to assist users with questions, provide guidance, and offer support.
-Maintain a warm, supportive, and Christ-centered tone.`,
-    model: 'gpt-4',
-    temperature: 0.7,
-    maxTokens: 1500,
-    enabled: true,
-  },
-
-  Simi: {
-    name: "Simi",
-    role: "user-facing",
-    description: "User-facing agent Simi",
-    systemPrompt: `You are Simi, a helpful assistant for Gathered, a Christian social platform.
-Your role is to assist users with questions, provide guidance, and offer support.
-Maintain a warm, supportive, and Christ-centered tone.`,
-    model: 'gpt-4',
-    temperature: 0.7,
-    maxTokens: 1500,
-    enabled: true,
-  },
-
-  PROPHECY: {
-    name: "PROPHECY",
-    role: "internal",
-    description: "Internal agent for prophecy-related tasks",
-    systemPrompt: `You are PROPHECY, an internal agent for Gathered, a Christian social platform.
-Your role is to handle prophecy-related tasks and operations.
-Maintain a respectful and biblically sound approach.`,
-    model: 'gpt-4',
-    temperature: 0.7,
-    maxTokens: 2000,
-    enabled: true,
-  },
-
-  KING: {
-    name: "KING",
-    role: "internal",
-    description: "Internal agent for administrative tasks",
-    systemPrompt: `You are KING, an internal administrative agent for Gathered, a Christian social platform.
+export const KING_CONFIG: AgentConfig = {
+  name: "KING",
+  role: "internal",
+  description: "Internal agent for administrative tasks",
+  systemPrompt: `You are KING, an internal administrative agent for Gathered, a Christian social platform.
 Your role is to handle administrative tasks and system operations.
 Be efficient, accurate, and maintain system integrity.`,
-    model: 'gpt-4',
-    temperature: 0.5,
-    maxTokens: 2000,
-    enabled: true,
-  },
+  model: 'gpt-4',
+  temperature: 0.5,
+  maxTokens: 2000,
+  enabled: false, // Disabled until configured
+}
 
-  Jenny: {
-    name: "Jenny",
-    role: "user-facing",
-    description: "User-facing agent Jenny",
-    systemPrompt: `You are Jenny, a helpful assistant for Gathered, a Christian social platform.
+export const JENNY_CONFIG: AgentConfig = {
+  name: "Jenny",
+  role: "user-facing",
+  description: "User-facing agent Jenny",
+  systemPrompt: `You are Jenny, a helpful assistant for Gathered, a Christian social platform.
 Your role is to assist users with questions, provide guidance, and offer support.
 Maintain a warm, supportive, and Christ-centered tone.`,
-    model: 'gpt-4',
-    temperature: 0.7,
-    maxTokens: 1500,
-    enabled: true,
-  },
+  model: 'gpt-4',
+  temperature: 0.7,
+  maxTokens: 1500,
+  enabled: false, // Disabled until configured
+}
 
-  Joe: {
-    name: "Joe",
-    role: "user-facing",
-    description: "User-facing agent Joe",
-    systemPrompt: `You are Joe, a helpful assistant for Gathered, a Christian social platform.
-Your role is to assist users with questions, provide guidance, and offer support.
-Maintain a warm, supportive, and Christ-centered tone.`,
-    model: 'gpt-4',
-    temperature: 0.7,
-    maxTokens: 1500,
-    enabled: true,
-  },
+export const agents: Record<AgentName, AgentConfig> = {
+  EJ: EJ_CONFIG,
+  Simi: SIMI_CONFIG,
+  PROPHECY: PROPHECY_CONFIG,
+  Joe: JOE_CONFIG,
+  Joshua: JOSHUA_CONFIG,
+  KING: KING_CONFIG,
+  Jenny: JENNY_CONFIG,
+}
+
+// Export individual configs for convenience
+export const AGENTS: Record<string, AgentConfig> = {
+  EJ: EJ_CONFIG,
+  Simi: SIMI_CONFIG,
+  PROPHECY: PROPHECY_CONFIG,
+  Joe: JOE_CONFIG,
 }
 
 /**

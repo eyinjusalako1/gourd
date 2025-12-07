@@ -27,7 +27,7 @@ export default function OnboardingPage() {
       
       // Redirect to onboarding to complete profile setup
       // Dashboard will check profile_complete and redirect if needed
-      router.replace('/onboarding/ej-onboarding')
+      router.replace('/onboarding/profile')
     } catch (err: any) {
       console.error('Error saving user type:', err)
       const errorMessage = err?.message || 'Unknown error occurred'

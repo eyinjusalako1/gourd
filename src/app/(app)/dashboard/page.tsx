@@ -24,7 +24,7 @@ export default function DashboardPage() {
     if (!prefsLoading && userType && !profileLoading && profile) {
       // If profile exists but is not complete, redirect to onboarding
       if (!profile.profile_complete) {
-        router.replace('/onboarding/ej-onboarding')
+        router.replace('/onboarding/profile')
       }
     }
   }, [prefsLoading, userType, profileLoading, profile, router])

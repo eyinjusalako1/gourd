@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { usePrefs } from '@/hooks/usePrefs'
+import { useUserProfile } from '@/hooks/useUserProfile'
 import { useUnreadActivity } from '@/hooks/useUnreadActivity'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -13,8 +15,19 @@ import OnboardingTutorial from '@/components/OnboardingTutorial'
 export default function DashboardPage() {
   const { user, signOut } = useAuth()
   const { userType, isLoading: prefsLoading } = usePrefs()
+  const { profile, isLoading: profileLoading } = useUserProfile()
   const { hasUnread, clearUnread } = useUnreadActivity()
   const router = useRouter()
+
+  // Check if user needs to complete EJ onboarding (profile not complete)
+  useEffect(() => {
+    if (!prefsLoading && userType && !profileLoading && profile) {
+      // If profile exists but is not complete, redirect to EJ onboarding
+      if (!profile.profile_complete) {
+        router.replace('/onboarding/ej-onboarding')
+      }
+    }
+  }, [prefsLoading, userType, profileLoading, profile, router])
 
   const handleSignOut = async () => {
     await signOut()
@@ -22,12 +35,28 @@ export default function DashboardPage() {
   }
 
   // Show loading state while prefs are loading, or if userType is not yet determined
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    if (prefsLoading || !userType) {
+      const timeout = setTimeout(() => {
+        // If still loading after 10 seconds, redirect to onboarding
+        if (prefsLoading || !userType) {
+          console.warn('Dashboard loading timeout - redirecting to onboarding')
+          router.replace('/onboarding')
+        }
+      }, 10000) // 10 second timeout
+
+      return () => clearTimeout(timeout)
+    }
+  }, [prefsLoading, userType, router])
+
   if (prefsLoading || !userType) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your dashboard...</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-500">If this takes too long, we&apos;ll redirect you</p>
         </div>
       </div>
     )

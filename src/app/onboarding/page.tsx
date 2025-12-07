@@ -25,9 +25,9 @@ export default function OnboardingPage() {
       // Await saveUserType before redirecting to prevent race condition
       await saveUserType(user.id, userType)
       
-      // Use router.replace instead of router.push to avoid async race
-      // and prevent loading the dashboard before userType exists
-      router.replace('/dashboard')
+      // Redirect to EJ onboarding to complete profile setup
+      // Dashboard will check profile_complete and redirect if needed
+      router.replace('/onboarding/ej-onboarding')
     } catch (err: any) {
       console.error('Error saving user type:', err)
       const errorMessage = err?.message || 'Unknown error occurred'

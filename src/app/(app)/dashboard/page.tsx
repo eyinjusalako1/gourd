@@ -7,7 +7,7 @@ import { useUserProfile } from '@/hooks/useUserProfile'
 import { useUnreadActivity } from '@/hooks/useUnreadActivity'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Settings, LogOut, Bell, Crown } from 'lucide-react'
+import { Settings, LogOut, Bell, Crown, Search } from 'lucide-react'
 import DiscipleHome from '@/components/DiscipleHome'
 import StewardHome from '@/components/StewardHome'
 import OnboardingTutorial from '@/components/OnboardingTutorial'
@@ -87,6 +87,13 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center space-x-2">
+              <Link 
+                href="/discovery" 
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Discovery Assistant"
+              >
+                <Search className="w-5 h-5" />
+              </Link>
               <Link 
                 href="/settings/notifications" 
                 onClick={clearUnread}

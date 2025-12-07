@@ -137,8 +137,7 @@ export default function DiscoveryAssistantPage() {
             </div>
 
             <p className="text-xs text-slate-500">
-              Next step (to build later): use these filters to query your database
-              for matching people, groups, and events.
+              These filters can be used to search for matching people, groups, and events in your database.
             </p>
           </section>
         )}

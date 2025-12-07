@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 type Step = 1 | 2 | 3;
 
@@ -22,6 +25,9 @@ interface EjResult {
 }
 
 export default function EjOnboardingPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { updateProfile, markProfileComplete } = useUserProfile();
   const [step, setStep] = useState<Step>(1);
   const [answers, setAnswers] = useState<Answers>({
     interests: "",
@@ -31,6 +37,7 @@ export default function EjOnboardingPage() {
     preferred_group_size: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [ejResult, setEjResult] = useState<EjResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -98,11 +105,45 @@ export default function EjOnboardingPage() {
   };
 
   const handleFinalAction = async () => {
-    // ⛔️ Placeholder:
-    // Here is where you'd send ejResult + answers to your backend/DB.
-    // For now we just log it.
-    console.log("Final profile to save:", { answers, ejResult });
-    alert("EJ profile generated – wire this into your DB next. 🔧");
+    if (!user || !ejResult) return;
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      // Parse interests from answers
+      const interestsArray = answers.interests
+        .split(',')
+        .map(i => i.trim())
+        .filter(i => i.length > 0);
+
+      // Combine EJ-generated tags with parsed interests
+      const allTags = [...(ejResult.tags || []), ...interestsArray];
+      const uniqueTags = Array.from(new Set(allTags));
+
+      // Parse availability from answers
+      const availabilityArray = answers.availability
+        .split(',')
+        .map(a => a.trim())
+        .filter(a => a.length > 0);
+
+      // Update profile with EJ-generated data
+      await updateProfile({
+        bio: ejResult.long_bio || ejResult.short_bio || null,
+        interests: uniqueTags.length > 0 ? uniqueTags : null,
+        availability: availabilityArray.length > 0 ? availabilityArray : null,
+      });
+
+      // Mark profile as complete
+      await markProfileComplete();
+
+      // Redirect to dashboard
+      router.replace('/dashboard');
+    } catch (err: any) {
+      console.error('Error saving profile:', err);
+      setError(err.message || 'Failed to save profile. Please try again.');
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -293,9 +334,10 @@ export default function EjOnboardingPage() {
             <button
               type="button"
               onClick={handleFinalAction}
-              className="mt-3 text-sm px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-100"
+              disabled={isSaving}
+              className="mt-3 w-full text-sm px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-400 transition-colors"
             >
-              Save & continue (wire to DB later)
+              {isSaving ? "Saving your profile..." : "Save & Continue to Dashboard"}
             </button>
           </div>
         )}

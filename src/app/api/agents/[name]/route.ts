@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AGENTS } from "@/agents/config";
+import OpenAI from "openai";
 
 export async function POST(
   req: NextRequest,
@@ -24,7 +25,7 @@ export async function POST(
   }
 
   try {
-    const llmResponseText = await callLLM();
+    const llmResponseText = await callLLM(agent, userContent);
 
     let parsed;
     try {
@@ -55,7 +56,27 @@ export async function POST(
   }
 }
 
-async function callLLM() {
-  return "{}";
+async function callLLM(agent: typeof AGENTS[keyof typeof AGENTS], userContent: string): Promise<string> {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  const completion = await openai.chat.completions.create({
+    model: agent.model || 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: agent.systemPrompt },
+      { role: 'user', content: userContent },
+    ],
+    temperature: agent.temperature ?? 0.7,
+    max_tokens: agent.maxTokens ?? 2000,
+    response_format: { type: 'json_object' },
+  });
+
+  const response = completion.choices[0]?.message?.content;
+  if (!response) {
+    throw new Error('No response from OpenAI');
+  }
+
+  return response;
 }
 

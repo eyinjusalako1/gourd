@@ -2,6 +2,76 @@ import { NextRequest, NextResponse } from "next/server";
 import { AGENTS } from "@/agents/config";
 import OpenAI from "openai";
 
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const MOCK_MODE = process.env.GATHERED_MOCK_AGENTS === "true";
+
+/**
+ * Simple mock responses for dev mode and fallback.
+ * You can tweak these to match what you expect each agent to return.
+ */
+function getMockResponse(agentName: string, body: any) {
+  switch (agentName) {
+    case "EJ":
+      return {
+        short_bio: "Weekend gym, anime, church & chill hangs.",
+        long_bio:
+          "I'm into gym, anime, church and chilled social vibes. I like meeting new people in small groups, exploring food spots and having good conversations on weekends.",
+        tags: ["gym", "anime", "church", "brunch", "chilled vibes"],
+        social_style: body?.answers?.social_energy || "ambivert",
+        preferred_group_size: body?.answers?.preferred_group_size || "3-5",
+        availability_summary:
+          body?.answers?.availability ||
+          "Weekends and some weekday evenings.",
+      };
+
+    case "Simi":
+      return {
+        intent: "mixed",
+        interests: ["anime", "gym"],
+        location_hint: "Stratford, London",
+        time_preferences: "Sunday afternoons",
+        other_constraints: ["faith-based"],
+      };
+
+    case "PROPHECY":
+      return {
+        content_type: body?.content_type || "tiktok_script",
+        hooks: [
+          "POV: You moved cities and your social life disappeared overnight.",
+          "Adulting is crazy: busy calendar, zero real friends.",
+          "London is packed, but somehow you still feel alone?"
+        ],
+        script_outline: [
+          "Relatable intro about struggling to make friends after uni.",
+          "Show quick cuts of being at home vs going out alone.",
+          "Introduce Gathered as the app that helps you find your people.",
+          "End with CTA to join the waitlist / download."
+        ],
+        cta: "Download Gathered and find your people in your city.",
+        hashtags: ["#gatheredapp", "#newfriends", "#londonlife"]
+      };
+
+    case "Joe":
+      return {
+        diagnosis:
+          "Likely a null/undefined value being accessed in the component based on the stack trace.",
+        proposed_fix_explanation:
+          "Add a defensive check before using the value and ensure props are passed correctly.",
+        patch_suggestion:
+          "// Example: if (!props.user) return null; // then safely use props.user below.",
+        pr_title: "Fix undefined value causing runtime error in onboarding",
+        pr_description:
+          "Adds a null-check around the user prop in the onboarding component to prevent crashes when the user object is not yet loaded.",
+      };
+
+    default:
+      return { note: "No mock defined for this agent yet." };
+  }
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { name: string } }
@@ -14,170 +84,77 @@ export async function POST(
   }
 
   const body = await req.json();
+
+  // ✅ 1) If dev mock mode is on, always return mock
+  if (MOCK_MODE) {
+    const mock = getMockResponse(agentName, body);
+    return NextResponse.json({ agent: agentName, data: mock });
+  }
+
   const userContent = JSON.stringify(body);
 
-  // Dev mode: Return mock data if GATHERED_MOCK_AGENTS is enabled
-  const isMockMode = process.env.GATHERED_MOCK_AGENTS === 'true';
-  
-  if (isMockMode) {
-    console.log(`[MOCK MODE] Returning mock data for agent: ${agentName}`);
-    const mockData = getMockResponse(agentName, body);
-    return NextResponse.json({
-      agent: agentName,
-      data: mockData,
-      _mock: true, // Flag to indicate this is mock data
-    });
-  }
-
-  // Check OpenAI API key
-  if (!process.env.OPENAI_API_KEY) {
-    return NextResponse.json(
-      { error: "OpenAI API key is not configured" },
-      { status: 500 }
-    );
-  }
-
+  let llmResponseText: string;
   try {
-    const llmResponseText = await callLLM(agent, userContent);
-
-    let parsed;
-    try {
-      parsed = JSON.parse(llmResponseText);
-    } catch (e) {
-      return NextResponse.json(
-        {
-          error: "Agent did not return valid JSON",
-          raw: llmResponseText,
-        },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      agent: agentName,
-      data: parsed,
+    // ✅ 2) Try real LLM call
+    llmResponseText = await callLLM({
+      systemPrompt: agent.systemPrompt,
+      userContent,
     });
   } catch (error: any) {
-    console.error("Agent API error:", error);
-    
-    // Handle specific OpenAI API errors
-    if (error.status === 429 || error.message?.includes('quota') || error.message?.includes('429')) {
-      return NextResponse.json(
-        {
-          error: "OpenAI API quota exceeded. Please check your OpenAI account billing and usage limits.",
-          code: "QUOTA_EXCEEDED",
-          details: "The AI service has reached its usage limit. Please add payment method or upgrade your OpenAI plan at https://platform.openai.com/account/billing",
-        },
-        { status: 429 }
-      );
-    }
-    
-    if (error.status === 401 || error.message?.includes('API key')) {
-      return NextResponse.json(
-        {
-          error: "OpenAI API key is invalid or missing. Please check your environment variables.",
-          code: "API_KEY_ERROR",
-        },
-        { status: 401 }
-      );
-    }
-    
+    console.error("LLM error for agent", agentName, error?.message || error);
+
+    // ✅ 3) If it's a quota/429 or any failure, fall back to mock
+    const mock = getMockResponse(agentName, body);
     return NextResponse.json(
       {
-        error: error.message || "An unexpected error occurred",
-        details: error.response?.data || null,
+        agent: agentName,
+        data: mock,
+        warning:
+          "LLM call failed, returned mock response instead. Check API billing/limits.",
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(llmResponseText || "{}");
+  } catch (e) {
+    // If parsing fails, also fall back to mock so the UI doesn't die
+    const mock = getMockResponse(agentName, body);
+    return NextResponse.json(
+      {
+        agent: agentName,
+        data: mock,
+        warning:
+          "Agent did not return valid JSON, returned mock instead. Check prompt formatting.",
+      },
+      { status: 200 }
+    );
+  }
+
+  return NextResponse.json({
+    agent: agentName,
+    data: parsed,
+  });
 }
 
-async function callLLM(agent: typeof AGENTS[keyof typeof AGENTS], userContent: string): Promise<string> {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+async function callLLM(args: { systemPrompt: string; userContent: string }) {
+  const { systemPrompt, userContent } = args;
 
-  const completion = await openai.chat.completions.create({
-    model: agent.model || 'gpt-4o-mini',
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o-mini",
     messages: [
-      { role: 'system', content: agent.systemPrompt },
-      { role: 'user', content: userContent },
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userContent },
     ],
-    temperature: agent.temperature ?? 0.7,
-    max_tokens: agent.maxTokens ?? 2000,
-    response_format: { type: 'json_object' },
+    temperature: 0.4,
   });
 
-  const response = completion.choices[0]?.message?.content;
-  if (!response) {
-    throw new Error('No response from OpenAI');
+  const message = completion.choices[0]?.message?.content;
+  if (!message) {
+    throw new Error("No response from language model");
   }
 
-  return response;
+  return message;
 }
-
-/**
- * Generate mock responses for agents when GATHERED_MOCK_AGENTS=true
- */
-function getMockResponse(agentName: string, body: any): any {
-  switch (agentName) {
-    case 'EJ': {
-      // Generate mock EJ response based on user answers
-      const answers = body.answers || {};
-      const interests = answers.interests || 'gym, anime, church';
-      const socialEnergy = answers.social_energy || 'ambivert';
-      const availability = answers.availability || 'weekends';
-      const groupSize = answers.preferred_group_size || '6-10';
-      
-      // Parse interests into tags
-      const tags = interests
-        .split(',')
-        .map((i: string) => i.trim())
-        .filter((i: string) => i.length > 0)
-        .slice(0, 8);
-      
-      return {
-        short_bio: `Passionate about ${tags.slice(0, 3).join(', ')}. ${socialEnergy === 'extrovert' ? 'Love connecting with people' : socialEnergy === 'introvert' ? 'Enjoy meaningful connections' : 'Enjoy both social and quiet time'}. Always looking to grow and learn.`,
-        long_bio: `I'm a ${socialEnergy} who enjoys ${tags.slice(0, 3).join(', ')}. My ideal time involves ${answers.weekend_style || 'balancing activities and rest'}. I'm ${availability.includes('weekend') ? 'usually available on weekends' : availability.includes('weekday') ? 'available during weekdays' : `available ${availability}`}. Looking forward to connecting with others who share similar interests and values!`,
-        tags: tags.length > 0 ? tags : ['community', 'growth', 'connection'],
-        social_style: socialEnergy || 'ambivert',
-        preferred_group_size: groupSize || '6-10',
-        availability_summary: `Available ${availability}. ${groupSize === '1-1' ? 'Prefer one-on-one connections.' : groupSize === '3-5' ? 'Enjoy small, intimate groups.' : groupSize === '6-10' ? 'Love medium-sized gatherings.' : groupSize === '10+' ? 'Thrive in larger groups!' : 'Open to any group size.'}`,
-      };
-    }
-    
-    case 'Simi': {
-      return {
-        intent: 'discover',
-        interests: [],
-        location_hint: '',
-        time_preferences: '',
-        other_constraints: [],
-      };
-    }
-    
-    case 'PROPHECY': {
-      return {
-        content: 'Mock content from PROPHECY agent',
-        type: body.content_type || 'script',
-      };
-    }
-    
-    case 'Joe': {
-      return {
-        diagnosis: 'Mock diagnosis',
-        proposed_fix_explanation: 'Mock fix explanation',
-        patch_suggestion: '// Mock patch',
-        pr_title: 'Mock PR Title',
-        pr_description: 'Mock PR Description',
-      };
-    }
-    
-    default:
-      return {
-        message: `Mock response for ${agentName}`,
-        input: body,
-      };
-  }
-}
-

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AGENTS } from "@/agents/config";
-import type { AgentName } from "@/types/agents";
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -42,30 +41,30 @@ function getMockResponse(agentName: string, body: any) {
         content_type: body?.content_type || "tiktok_script",
         hooks: [
           "POV: You moved cities and your social life disappeared overnight.",
-          "Adulting is crazy: busy calendar, zero real friends.",
-          "London is packed, but somehow you still feel alone?"
+          "Adulting is wild: busy calendar, zero real friends.",
+          "London is packed, but somehow you still feel alone?",
         ],
         script_outline: [
           "Relatable intro about struggling to make friends after uni.",
           "Show quick cuts of being at home vs going out alone.",
           "Introduce Gathered as the app that helps you find your people.",
-          "End with CTA to join the waitlist / download."
+          "End with CTA to join the waitlist / download.",
         ],
         cta: "Download Gathered and find your people in your city.",
-        hashtags: ["#gatheredapp", "#newfriends", "#londonlife"]
+        hashtags: ["#gatheredapp", "#newfriends", "#londonlife"],
       };
 
     case "DevOpsAssistant":
       return {
         diagnosis:
-          "Likely a null/undefined value being accessed in the component based on the stack trace.",
+          "Likely an undefined or null value being accessed in the component based on the stack trace.",
         proposed_fix_explanation:
-          "Add a defensive check before using the value and ensure props are passed correctly.",
+          "Add a defensive check before using the value and ensure the expected prop/state is set before render.",
         patch_suggestion:
           "// Example: if (!props.user) return null; // then safely use props.user below.",
-        pr_title: "Fix undefined value causing runtime error in onboarding",
+        pr_title: "Add null-check to prevent runtime error in component",
         pr_description:
-          "Adds a null-check around the user prop in the onboarding component to prevent crashes when the user object is not yet loaded.",
+          "Adds a null-check around the user prop in the component to prevent crashes when the user object is not yet loaded.",
       };
 
     default:
@@ -77,12 +76,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { name: string } }
 ) {
-  const agentName = params.name;
-  // Type guard: check if agentName is a valid AgentName
-  if (!(agentName in AGENTS)) {
-    return NextResponse.json({ error: "Unknown agent" }, { status: 404 });
-  }
-  const agent = AGENTS[agentName as AgentName];
+  const agentName = params.name as keyof typeof AGENTS;
+  const agent = AGENTS[agentName];
 
   if (!agent) {
     return NextResponse.json({ error: "Unknown agent" }, { status: 404 });
@@ -90,26 +85,17 @@ export async function POST(
 
   const body = await req.json();
 
-  // ✅ 1) If dev mock mode is on, always return mock
+  // 1) If dev mock mode is on, always return mock
   if (MOCK_MODE) {
-    console.log(`[MOCK MODE] Returning mock data for agent: ${agentName}`);
-    console.log(`[MOCK MODE] Environment variable GATHERED_MOCK_AGENTS = ${process.env.GATHERED_MOCK_AGENTS}`);
     const mock = getMockResponse(agentName, body);
-    return NextResponse.json({ 
-      agent: agentName, 
-      data: mock,
-      _mock: true // Flag to indicate this is mock data
-    });
+    return NextResponse.json({ agent: agentName, data: mock });
   }
-  
-  console.log(`[REAL API] Making OpenAI API call for agent: ${agentName}`);
-  console.log(`[REAL API] GATHERED_MOCK_AGENTS = ${process.env.GATHERED_MOCK_AGENTS || 'not set'}`);
 
   const userContent = JSON.stringify(body);
 
   let llmResponseText: string;
   try {
-    // ✅ 2) Try real LLM call
+    // 2) Try real LLM call
     llmResponseText = await callLLM({
       systemPrompt: agent.systemPrompt,
       userContent,
@@ -117,9 +103,7 @@ export async function POST(
   } catch (error: any) {
     console.error("LLM error for agent", agentName, error?.message || error);
 
-    // ✅ 3) If it's a quota/429 or any failure, fall back to mock
-    console.log(`[FALLBACK] LLM call failed, falling back to mock for agent: ${agentName}`);
-    console.log(`[FALLBACK] Error: ${error?.message || error}`);
+    // 3) If API quota or error => fall back to mock
     const mock = getMockResponse(agentName, body);
     return NextResponse.json(
       {
@@ -127,8 +111,6 @@ export async function POST(
         data: mock,
         warning:
           "LLM call failed, returned mock response instead. Check API billing/limits.",
-        _mock: true,
-        _fallback: true
       },
       { status: 200 }
     );
@@ -139,7 +121,6 @@ export async function POST(
     parsed = JSON.parse(llmResponseText || "{}");
   } catch (e) {
     // If parsing fails, also fall back to mock so the UI doesn't die
-    console.log(`[FALLBACK] JSON parsing failed, falling back to mock for agent: ${agentName}`);
     const mock = getMockResponse(agentName, body);
     return NextResponse.json(
       {
@@ -147,8 +128,6 @@ export async function POST(
         data: mock,
         warning:
           "Agent did not return valid JSON, returned mock instead. Check prompt formatting.",
-        _mock: true,
-        _fallback: true
       },
       { status: 200 }
     );

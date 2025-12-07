@@ -91,7 +91,17 @@ export default function EjOnboardingPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Failed to contact EJ");
+        const errorMessage = data?.error || "Failed to contact EJ";
+        
+        // Show user-friendly message for quota errors
+        if (data?.code === "QUOTA_EXCEEDED" || errorMessage.includes("quota")) {
+          throw new Error(
+            "The AI service is temporarily unavailable due to usage limits. " +
+            "Please try again later, or contact support if this persists."
+          );
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const json = await res.json();

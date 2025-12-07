@@ -46,6 +46,29 @@ export async function POST(
     });
   } catch (error: any) {
     console.error("Agent API error:", error);
+    
+    // Handle specific OpenAI API errors
+    if (error.status === 429 || error.message?.includes('quota') || error.message?.includes('429')) {
+      return NextResponse.json(
+        {
+          error: "OpenAI API quota exceeded. Please check your OpenAI account billing and usage limits.",
+          code: "QUOTA_EXCEEDED",
+          details: "The AI service has reached its usage limit. Please add payment method or upgrade your OpenAI plan at https://platform.openai.com/account/billing",
+        },
+        { status: 429 }
+      );
+    }
+    
+    if (error.status === 401 || error.message?.includes('API key')) {
+      return NextResponse.json(
+        {
+          error: "OpenAI API key is invalid or missing. Please check your environment variables.",
+          code: "API_KEY_ERROR",
+        },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
       {
         error: error.message || "An unexpected error occurred",

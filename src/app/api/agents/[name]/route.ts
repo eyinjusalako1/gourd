@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AGENTS } from "@/agents/config";
+import type { AgentName } from "@/types/agents";
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -77,7 +78,11 @@ export async function POST(
   { params }: { params: { name: string } }
 ) {
   const agentName = params.name;
-  const agent = AGENTS[agentName];
+  // Type guard: check if agentName is a valid AgentName
+  if (!(agentName in AGENTS)) {
+    return NextResponse.json({ error: "Unknown agent" }, { status: 404 });
+  }
+  const agent = AGENTS[agentName as AgentName];
 
   if (!agent) {
     return NextResponse.json({ error: "Unknown agent" }, { status: 404 });

@@ -92,9 +92,18 @@ export async function POST(
 
   // ✅ 1) If dev mock mode is on, always return mock
   if (MOCK_MODE) {
+    console.log(`[MOCK MODE] Returning mock data for agent: ${agentName}`);
+    console.log(`[MOCK MODE] Environment variable GATHERED_MOCK_AGENTS = ${process.env.GATHERED_MOCK_AGENTS}`);
     const mock = getMockResponse(agentName, body);
-    return NextResponse.json({ agent: agentName, data: mock });
+    return NextResponse.json({ 
+      agent: agentName, 
+      data: mock,
+      _mock: true // Flag to indicate this is mock data
+    });
   }
+  
+  console.log(`[REAL API] Making OpenAI API call for agent: ${agentName}`);
+  console.log(`[REAL API] GATHERED_MOCK_AGENTS = ${process.env.GATHERED_MOCK_AGENTS || 'not set'}`);
 
   const userContent = JSON.stringify(body);
 
@@ -109,6 +118,8 @@ export async function POST(
     console.error("LLM error for agent", agentName, error?.message || error);
 
     // ✅ 3) If it's a quota/429 or any failure, fall back to mock
+    console.log(`[FALLBACK] LLM call failed, falling back to mock for agent: ${agentName}`);
+    console.log(`[FALLBACK] Error: ${error?.message || error}`);
     const mock = getMockResponse(agentName, body);
     return NextResponse.json(
       {
@@ -116,6 +127,8 @@ export async function POST(
         data: mock,
         warning:
           "LLM call failed, returned mock response instead. Check API billing/limits.",
+        _mock: true,
+        _fallback: true
       },
       { status: 200 }
     );
@@ -126,6 +139,7 @@ export async function POST(
     parsed = JSON.parse(llmResponseText || "{}");
   } catch (e) {
     // If parsing fails, also fall back to mock so the UI doesn't die
+    console.log(`[FALLBACK] JSON parsing failed, falling back to mock for agent: ${agentName}`);
     const mock = getMockResponse(agentName, body);
     return NextResponse.json(
       {
@@ -133,6 +147,8 @@ export async function POST(
         data: mock,
         warning:
           "Agent did not return valid JSON, returned mock instead. Check prompt formatting.",
+        _mock: true,
+        _fallback: true
       },
       { status: 200 }
     );

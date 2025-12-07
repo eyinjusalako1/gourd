@@ -79,7 +79,7 @@ export default function EjOnboardingPage() {
     setEjResult(null);
 
     try {
-      const res = await fetch("/api/agents/EJ", {
+      const res = await fetch("/api/agents/OnboardingAssistant", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +91,7 @@ export default function EjOnboardingPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        const errorMessage = data?.error || "Failed to contact EJ";
+        const errorMessage = data?.error || "Failed to contact the onboarding assistant";
         
         // Show user-friendly message for quota errors
         if (data?.code === "QUOTA_EXCEEDED" || errorMessage.includes("quota")) {
@@ -108,7 +108,7 @@ export default function EjOnboardingPage() {
       const data = json.data as EjResult;
       setEjResult(data);
     } catch (err: any) {
-      setError(err.message || "Something went wrong talking to EJ");
+      setError(err.message || "Something went wrong with the onboarding assistant");
     } finally {
       setIsSubmitting(false);
     }
@@ -182,7 +182,7 @@ export default function EjOnboardingPage() {
           <section className="space-y-4">
             <h2 className="text-lg font-medium">Your interests</h2>
             <p className="text-sm text-slate-400">
-              Tell EJ what you&apos;re into so we can match you with the right people and activities.
+              Tell us what you&apos;re into so we can match you with the right people and activities.
             </p>
             <div className="space-y-2">
               <label className="block text-sm font-medium">
@@ -316,7 +316,7 @@ export default function EjOnboardingPage() {
               onClick={handleSubmit}
               className="ml-auto text-sm px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-medium disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Talking to EJ..." : "Finish with EJ"}
+              {isSubmitting ? "Generating your profile..." : "Finish & Generate Profile"}
             </button>
           )}
         </div>
@@ -324,7 +324,7 @@ export default function EjOnboardingPage() {
         {/* EJ result */}
         {ejResult && (
           <div className="mt-8 border-t border-slate-800 pt-6 space-y-3">
-            <h2 className="text-lg font-semibold">Here&apos;s your Gathered profile from EJ</h2>
+            <h2 className="text-lg font-semibold">Here&apos;s your Gathered profile</h2>
             <p className="text-sm text-slate-300">
               <span className="font-medium">Short bio:</span> {ejResult.short_bio}
             </p>

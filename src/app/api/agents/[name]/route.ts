@@ -14,7 +14,7 @@ const MOCK_MODE = process.env.GATHERED_MOCK_AGENTS === "true";
  */
 function getMockResponse(agentName: string, body: any) {
   switch (agentName) {
-    case "EJ":
+    case "OnboardingAssistant":
       return {
         short_bio: "Weekend gym, anime, church & chill hangs.",
         long_bio:
@@ -27,7 +27,7 @@ function getMockResponse(agentName: string, body: any) {
           "Weekends and some weekday evenings.",
       };
 
-    case "Simi":
+    case "DiscoveryAssistant":
       return {
         intent: "mixed",
         interests: ["anime", "gym"],
@@ -36,7 +36,7 @@ function getMockResponse(agentName: string, body: any) {
         other_constraints: ["faith-based"],
       };
 
-    case "PROPHECY":
+    case "ContentEngine":
       return {
         content_type: body?.content_type || "tiktok_script",
         hooks: [
@@ -54,7 +54,7 @@ function getMockResponse(agentName: string, body: any) {
         hashtags: ["#gatheredapp", "#newfriends", "#londonlife"]
       };
 
-    case "Joe":
+    case "DevOpsAssistant":
       return {
         diagnosis:
           "Likely a null/undefined value being accessed in the component based on the stack trace.",

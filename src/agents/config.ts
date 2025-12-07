@@ -5,12 +5,12 @@
 
 import type { AgentConfig, AgentName } from '@/types/agents'
 
-export const EJ_CONFIG: AgentConfig = {
-  name: "EJ",
+export const ONBOARDING_ASSISTANT_CONFIG: AgentConfig = {
+  name: "OnboardingAssistant",
   role: "user-facing",
   description: "Onboarding & profile coach for new users.",
   systemPrompt: `
-You are EJ, a warm, friendly onboarding assistant for the Gathered app.
+You are a warm, friendly onboarding assistant for the Gathered app.
 
 Your job:
 - Help new users describe themselves in a natural way.
@@ -39,12 +39,12 @@ Output JSON only in this shape:
   enabled: true,
 }
 
-export const SIMI_CONFIG: AgentConfig = {
-  name: "Simi",
+export const DISCOVERY_ASSISTANT_CONFIG: AgentConfig = {
+  name: "DiscoveryAssistant",
   role: "user-facing",
   description: "Ask-me-anything discovery assistant.",
   systemPrompt: `
-You are Simi, a discovery assistant inside the Gathered app.
+You are a discovery assistant inside the Gathered app.
 
 Your job:
 - Turn natural language search queries into structured filters.
@@ -64,12 +64,12 @@ Output JSON in this shape:
   enabled: true,
 }
 
-export const PROPHECY_CONFIG: AgentConfig = {
-  name: "PROPHECY",
+export const CONTENT_ENGINE_CONFIG: AgentConfig = {
+  name: "ContentEngine",
   role: "internal",
   description: "Content & marketing AI agent.",
   systemPrompt: `
-You are PROPHECY, the content and marketing brain for the Gathered app.
+You are the content and marketing brain for the Gathered app.
 
 Your job:
 - Generate scripts, captions, emails, or push notifications.
@@ -82,12 +82,12 @@ Return JSON based on the content_type provided.
   enabled: true,
 }
 
-export const JOE_CONFIG: AgentConfig = {
-  name: "Joe",
+export const DEVOPS_ASSISTANT_CONFIG: AgentConfig = {
+  name: "DevOpsAssistant",
   role: "internal",
   description: "AI Dev Agent for bug fixing & PR suggestions.",
   systemPrompt: `
-You are Joe, an AI development assistant for the Gathered app.
+You are an AI development assistant for the Gathered app.
 
 Output JSON:
 {
@@ -105,12 +105,12 @@ Output JSON:
 }
 
 // Placeholder configs for other agents (can be configured later)
-export const JOSHUA_CONFIG: AgentConfig = {
-  name: "Joshua",
+export const ACTIVITY_PLANNER_CONFIG: AgentConfig = {
+  name: "ActivityPlanner",
   role: "user-facing",
-  description: "User-facing agent Joshua",
-  systemPrompt: `You are Joshua, a helpful assistant for Gathered, a Christian social platform.
-Your role is to assist users with questions, provide guidance, and offer support.
+  description: "Activity planning assistant for users",
+  systemPrompt: `You are a helpful activity planning assistant for Gathered, a Christian social platform.
+Your role is to help users plan activities, suggest events, and organize gatherings.
 Maintain a warm, supportive, and Christ-centered tone.`,
   model: 'gpt-4o-mini',
   temperature: 0.7,
@@ -118,12 +118,12 @@ Maintain a warm, supportive, and Christ-centered tone.`,
   enabled: false, // Disabled until configured
 }
 
-export const KING_CONFIG: AgentConfig = {
-  name: "KING",
+export const INSIGHTS_ENGINE_CONFIG: AgentConfig = {
+  name: "InsightsEngine",
   role: "internal",
-  description: "Internal agent for administrative tasks",
-  systemPrompt: `You are KING, an internal administrative agent for Gathered, a Christian social platform.
-Your role is to handle administrative tasks and system operations.
+  description: "Internal agent for analytics and insights",
+  systemPrompt: `You are an internal insights and analytics agent for Gathered, a Christian social platform.
+Your role is to analyze data, generate insights, and provide recommendations.
 Be efficient, accurate, and maintain system integrity.`,
   model: 'gpt-4o-mini',
   temperature: 0.5,
@@ -131,12 +131,12 @@ Be efficient, accurate, and maintain system integrity.`,
   enabled: false, // Disabled until configured
 }
 
-export const JENNY_CONFIG: AgentConfig = {
-  name: "Jenny",
+export const QA_ENGINE_CONFIG: AgentConfig = {
+  name: "QAEngine",
   role: "user-facing",
-  description: "User-facing agent Jenny",
-  systemPrompt: `You are Jenny, a helpful assistant for Gathered, a Christian social platform.
-Your role is to assist users with questions, provide guidance, and offer support.
+  description: "Quality assurance and testing assistant",
+  systemPrompt: `You are a quality assurance assistant for Gathered, a Christian social platform.
+Your role is to help with testing, quality checks, and ensuring the app works correctly.
 Maintain a warm, supportive, and Christ-centered tone.`,
   model: 'gpt-4o-mini',
   temperature: 0.7,
@@ -145,21 +145,21 @@ Maintain a warm, supportive, and Christ-centered tone.`,
 }
 
 export const agents: Record<AgentName, AgentConfig> = {
-  EJ: EJ_CONFIG,
-  Simi: SIMI_CONFIG,
-  PROPHECY: PROPHECY_CONFIG,
-  Joe: JOE_CONFIG,
-  Joshua: JOSHUA_CONFIG,
-  KING: KING_CONFIG,
-  Jenny: JENNY_CONFIG,
+  OnboardingAssistant: ONBOARDING_ASSISTANT_CONFIG,
+  DiscoveryAssistant: DISCOVERY_ASSISTANT_CONFIG,
+  ContentEngine: CONTENT_ENGINE_CONFIG,
+  DevOpsAssistant: DEVOPS_ASSISTANT_CONFIG,
+  ActivityPlanner: ACTIVITY_PLANNER_CONFIG,
+  InsightsEngine: INSIGHTS_ENGINE_CONFIG,
+  QAEngine: QA_ENGINE_CONFIG,
 }
 
 // Export individual configs for convenience
 export const AGENTS: Record<string, AgentConfig> = {
-  EJ: EJ_CONFIG,
-  Simi: SIMI_CONFIG,
-  PROPHECY: PROPHECY_CONFIG,
-  Joe: JOE_CONFIG,
+  OnboardingAssistant: ONBOARDING_ASSISTANT_CONFIG,
+  DiscoveryAssistant: DISCOVERY_ASSISTANT_CONFIG,
+  ContentEngine: CONTENT_ENGINE_CONFIG,
+  DevOpsAssistant: DEVOPS_ASSISTANT_CONFIG,
 }
 
 /**

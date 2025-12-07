@@ -4,13 +4,13 @@
  */
 
 export type AgentName =
-  | "EJ"
-  | "Joshua"
-  | "Simi"
-  | "PROPHECY"
-  | "KING"
-  | "Jenny"
-  | "Joe"
+  | "OnboardingAssistant"
+  | "ActivityPlanner"
+  | "DiscoveryAssistant"
+  | "ContentEngine"
+  | "QAEngine"
+  | "InsightsEngine"
+  | "DevOpsAssistant"
 
 export interface AgentConfig {
   name: AgentName

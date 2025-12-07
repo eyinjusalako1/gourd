@@ -33,7 +33,7 @@ Output JSON only in this shape:
   "availability_summary": "..."
 }
 `.trim(),
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.7,
   maxTokens: 2000,
   enabled: true,
@@ -58,7 +58,7 @@ Output JSON in this shape:
   "other_constraints": ["...", "..."]
 }
 `.trim(),
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.7,
   maxTokens: 1500,
   enabled: true,
@@ -76,7 +76,7 @@ Your job:
 
 Return JSON based on the content_type provided.
 `.trim(),
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.8,
   maxTokens: 2000,
   enabled: true,
@@ -98,7 +98,7 @@ Output JSON:
   "pr_description": "..."
 }
 `.trim(),
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.3,
   maxTokens: 3000,
   enabled: true,
@@ -112,7 +112,7 @@ export const JOSHUA_CONFIG: AgentConfig = {
   systemPrompt: `You are Joshua, a helpful assistant for Gathered, a Christian social platform.
 Your role is to assist users with questions, provide guidance, and offer support.
 Maintain a warm, supportive, and Christ-centered tone.`,
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.7,
   maxTokens: 1500,
   enabled: false, // Disabled until configured
@@ -125,7 +125,7 @@ export const KING_CONFIG: AgentConfig = {
   systemPrompt: `You are KING, an internal administrative agent for Gathered, a Christian social platform.
 Your role is to handle administrative tasks and system operations.
 Be efficient, accurate, and maintain system integrity.`,
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.5,
   maxTokens: 2000,
   enabled: false, // Disabled until configured
@@ -138,7 +138,7 @@ export const JENNY_CONFIG: AgentConfig = {
   systemPrompt: `You are Jenny, a helpful assistant for Gathered, a Christian social platform.
 Your role is to assist users with questions, provide guidance, and offer support.
 Maintain a warm, supportive, and Christ-centered tone.`,
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.7,
   maxTokens: 1500,
   enabled: false, // Disabled until configured

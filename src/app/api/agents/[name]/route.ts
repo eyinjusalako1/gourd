@@ -88,7 +88,11 @@ export async function POST(
   // 1) If dev mock mode is on, always return mock
   if (MOCK_MODE) {
     const mock = getMockResponse(agentName, body);
-    return NextResponse.json({ agent: agentName, data: mock });
+    return NextResponse.json({ 
+      agent: agentName, 
+      data: mock,
+      _mock: true // Flag to indicate this is mock data
+    });
   }
 
   const userContent = JSON.stringify(body);
@@ -111,6 +115,8 @@ export async function POST(
         data: mock,
         warning:
           "LLM call failed, returned mock response instead. Check API billing/limits.",
+        _mock: true,
+        _fallback: true
       },
       { status: 200 }
     );
@@ -128,6 +134,8 @@ export async function POST(
         data: mock,
         warning:
           "Agent did not return valid JSON, returned mock instead. Check prompt formatting.",
+        _mock: true,
+        _fallback: true
       },
       { status: 200 }
     );

@@ -37,6 +37,7 @@ export type UserProfile = {
     location?: boolean
     suggestions?: boolean
   } | null
+  profile_complete?: boolean | null
 }
 
 export type UserProfileUpdate = Partial<Omit<UserProfile, 'id'>> & { id?: never } & Record<string, any>

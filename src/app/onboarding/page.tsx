@@ -25,7 +25,7 @@ export default function OnboardingPage() {
       // Await saveUserType before redirecting to prevent race condition
       await saveUserType(user.id, userType)
       
-      // Redirect to EJ onboarding to complete profile setup
+      // Redirect to onboarding to complete profile setup
       // Dashboard will check profile_complete and redirect if needed
       router.replace('/onboarding/ej-onboarding')
     } catch (err: any) {

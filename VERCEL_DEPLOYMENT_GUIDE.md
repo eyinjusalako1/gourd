@@ -99,7 +99,7 @@ Once deployment is complete:
 1. Open browser console or use Postman/curl
 2. Test endpoint:
    ```javascript
-   fetch('https://your-app.vercel.app/api/agents/EJ', {
+   fetch('https://your-app.vercel.app/api/agents/OnboardingAssistant', {
      method: 'POST',
      headers: { 'Content-Type': 'application/json' },
      body: JSON.stringify({ answers: { interests: 'gym, church' } })

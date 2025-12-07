@@ -127,7 +127,7 @@ export default function EjOnboardingPage() {
         .map(i => i.trim())
         .filter(i => i.length > 0);
 
-      // Combine EJ-generated tags with parsed interests
+      // Combine AI-generated tags with parsed interests
       const allTags = [...(ejResult.tags || []), ...interestsArray];
       const uniqueTags = Array.from(new Set(allTags));
 
@@ -137,7 +137,7 @@ export default function EjOnboardingPage() {
         .map(a => a.trim())
         .filter(a => a.length > 0);
 
-      // Update profile with EJ-generated data
+      // Update profile with AI-generated data
       await updateProfile({
         bio: ejResult.long_bio || ejResult.short_bio || null,
         interests: uniqueTags.length > 0 ? uniqueTags : null,
@@ -321,7 +321,7 @@ export default function EjOnboardingPage() {
           )}
         </div>
 
-        {/* EJ result */}
+        {/* Generated profile result */}
         {ejResult && (
           <div className="mt-8 border-t border-slate-800 pt-6 space-y-3">
             <h2 className="text-lg font-semibold">Here&apos;s your Gathered profile</h2>

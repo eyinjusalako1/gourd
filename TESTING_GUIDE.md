@@ -1,4 +1,4 @@
-# Testing Guide - EJ Onboarding & Agent API
+# Testing Guide - Onboarding Assistant & Agent API
 
 ## 🚀 Quick Start
 
@@ -16,7 +16,7 @@ After Vercel finishes deploying, you'll get a URL like:
 
 ---
 
-## 🧪 Step 2: Test EJ Onboarding Page
+## 🧪 Step 2: Test Onboarding Assistant Page
 
 ### Option A: Browser Testing (Easiest)
 
@@ -37,10 +37,10 @@ After Vercel finishes deploying, you'll get a URL like:
    - Availability: "weekday evenings after 6pm, Saturdays"
    - Group size: Select "Small group (3–5)"
 
-4. **Click "Finish with EJ"**
-   - You should see "Talking to EJ..." while it processes
-   - Currently returns `{}` until `callLLM` is implemented
-   - Once implemented, you'll see the generated profile
+4. **Click "Finish & Generate Profile"**
+   - You should see "Generating your profile..." while it processes
+   - Returns mock data if `GATHERED_MOCK_AGENTS=true`, or real AI-generated profile
+   - Once complete, you'll see the generated profile
 
 ### Option B: Test with Browser Console
 
@@ -49,7 +49,7 @@ After Vercel finishes deploying, you'll get a URL like:
 3. Run this to test the API directly:
 
 ```javascript
-fetch('https://your-app.vercel.app/api/agents/EJ', {
+fetch('https://your-app.vercel.app/api/agents/OnboardingAssistant', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -64,8 +64,8 @@ fetch('https://your-app.vercel.app/api/agents/EJ', {
 })
 .then(r => r.json())
 .then(data => {
-  console.log('EJ Response:', data);
-  // Should return: { agent: "EJ", data: {...} }
+  console.log('OnboardingAssistant Response:', data);
+  // Should return: { agent: "OnboardingAssistant", data: {...} }
 })
 .catch(err => console.error('Error:', err));
 ```
@@ -74,11 +74,11 @@ fetch('https://your-app.vercel.app/api/agents/EJ', {
 
 ## 🔌 Step 3: Test Agent API Directly
 
-### Test EJ Agent
+### Test OnboardingAssistant Agent
 
 ```javascript
 // In browser console or Postman
-fetch('https://your-app.vercel.app/api/agents/EJ', {
+fetch('https://your-app.vercel.app/api/agents/OnboardingAssistant', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -98,15 +98,22 @@ fetch('https://your-app.vercel.app/api/agents/EJ', {
 **Expected Response:**
 ```json
 {
-  "agent": "EJ",
-  "data": {}  // Will be populated once callLLM is implemented
+  "agent": "OnboardingAssistant",
+  "data": {
+    "short_bio": "...",
+    "long_bio": "...",
+    "tags": [...],
+    "social_style": "...",
+    "preferred_group_size": "...",
+    "availability_summary": "..."
+  }
 }
 ```
 
-### Test Simi Agent
+### Test DiscoveryAssistant Agent
 
 ```javascript
-fetch('https://your-app.vercel.app/api/agents/Simi', {
+fetch('https://your-app.vercel.app/api/agents/DiscoveryAssistant', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -117,10 +124,10 @@ fetch('https://your-app.vercel.app/api/agents/Simi', {
 .then(console.log);
 ```
 
-### Test PROPHECY Agent
+### Test ContentEngine Agent
 
 ```javascript
-fetch('https://your-app.vercel.app/api/agents/PROPHECY', {
+fetch('https://your-app.vercel.app/api/agents/ContentEngine', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -132,16 +139,16 @@ fetch('https://your-app.vercel.app/api/agents/PROPHECY', {
 .then(console.log);
 ```
 
-### Test Joe Agent
+### Test DevOpsAssistant Agent
 
 ```javascript
-fetch('https://your-app.vercel.app/api/agents/Joe', {
+fetch('https://your-app.vercel.app/api/agents/DevOpsAssistant', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    error_message: "TypeError: Cannot read property 'map' of undefined",
-    file: "src/app/dashboard/page.tsx",
-    line: 42
+    error_log: "TypeError: Cannot read property 'map' of undefined",
+    code_context: "src/app/dashboard/page.tsx",
+    file_path: "src/app/dashboard/page.tsx"
   })
 })
 .then(r => r.json())
@@ -166,16 +173,17 @@ fetch('https://your-app.vercel.app/api/agents/Joe', {
 ### Common Issues & Fixes
 
 **Issue: "Unknown agent" error**
-- ✅ Check agent name matches exactly: `EJ`, `Simi`, `PROPHECY`, `Joe`
+- ✅ Check agent name matches exactly: `OnboardingAssistant`, `DiscoveryAssistant`, `ContentEngine`, `DevOpsAssistant`, etc.
 - ✅ Verify agent is enabled in `/src/agents/config.ts`
 
 **Issue: "OpenAI API key is not configured"**
 - ✅ Check `OPENAI_API_KEY` is set in Vercel environment variables
 - ✅ Verify it's enabled for Production/Preview/Development
 
-**Issue: Returns empty `{}`**
-- ✅ This is expected until `callLLM` function is implemented
-- ✅ The placeholder returns `"{}"` which gets parsed as empty object
+**Issue: Returns mock data**
+- ✅ If `GATHERED_MOCK_AGENTS=true`, returns mock responses (expected in dev mode)
+- ✅ If API fails, automatically falls back to mock data
+- ✅ Check OpenAI API key and quota if you expect real AI responses
 
 **Issue: CORS errors**
 - ✅ Shouldn't happen with Next.js API routes
@@ -187,13 +195,13 @@ fetch('https://your-app.vercel.app/api/agents/Joe', {
 
 ### Checklist:
 
-- [ ] EJ onboarding page loads at `/onboarding/ej-onboarding`
+- [ ] Onboarding page loads at `/onboarding/ej-onboarding`
 - [ ] Form validation works (can't proceed without filling fields)
-- [ ] "Finish with EJ" button calls the API
-- [ ] API returns response (even if empty `{}` for now)
+- [ ] "Finish & Generate Profile" button calls the API
+- [ ] API returns response (mock or real AI-generated profile)
 - [ ] No console errors in browser
 - [ ] No errors in Vercel function logs
-- [ ] All 4 agents are accessible via API
+- [ ] All 7 agents are accessible via API
 
 ---
 
@@ -203,14 +211,17 @@ fetch('https://your-app.vercel.app/api/agents/Joe', {
    - Replace placeholder with real OpenAI API call
    - Test with real responses
 
-2. **Wire up EJ onboarding to save profiles**
-   - Update `handleFinalAction` in onboarding page
-   - Save to Supabase `user_profiles` table
+2. **Wire up onboarding to save profiles**
+   - Update `handleFinalAction` in onboarding page (already implemented)
+   - Save to Supabase `user_profiles` table (already implemented)
 
 3. **Add more agent integrations**
-   - Connect Simi to search functionality
-   - Use PROPHECY for content generation
-   - Use Joe for development assistance
+   - Connect DiscoveryAssistant to search functionality
+   - Use ContentEngine for content generation
+   - Use DevOpsAssistant for development assistance
+   - Use ActivityPlanner for event planning
+   - Use QAEngine for test scenario generation
+   - Use InsightsEngine for feedback analysis
 
 ---
 

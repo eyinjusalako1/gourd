@@ -19,10 +19,10 @@ export default function DashboardPage() {
   const { hasUnread, clearUnread } = useUnreadActivity()
   const router = useRouter()
 
-  // Check if user needs to complete EJ onboarding (profile not complete)
+  // Check if user needs to complete onboarding (profile not complete)
   useEffect(() => {
     if (!prefsLoading && userType && !profileLoading && profile) {
-      // If profile exists but is not complete, redirect to EJ onboarding
+      // If profile exists but is not complete, redirect to onboarding
       if (!profile.profile_complete) {
         router.replace('/onboarding/ej-onboarding')
       }

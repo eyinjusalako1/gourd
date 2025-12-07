@@ -33,7 +33,7 @@ Output JSON only in this shape:
   "availability_summary": "..."
 }
 `.trim(),
-  model: 'gpt-4o-mini',
+  model: 'gpt-4o-mini', // Updated from gpt-4 to valid model name
   temperature: 0.7,
   maxTokens: 2000,
   enabled: true,

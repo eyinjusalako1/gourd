@@ -15,7 +15,7 @@ interface Answers {
   preferred_group_size: string;
 }
 
-interface EjResult {
+interface OnboardingResult {
   short_bio: string;
   long_bio: string;
   tags: string[];
@@ -24,7 +24,7 @@ interface EjResult {
   availability_summary: string;
 }
 
-export default function EjOnboardingPage() {
+export default function OnboardingProfilePage() {
   const router = useRouter();
   const { user } = useAuth();
   const { updateProfile, markProfileComplete } = useUserProfile();
@@ -38,7 +38,7 @@ export default function EjOnboardingPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [ejResult, setEjResult] = useState<EjResult | null>(null);
+  const [onboardingResult, setOnboardingResult] = useState<OnboardingResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const updateAnswer = (field: keyof Answers, value: string) => {
@@ -76,7 +76,7 @@ export default function EjOnboardingPage() {
   const handleSubmit = async () => {
     setError(null);
     setIsSubmitting(true);
-    setEjResult(null);
+    setOnboardingResult(null);
 
     try {
       const res = await fetch("/api/agents/OnboardingAssistant", {
@@ -105,8 +105,8 @@ export default function EjOnboardingPage() {
       }
 
       const json = await res.json();
-      const data = json.data as EjResult;
-      setEjResult(data);
+      const data = json.data as OnboardingResult;
+      setOnboardingResult(data);
     } catch (err: any) {
       setError(err.message || "Something went wrong with the onboarding assistant");
     } finally {
@@ -115,7 +115,7 @@ export default function EjOnboardingPage() {
   };
 
   const handleFinalAction = async () => {
-    if (!user || !ejResult) return;
+    if (!user || !onboardingResult) return;
 
     setIsSaving(true);
     setError(null);
@@ -128,7 +128,7 @@ export default function EjOnboardingPage() {
         .filter(i => i.length > 0);
 
       // Combine AI-generated tags with parsed interests
-      const allTags = [...(ejResult.tags || []), ...interestsArray];
+      const allTags = [...(onboardingResult.tags || []), ...interestsArray];
       const uniqueTags = Array.from(new Set(allTags));
 
       // Parse availability from answers
@@ -139,7 +139,7 @@ export default function EjOnboardingPage() {
 
       // Update profile with AI-generated data
       await updateProfile({
-        bio: ejResult.long_bio || ejResult.short_bio || null,
+        bio: onboardingResult.long_bio || onboardingResult.short_bio || null,
         interests: uniqueTags.length > 0 ? uniqueTags : null,
         availability: availabilityArray.length > 0 ? availabilityArray : null,
       });
@@ -322,23 +322,23 @@ export default function EjOnboardingPage() {
         </div>
 
         {/* Generated profile result */}
-        {ejResult && (
+        {onboardingResult && (
           <div className="mt-8 border-t border-slate-800 pt-6 space-y-3">
             <h2 className="text-lg font-semibold">Here&apos;s your Gathered profile</h2>
             <p className="text-sm text-slate-300">
-              <span className="font-medium">Short bio:</span> {ejResult.short_bio}
+              <span className="font-medium">Short bio:</span> {onboardingResult.short_bio}
             </p>
             <p className="text-sm text-slate-300">
-              <span className="font-medium">Long bio:</span> {ejResult.long_bio}
+              <span className="font-medium">Long bio:</span> {onboardingResult.long_bio}
             </p>
             <p className="text-sm text-slate-300">
-              <span className="font-medium">Tags:</span> {ejResult.tags?.join(", ")}
+              <span className="font-medium">Tags:</span> {onboardingResult.tags?.join(", ")}
             </p>
             <p className="text-sm text-slate-300">
-              <span className="font-medium">Social style:</span> {ejResult.social_style}
+              <span className="font-medium">Social style:</span> {onboardingResult.social_style}
             </p>
             <p className="text-sm text-slate-300">
-              <span className="font-medium">Availability:</span> {ejResult.availability_summary}
+              <span className="font-medium">Availability:</span> {onboardingResult.availability_summary}
             </p>
 
             <button

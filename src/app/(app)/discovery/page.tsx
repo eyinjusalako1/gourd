@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 interface DiscoveryResult {
   intent: string;
@@ -11,6 +13,7 @@ interface DiscoveryResult {
 }
 
 export default function DiscoveryAssistantPage() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<DiscoveryResult | null>(null);
@@ -63,6 +66,13 @@ export default function DiscoveryAssistantPage() {
     <main className="min-h-screen bg-slate-950 text-slate-50 flex items-start justify-center py-10">
       <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-lg">
         <header className="mb-6">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center space-x-2 text-slate-400 hover:text-slate-200 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Back to Dashboard</span>
+          </button>
           <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
             Discover
           </p>

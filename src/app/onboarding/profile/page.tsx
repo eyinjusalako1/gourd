@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { useUserProfile } from "@/hooks/useUserProfile";
 
 type Step = 1 | 2 | 3;
 
@@ -27,7 +26,6 @@ interface OnboardingResult {
 export default function OnboardingProfilePage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { updateProfile, markProfileComplete } = useUserProfile();
   const [step, setStep] = useState<Step>(1);
   const [answers, setAnswers] = useState<Answers>({
     interests: "",
@@ -115,43 +113,48 @@ export default function OnboardingProfilePage() {
   };
 
   const handleFinalAction = async () => {
-    if (!user || !onboardingResult) return;
+    if (!onboardingResult) {
+      setError("No onboarding result from assistant yet.");
+      return;
+    }
+
+    if (!user) {
+      setError("You must be logged in to save your profile.");
+      return;
+    }
 
     setIsSaving(true);
     setError(null);
 
     try {
-      // Parse interests from answers
-      const interestsArray = answers.interests
-        .split(',')
-        .map(i => i.trim())
-        .filter(i => i.length > 0);
-
-      // Combine AI-generated tags with parsed interests
-      const allTags = [...(onboardingResult.tags || []), ...interestsArray];
-      const uniqueTags = Array.from(new Set(allTags));
-
-      // Parse availability from answers
-      const availabilityArray = answers.availability
-        .split(',')
-        .map(a => a.trim())
-        .filter(a => a.length > 0);
-
-      // Update profile with AI-generated data
-      await updateProfile({
-        bio: onboardingResult.long_bio || onboardingResult.short_bio || null,
-        interests: uniqueTags.length > 0 ? uniqueTags : null,
-        availability: availabilityArray.length > 0 ? availabilityArray : null,
+      const res = await fetch("/api/onboarding/save-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          answers,
+          onboardingResult, // 👈 this is the assistant output
+        }),
       });
 
-      // Mark profile as complete
-      await markProfileComplete();
+      const json = await res.json();
 
-      // Redirect to dashboard
+      if (!res.ok) {
+        console.error("Save profile error:", json);
+        setError(json.error || "Failed to save profile. Check console for details.");
+        setIsSaving(false);
+        return;
+      }
+
+      console.log("Saved profile:", json.profile);
+
+      // Redirect to dashboard after successful save
       router.replace('/dashboard');
     } catch (err: any) {
-      console.error('Error saving profile:', err);
-      setError(err.message || 'Failed to save profile. Please try again.');
+      console.error("Save profile unexpected error:", err);
+      setError(err.message || "Unexpected error saving profile. Check console.");
       setIsSaving(false);
     }
   };

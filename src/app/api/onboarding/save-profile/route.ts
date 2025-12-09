@@ -6,9 +6,15 @@ function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl) {
     throw new Error(
-      "Supabase configuration missing. Please set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in environment variables."
+      "NEXT_PUBLIC_SUPABASE_URL is not set in environment variables."
+    );
+  }
+
+  if (!serviceRoleKey) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY is not set in environment variables. Please add it to your Vercel project settings."
     );
   }
 
@@ -100,10 +106,23 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Unexpected error saving profile:", error);
+    
+    // Provide more helpful error messages
+    let errorMessage = error.message || "Unknown error";
+    let errorDetails = error.message;
+    
+    if (error.message?.includes("SUPABASE_SERVICE_ROLE_KEY")) {
+      errorMessage = "Server configuration error";
+      errorDetails = "The SUPABASE_SERVICE_ROLE_KEY environment variable is not set. Please add it to your Vercel project settings.";
+    } else if (error.message?.includes("NEXT_PUBLIC_SUPABASE_URL")) {
+      errorMessage = "Server configuration error";
+      errorDetails = "The NEXT_PUBLIC_SUPABASE_URL environment variable is not set.";
+    }
+    
     return NextResponse.json(
       {
-        error: "Unexpected error saving profile",
-        details: error.message,
+        error: errorMessage,
+        details: errorDetails,
       },
       { status: 500 }
     );

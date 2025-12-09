@@ -13,9 +13,12 @@ function getSupabaseAdmin() {
   }
 
   if (!serviceRoleKey) {
-    throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY is not set in environment variables. Please add it to your Vercel project settings."
-    );
+    // More helpful error message
+    const errorMsg = 
+      "SUPABASE_SERVICE_ROLE_KEY is not set in environment variables. " +
+      "Please add it to your Vercel project settings and redeploy. " +
+      "If you just added it, you may need to trigger a new deployment.";
+    throw new Error(errorMsg);
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {

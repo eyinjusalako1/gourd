@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Settings, Bell, User, Mail, MapPin, Church, Calendar, Camera } from 'lucide-react'
+import { ArrowLeft, Settings, Bell, User, Mail, MapPin, Church, Calendar, Camera, Heart, Clock } from 'lucide-react'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
 
@@ -171,6 +171,15 @@ export default function ProfilePage() {
               </p>
             </div>
           </div>
+          
+          {/* Bio Section */}
+          {profile?.bio && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-900 dark:text-white leading-relaxed">
+                {profile.bio}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -205,6 +214,46 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Interests Section */}
+        {profile?.interests && profile.interests.length > 0 && (
+          <div className="bg-white dark:bg-navy-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 className="font-semibold text-navy-900 dark:text-white mb-3 flex items-center space-x-2">
+              <Heart className="w-5 h-5 text-gold-500" />
+              <span>Interests</span>
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {profile.interests.map((interest, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-gold-100 dark:bg-gold-900/30 text-gold-800 dark:text-gold-300 rounded-full text-sm font-medium"
+                >
+                  {interest}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Availability Section */}
+        {profile?.availability && profile.availability.length > 0 && (
+          <div className="bg-white dark:bg-navy-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h3 className="font-semibold text-navy-900 dark:text-white mb-3 flex items-center space-x-2">
+              <Clock className="w-5 h-5 text-gold-500" />
+              <span>Availability</span>
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {profile.availability.map((time, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium"
+                >
+                  {time}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Profile Information */}
         <div className="bg-white dark:bg-navy-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
           <h3 className="font-semibold text-navy-900 dark:text-white mb-4">
@@ -218,12 +267,14 @@ export default function ProfilePage() {
                 <p className="text-gray-900 dark:text-white">{user?.email}</p>
               </div>
             </div>
-            {user?.user_metadata?.location && (
+            {(profile?.city || user?.user_metadata?.location) && (
               <div className="flex items-center space-x-3">
                 <MapPin className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
-                  <p className="text-gray-900 dark:text-white">{user.user_metadata.location}</p>
+                  <p className="text-gray-900 dark:text-white">
+                    {profile?.city || user?.user_metadata?.location}
+                  </p>
                 </div>
               </div>
             )}

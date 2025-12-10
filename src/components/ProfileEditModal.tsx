@@ -315,18 +315,19 @@ export default function ProfileEditModal({
           <select
             value={formData.denomination}
             onChange={(e) => handleInputChange('denomination', e.target.value)}
-            className="w-full bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#F5C451] min-h-[44px]"
+            className="w-full bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white placeholder-white/60 focus:outline-none focus:border-[#F5C451] min-h-[44px] [&>option]:bg-[#0F1433] [&>option]:text-white"
+            style={{ color: formData.denomination ? '#ffffff' : 'rgba(255, 255, 255, 0.6)' }}
           >
-            <option value="">Select denomination</option>
-            <option value="Non-denominational">Non-denominational</option>
-            <option value="Baptist">Baptist</option>
-            <option value="Methodist">Methodist</option>
-            <option value="Presbyterian">Presbyterian</option>
-            <option value="Lutheran">Lutheran</option>
-            <option value="Catholic">Catholic</option>
-            <option value="Episcopal">Episcopal</option>
-            <option value="Pentecostal">Pentecostal</option>
-            <option value="Other">Other</option>
+            <option value="" className="bg-[#0F1433] text-white/60">Select denomination</option>
+            <option value="Non-denominational" className="bg-[#0F1433] text-white">Non-denominational</option>
+            <option value="Baptist" className="bg-[#0F1433] text-white">Baptist</option>
+            <option value="Methodist" className="bg-[#0F1433] text-white">Methodist</option>
+            <option value="Presbyterian" className="bg-[#0F1433] text-white">Presbyterian</option>
+            <option value="Lutheran" className="bg-[#0F1433] text-white">Lutheran</option>
+            <option value="Catholic" className="bg-[#0F1433] text-white">Catholic</option>
+            <option value="Episcopal" className="bg-[#0F1433] text-white">Episcopal</option>
+            <option value="Pentecostal" className="bg-[#0F1433] text-white">Pentecostal</option>
+            <option value="Other" className="bg-[#0F1433] text-white">Other</option>
           </select>
         </div>
 

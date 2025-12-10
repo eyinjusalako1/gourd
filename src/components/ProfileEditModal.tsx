@@ -8,6 +8,7 @@ import {
   User, 
   Save,
   X,
+  Clock,
 } from 'lucide-react'
 import BottomSheet from '@/components/ui/BottomSheet'
 import { useToast } from '@/components/ui/Toast'
@@ -32,11 +33,13 @@ export default function ProfileEditModal({
     location: currentProfile?.location || '',
     denomination: currentProfile?.denomination || '',
     interests: currentProfile?.interests || [],
+    availability: currentProfile?.availability || [],
     avatarUrl: currentProfile?.avatarUrl || '',
     coverImageUrl: currentProfile?.coverImageUrl || ''
   })
 
   const [newInterest, setNewInterest] = useState('')
+  const [newAvailability, setNewAvailability] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const coverInputRef = useRef<HTMLInputElement | null>(null)
@@ -49,9 +52,12 @@ export default function ProfileEditModal({
         location: currentProfile?.location || '',
         denomination: currentProfile?.denomination || '',
         interests: currentProfile?.interests || [],
+        availability: currentProfile?.availability || [],
         avatarUrl: currentProfile?.avatarUrl || '',
         coverImageUrl: currentProfile?.coverImageUrl || ''
       })
+      setNewInterest('')
+      setNewAvailability('')
     }
   }, [currentProfile, isOpen])
 
@@ -79,21 +85,30 @@ export default function ProfileEditModal({
     }))
   }
 
+  const handleAddAvailability = () => {
+    if (newAvailability.trim() && !formData.availability.includes(newAvailability.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        availability: [...prev.availability, newAvailability.trim()]
+      }))
+      setNewAvailability('')
+    }
+  }
+
+  const handleRemoveAvailability = (availability: string) => {
+    setFormData(prev => ({
+      ...prev,
+      availability: prev.availability.filter((a: string) => a !== availability)
+    }))
+  }
+
   const handleSave = async () => {
     setIsLoading(true)
     try {
-      // In real app, this would make an API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      onSave(formData)
+      // Call the onSave callback which will handle the actual save
+      await onSave(formData)
       
-      // Show success toast
-      toast({
-        title: 'Profile updated',
-        variant: 'success',
-        duration: 2000,
-      })
-      
-      // Close the sheet
+      // Close the sheet (onSave will show success/error toast)
       onClose()
     } catch (error) {
       console.error('Error saving profile:', error)
@@ -107,9 +122,15 @@ export default function ProfileEditModal({
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleInterestKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleAddInterest()
+    }
+  }
+
+  const handleAvailabilityKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAddAvailability()
     }
   }
 
@@ -319,7 +340,7 @@ export default function ProfileEditModal({
               type="text"
               value={newInterest}
               onChange={(e) => setNewInterest(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyPress={handleInterestKeyPress}
               className="flex-1 bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white placeholder-white/60 focus:outline-none focus:border-[#F5C451] min-h-[44px]"
               placeholder="Add an interest"
             />
@@ -341,6 +362,47 @@ export default function ProfileEditModal({
                   onClick={() => handleRemoveInterest(interest)}
                   className="text-white/60 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label={`Remove ${interest}`}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Availability */}
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            <Clock className="w-4 h-4 inline mr-2" />
+            Availability
+          </label>
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={newAvailability}
+              onChange={(e) => setNewAvailability(e.target.value)}
+              onKeyPress={handleAvailabilityKeyPress}
+              className="flex-1 bg-white/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 text-white placeholder-white/60 focus:outline-none focus:border-[#F5C451] min-h-[44px]"
+              placeholder="e.g., Weekends, Weekday evenings"
+            />
+            <button
+              onClick={handleAddAvailability}
+              className="bg-[#F5C451] text-[#0F1433] px-4 py-2 rounded-lg font-semibold hover:bg-[#D4AF37] transition-colors min-h-[44px]"
+            >
+              Add
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {formData.availability.map((availability: string, index: number) => (
+              <span
+                key={index}
+                className="px-3 py-1 bg-white/10 text-white/80 text-sm rounded-full border border-[#D4AF37]/30 flex items-center gap-2"
+              >
+                <span>{availability}</span>
+                <button
+                  onClick={() => handleRemoveAvailability(availability)}
+                  className="text-white/60 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label={`Remove ${availability}`}
                 >
                   <X className="w-3 h-3" />
                 </button>

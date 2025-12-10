@@ -5,17 +5,19 @@ import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Settings, Bell, User, Mail, MapPin, Church, Calendar, Camera, Heart, Clock } from 'lucide-react'
+import { ArrowLeft, Settings, Bell, User, Mail, MapPin, Church, Calendar, Camera, Heart, Clock, Edit } from 'lucide-react'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
+import ProfileEditModal from '@/components/ProfileEditModal'
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
-  const { profile, uploadAvatar } = useUserProfile()
+  const { profile, uploadAvatar, updateProfile } = useUserProfile()
   const toast = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const handleTabChange = (tab: string) => {
     switch (tab) {
@@ -87,7 +89,48 @@ export default function ProfilePage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
+      }
     }
+
+  const handleEditProfile = () => {
+    setIsEditModalOpen(true)
+  }
+
+  const handleSaveProfile = async (profileData: any) => {
+    try {
+      await updateProfile({
+        name: profileData.name || null,
+        bio: profileData.bio || null,
+        city: profileData.location || null,
+        interests: profileData.interests && profileData.interests.length > 0 ? profileData.interests : null,
+        availability: profileData.availability && profileData.availability.length > 0 ? profileData.availability : null,
+      })
+      
+      toast({
+        title: 'Profile updated',
+        description: 'Your profile has been updated successfully',
+        variant: 'success',
+      })
+    } catch (error: any) {
+      console.error('Error updating profile:', error)
+      toast({
+        title: 'Update failed',
+        description: error.message || 'Failed to update profile',
+        variant: 'error',
+      })
+    }
+  }
+
+  // Prepare profile data for the edit modal
+  const profileDataForModal = {
+    name: user?.user_metadata?.name || profile?.name || '',
+    bio: profile?.bio || '',
+    location: profile?.city || user?.user_metadata?.location || '',
+    denomination: user?.user_metadata?.church_affiliation || '',
+    interests: profile?.interests || [],
+    availability: profile?.availability || [],
+    avatarUrl: profile?.avatar_url || '',
+    coverImageUrl: '', // Not currently stored
   }
 
   return (
@@ -105,6 +148,13 @@ export default function ProfilePage() {
               </h1>
             </div>
             <div className="flex items-center space-x-2">
+              <button
+                onClick={handleEditProfile}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                title="Edit Profile"
+              >
+                <Edit className="w-5 h-5" />
+              </button>
               <Link 
                 href="/settings/notifications?from=profile" 
                 className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 relative"
@@ -291,6 +341,13 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Edit Profile Modal */}
+      <ProfileEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveProfile}
+        currentProfile={profileDataForModal}
+      />
     </div>
   )
 }

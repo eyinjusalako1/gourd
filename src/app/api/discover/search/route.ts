@@ -108,9 +108,9 @@ export async function POST(req: NextRequest) {
 
       filteredEvents = filteredEvents.filter((event) => {
         // Check tags array overlap
-        const eventTags = (event.tags || []).map((tag: string) => tag.toLowerCase());
+        const eventTags = ((event.tags || []) as string[]).map((tag: string) => tag.toLowerCase());
         const hasTagMatch = interestFilters.some((interest) =>
-          eventTags.some((tag) => tag.includes(interest) || interest.includes(tag))
+          eventTags.some((tag: string) => tag.includes(interest) || interest.includes(tag))
         );
 
         // Check title/description text match

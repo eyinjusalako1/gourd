@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
@@ -38,6 +38,55 @@ export default function OnboardingProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [onboardingResult, setOnboardingResult] = useState<OnboardingResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [checkingProfile, setCheckingProfile] = useState(true);
+
+  // Onboarding guard: redirect to dashboard if profile is already complete
+  useEffect(() => {
+    const checkProfileComplete = async () => {
+      if (!user?.id) {
+        setCheckingProfile(false);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/profile/get-profile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.id }),
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.profile?.profile_complete) {
+            // Profile is already complete, redirect to dashboard
+            router.replace("/dashboard");
+            return;
+          }
+        }
+      } catch (err) {
+        // If check fails, allow onboarding to continue
+        console.error("Error checking profile:", err);
+      } finally {
+        setCheckingProfile(false);
+      }
+    };
+
+    checkProfileComplete();
+  }, [user?.id, router]);
+
+  // Show loading while checking profile
+  if (checkingProfile) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto"></div>
+          <p className="mt-4 text-sm text-slate-400">Loading...</p>
+        </div>
+      </main>
+    );
+  }
 
   const updateAnswer = (field: keyof Answers, value: string) => {
     setAnswers((prev) => ({ ...prev, [field]: value }));

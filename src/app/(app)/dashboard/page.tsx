@@ -62,17 +62,15 @@ export default function DashboardPage() {
   }, [user?.id]);
 
   const handleGoToDiscover = () => {
-    router.push("/discover/assistant");
+    router.push("/discovery");
   };
 
   const handleGoToHost = () => {
-    // Placeholder route for now
-    router.push("/events/create"); // change when you have this route
+    router.push("/events/create");
   };
 
   const handleEditProfile = () => {
-    // Later you can build a dedicated profile edit page
-    router.push("/profile"); // placeholder
+    router.push("/profile");
   };
 
   return (

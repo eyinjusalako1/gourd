@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { saveUserType } from '@/hooks/usePrefs'
@@ -11,6 +11,55 @@ export default function OnboardingPage() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [checkingProfile, setCheckingProfile] = useState(true)
+
+  // Onboarding guard: redirect to dashboard if profile is already complete
+  useEffect(() => {
+    const checkProfileComplete = async () => {
+      if (!user?.id) {
+        setCheckingProfile(false)
+        return
+      }
+
+      try {
+        const res = await fetch("/api/profile/get-profile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.id }),
+        })
+
+        if (res.ok) {
+          const json = await res.json()
+          if (json.profile?.profile_complete) {
+            // Profile is already complete, redirect to dashboard
+            router.replace("/dashboard")
+            return
+          }
+        }
+      } catch (err) {
+        // If check fails, allow onboarding to continue
+        console.error("Error checking profile:", err)
+      } finally {
+        setCheckingProfile(false)
+      }
+    }
+
+    checkProfileComplete()
+  }, [user?.id, router])
+
+  // Show loading while checking profile
+  if (checkingProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-beige-50 dark:bg-navy-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleSelectRole = async (userType: 'Disciple' | 'Steward') => {
     if (!user) {

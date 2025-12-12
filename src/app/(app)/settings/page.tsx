@@ -71,20 +71,27 @@ export default function SettingsPage() {
       // Invalidate cache to refresh data
       invalidate()
       
+      // Clear profile cache to force refresh
+      localStorage.removeItem('gathered_user_profile')
+      
       // Clear and update localStorage cache
       localStorage.removeItem('gathered_user_prefs')
       localStorage.setItem('gathered_user_prefs', JSON.stringify({ userType }))
 
       toast({
         title: 'Role updated successfully',
-        description: `You are now in ${targetRole === 'disciple' ? 'Disciple' : 'Steward'} mode`,
+        description: `You are now in ${targetRole === 'disciple' ? 'Disciple' : 'Steward'} mode. Refreshing...`,
         variant: 'success',
         duration: 3000,
       })
 
-      // Redirect to dashboard after a short delay
+      // Force a hard refresh by reloading the page after redirect
       setTimeout(() => {
         router.push('/dashboard')
+        // Force refresh after navigation
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
       }, 500)
     } catch (error: any) {
       console.error('Error switching role:', error)

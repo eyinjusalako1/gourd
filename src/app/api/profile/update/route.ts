@@ -36,6 +36,10 @@ export async function POST(req: NextRequest) {
     if (profileData.interests !== undefined) updatePayload.interests = profileData.interests || null;
     if (profileData.availability !== undefined) updatePayload.availability = profileData.availability || null;
     if (profileData.avatar_url !== undefined) updatePayload.avatar_url = profileData.avatar_url || null;
+    if (profileData.avatarUrl !== undefined) updatePayload.avatar_url = profileData.avatarUrl || null; // Handle avatarUrl from form
+    if (profileData.role !== undefined) updatePayload.role = profileData.role || null; // Handle role switching
+    // Note: denomination is stored in auth.users.user_metadata, not user_profiles
+    // We'll need to update it separately if needed
 
     // Check if profile exists
     const { data: existing } = await supabaseServer

@@ -98,13 +98,53 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async (profileData: any) => {
     try {
+      // If avatar is a data URL (base64), we need to upload it first
+      let avatarUrl = profileData.avatarUrl
+      if (avatarUrl && avatarUrl.startsWith('data:image')) {
+        // Convert data URL to blob and upload
+        try {
+          const response = await fetch(avatarUrl)
+          const blob = await response.blob()
+          const file = new File([blob], 'avatar.jpg', { type: blob.type })
+          avatarUrl = await uploadAvatar(file)
+        } catch (uploadError: any) {
+          console.error('Error uploading avatar:', uploadError)
+          // Continue without avatar if upload fails
+          avatarUrl = profile?.avatar_url || null
+        }
+      }
+
+      // Update profile fields
       await updateProfile({
         name: profileData.name || null,
         bio: profileData.bio || null,
         city: profileData.location || null,
         interests: profileData.interests && profileData.interests.length > 0 ? profileData.interests : null,
         availability: profileData.availability && profileData.availability.length > 0 ? profileData.availability : null,
+        avatar_url: avatarUrl || null,
       })
+
+      // Update user metadata (denomination, name) in auth.users
+      if (user && (profileData.denomination !== undefined || profileData.name !== undefined)) {
+        const { supabase } = await import('@/lib/supabase')
+        const metadata: any = { ...user.user_metadata }
+        
+        if (profileData.denomination !== undefined) {
+          metadata.church_affiliation = profileData.denomination || null
+        }
+        if (profileData.name !== undefined) {
+          metadata.name = profileData.name || null
+        }
+
+        const { error: metadataError } = await supabase.auth.updateUser({
+          data: metadata
+        })
+
+        if (metadataError) {
+          console.error('Error updating user metadata:', metadataError)
+          // Don't fail the whole update if metadata update fails
+        }
+      }
       
       toast({
         title: 'Profile updated',

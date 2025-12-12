@@ -38,18 +38,36 @@ export class EventService {
 
   // Get event by ID
   static async getEvent(eventId: string): Promise<Event | null> {
-    const { data, error } = await supabase
+    // Try with is_active filter first
+    let query = supabase
       .from('events')
       .select('*')
       .eq('id', eventId)
       .eq('is_active', true)
       .single()
 
+    let { data, error } = await query
+
+    // If not found with is_active filter, try without it (in case is_active is null or false)
+    if (error && (error.code === 'PGRST116' || error.message?.includes('No rows'))) {
+      query = supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single()
+      
+      const result = await query
+      data = result.data
+      error = result.error
+    }
+
     if (error) {
       // If event not found, return null instead of throwing
-      if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
+      if (error.code === 'PGRST116' || error.message?.includes('No rows') || error.message?.includes('not found')) {
+        console.warn('Event not found:', eventId, error)
         return null
       }
+      console.error('Error fetching event:', error)
       throw error
     }
     return data

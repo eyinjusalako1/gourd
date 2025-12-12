@@ -77,13 +77,16 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
       if (json.profile) {
         const profile = { ...json.profile, last_activity_at: json.profile.last_seen_at ?? null }
         cacheProfile(profile)
-        swr.mutate(profile, false)
+        // Force revalidation to get fresh data
+        swr.mutate(profile, { revalidate: true })
         return profile
       }
 
       // Fallback to old method if API fails
       const updated = await upsertUserProfile(userId, payload)
-      if (updated) swr.mutate(updated, false)
+      if (updated) {
+        swr.mutate(updated, { revalidate: true })
+      }
       return updated
     },
     [swr, userId]

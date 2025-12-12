@@ -42,9 +42,16 @@ export class EventService {
       .from('events')
       .select('*')
       .eq('id', eventId)
+      .eq('is_active', true)
       .single()
 
-    if (error) throw error
+    if (error) {
+      // If event not found, return null instead of throwing
+      if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
+        return null
+      }
+      throw error
+    }
     return data
   }
 

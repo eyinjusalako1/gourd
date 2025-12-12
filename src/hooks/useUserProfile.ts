@@ -48,6 +48,40 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
   const updateProfile = useCallback(
     async (payload: UserProfileUpdate) => {
       if (!userId) throw new Error('No authenticated user')
+      
+      // Get current session for userId
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user?.id) {
+        throw new Error('You must be logged in to update your profile')
+      }
+
+      // Call backend API route which uses server-side Supabase (bypasses RLS)
+      const response = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...payload,
+          userId: session.user.id,
+        }),
+      })
+
+      const json = await response.json()
+
+      if (!response.ok) {
+        throw new Error(json.error || 'Failed to update profile')
+      }
+
+      // Update local cache and SWR
+      if (json.profile) {
+        const profile = { ...json.profile, last_activity_at: json.profile.last_seen_at ?? null }
+        cacheProfile(profile)
+        swr.mutate(profile, false)
+        return profile
+      }
+
+      // Fallback to old method if API fails
       const updated = await upsertUserProfile(userId, payload)
       if (updated) swr.mutate(updated, false)
       return updated

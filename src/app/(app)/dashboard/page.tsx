@@ -153,6 +153,7 @@ export default function DashboardPage() {
 
         {!loading && profile && (
           <div className="grid gap-6 mt-4 md:grid-cols-[2fr,3fr]">
+            {/* TODO: Replace profile summary with visual card */}
             {/* Left: profile summary */}
             <section className="space-y-4">
               <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
@@ -205,6 +206,8 @@ export default function DashboardPage() {
               </div>
             </section>
 
+            {/* TODO: Replace this card with new Hero section */}
+            {/* TODO: Add quick actions section with icons */}
             {/* Right: next actions */}
             <section className="space-y-4">
               <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
@@ -272,6 +275,7 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* TODO: Add trending suggestions section */}
         {/* My Events Section */}
         {!loading && user && (
           <section className="mt-8 space-y-6">

@@ -64,6 +64,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Ensure event has an ID before returning
+    if (!event || !event.id) {
+      console.error("Event created but missing ID:", event);
+      return NextResponse.json(
+        { error: "Event created but ID is missing" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ event }, { status: 201 });
   } catch (error: any) {
     console.error("Unexpected error creating event:", error);

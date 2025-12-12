@@ -46,10 +46,18 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
 
   const loadEventData = async () => {
     try {
+      setLoading(true)
       const [eventData, rsvpsData] = await Promise.all([
         EventService.getEvent(params.id),
         EventService.getEventRSVPs(params.id)
       ])
+
+      if (!eventData) {
+        // Event not found
+        setEvent(null)
+        setRsvps([])
+        return
+      }
 
       setEvent(eventData)
       setRsvps(rsvpsData)
@@ -63,8 +71,12 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
           setRsvpNotes(userRsvpData.notes || '')
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading event data:', error)
+      // If event not found, set event to null to show error state
+      if (error?.message?.includes('not found') || error?.code === 'PGRST116') {
+        setEvent(null)
+      }
     } finally {
       setLoading(false)
     }
@@ -75,11 +87,32 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
 
     setRsvpLoading(true)
     try {
-      await EventService.rsvpToEvent(params.id, user.id, rsvpStatus, guestCount, rsvpNotes)
-      await loadEventData() // Refresh data
+      // For non-RSVP events, default to 'going' status
+      const status = event.requires_rsvp ? rsvpStatus : 'going'
+      await EventService.rsvpToEvent(params.id, user.id, status, guestCount, rsvpNotes)
+      // Refresh event data to update RSVP count and user's RSVP status
+      await loadEventData()
       setShowRsvpModal(false)
     } catch (error: any) {
-      alert(error.message || 'Failed to RSVP')
+      console.error('RSVP error:', error)
+      alert(error.message || 'Failed to join event')
+    } finally {
+      setRsvpLoading(false)
+    }
+  }
+
+  const handleLeaveEvent = async () => {
+    if (!user || !event) return
+
+    if (!confirm('Are you sure you want to leave this event?')) return
+
+    setRsvpLoading(true)
+    try {
+      // Set RSVP status to "not_going" to effectively leave the event
+      await EventService.rsvpToEvent(params.id, user.id, 'not_going', 0, '')
+      await loadEventData() // Refresh data
+    } catch (error: any) {
+      alert(error.message || 'Failed to leave event')
     } finally {
       setRsvpLoading(false)
     }
@@ -337,10 +370,12 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* RSVP */}
-            {user && event.requires_rsvp && (
+            {/* RSVP / Join */}
+            {user && (
               <div className="card">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">RSVP</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  {event.requires_rsvp ? 'RSVP' : 'Join Event'}
+                </h3>
                 
                 {userRsvp ? (
                   <div className="space-y-3">
@@ -357,20 +392,41 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
                         Note: {userRsvp.notes}
                       </div>
                     )}
-                    <button
-                      onClick={() => setShowRsvpModal(true)}
-                      className="w-full btn-secondary"
-                    >
-                      Update RSVP
-                    </button>
+                    <div className="flex space-x-2">
+                      {event.requires_rsvp && (
+                        <button
+                          onClick={() => setShowRsvpModal(true)}
+                          className="flex-1 btn-secondary"
+                        >
+                          Update RSVP
+                        </button>
+                      )}
+                      {userRsvp.status === 'going' && (
+                        <button
+                          onClick={handleLeaveEvent}
+                          disabled={rsvpLoading}
+                          className={event.requires_rsvp ? "flex-1 btn-secondary text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" : "w-full btn-secondary text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"}
+                        >
+                          Leave Event
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <button
-                    onClick={() => setShowRsvpModal(true)}
-                    className="w-full btn-primary flex items-center justify-center space-x-2"
+                    onClick={() => {
+                      if (event.requires_rsvp) {
+                        setShowRsvpModal(true)
+                      } else {
+                        // Simple join for non-RSVP events
+                        handleRsvp()
+                      }
+                    }}
+                    disabled={rsvpLoading}
+                    className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <UserPlus className="w-5 h-5" />
-                    <span>RSVP Now</span>
+                    <span>{rsvpLoading ? 'Joining...' : 'Join Event'}</span>
                   </button>
                 )}
               </div>
@@ -525,4 +581,5 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
     </>
   )
 }
+
 

@@ -45,7 +45,7 @@ export async function GET(
     }
 
     // Fetch user profiles for all RSVP user IDs
-    const userIds = [...new Set(rsvps.map((r: any) => r.user_id))];
+    const userIds = Array.from(new Set(rsvps.map((r: any) => r.user_id)));
     const { data: profiles, error: profilesError } = await supabaseServer
       .from("user_profiles")
       .select("id, name, email, avatar_url")

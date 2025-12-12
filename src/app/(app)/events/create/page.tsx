@@ -364,7 +364,7 @@ export default function CreateEventPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
                     { value: 'bible_study', label: 'Bible Study', icon: <BookOpen className="w-4 h-4" /> },
-                    { value: 'prayer_meeting', label: 'Sparkles Meeting', icon: <Sparkles className="w-4 h-4" /> },
+                    { value: 'prayer_meeting', label: 'Prayer Meeting', icon: <Sparkles className="w-4 h-4" /> },
                     { value: 'worship', label: 'Worship', icon: <Heart className="w-4 h-4" /> },
                     { value: 'fellowship', label: 'Fellowship', icon: <Users className="w-4 h-4" /> },
                     { value: 'evangelism', label: 'Evangelism', icon: <Megaphone className="w-4 h-4" /> },

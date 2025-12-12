@@ -68,21 +68,88 @@ function getMockResponse(agentName: string, body: any) {
       };
 
     case "ActivityPlanner":
+      const desc = (body?.description || "").toLowerCase();
+      
+      // Extract location from description
+      let locationHint = body?.location_hint || "";
+      const locationPatterns = [
+        /(?:in|near|at)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?(?:\s*,\s*[A-Z][a-z]+)?)/g,
+        /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*,\s*([A-Z][a-z]+)/g,
+      ];
+      for (const pattern of locationPatterns) {
+        const match = desc.match(pattern);
+        if (match) {
+          locationHint = match[0].replace(/^(?:in|near|at)\s+/i, "").trim();
+          break;
+        }
+      }
+      if (!locationHint) {
+        locationHint = "local coffee shop or casual venue";
+      }
+      
+      // Extract group size from description
+      let groupSize = 6; // default
+      const sizePatterns = [
+        /(\d+)\s*-\s*(\d+)\s*people?/i,
+        /(\d+)\s*people?/i,
+        /small\s+group/i,
+        /medium\s+group/i,
+        /large\s+group|big\s+group/i,
+      ];
+      for (const pattern of sizePatterns) {
+        const match = desc.match(pattern);
+        if (match) {
+          if (match[1] && match[2]) {
+            // Range like "10-15"
+            const min = parseInt(match[1]);
+            const max = parseInt(match[2]);
+            groupSize = Math.round((min + max) / 2); // Use middle of range
+          } else if (match[1]) {
+            // Single number
+            groupSize = parseInt(match[1]);
+          } else if (match[0].includes("small")) {
+            groupSize = 4;
+          } else if (match[0].includes("large") || match[0].includes("big")) {
+            groupSize = 10;
+          }
+          break;
+        }
+      }
+      if (body?.comfort_level?.includes("small")) groupSize = 4;
+      if (body?.comfort_level?.includes("big")) groupSize = 10;
+      
+      // Extract time hint
+      let timeHint = body?.time_hint || "";
+      const timePatterns = [
+        /(friday|saturday|sunday|monday|tuesday|wednesday|thursday)\s+(evening|afternoon|morning|night)/i,
+        /(weekend|weekday)/i,
+      ];
+      for (const pattern of timePatterns) {
+        const match = desc.match(pattern);
+        if (match) {
+          timeHint = match[0];
+          break;
+        }
+      }
+      if (!timeHint) {
+        timeHint = "Friday evening or weekend";
+      }
+      
       return {
-        suggested_title: body?.description?.includes("anime") 
+        suggested_title: desc.includes("anime") 
           ? "Anime & Board Games Night" 
-          : body?.description?.includes("coffee") 
+          : desc.includes("coffee") 
           ? "Coffee & Chat Hangout"
+          : desc.includes("games")
+          ? "Games Night"
           : "Chill Hangout",
         suggested_description: body?.description 
-          ? `A relaxed ${body.description.toLowerCase()} where we can connect and have a good time. All welcome!`
+          ? `A relaxed ${body.description} where we can connect and have a good time. All welcome!`
           : "A casual hangout where we can connect and have a good time. All welcome!",
-        suggested_group_size: body?.comfort_level?.includes("small") ? 4 : body?.comfort_level?.includes("big") ? 10 : 6,
-        suggested_tags: body?.description 
-          ? body.description.toLowerCase().split(" ").slice(0, 3).filter((w: string) => w.length > 3)
-          : ["casual", "hangout", "social"],
-        suggested_location_hint: body?.location_hint || "local coffee shop or casual venue",
-        suggested_time_hint: body?.time_hint || "Friday evening or weekend",
+        suggested_group_size: groupSize,
+        suggested_tags: desc.split(" ").filter((w: string) => w.length > 3 && !["with", "that", "this", "have", "will", "from", "near", "in"].includes(w)).slice(0, 4) || ["casual", "hangout", "social"],
+        suggested_location_hint: locationHint,
+        suggested_time_hint: timeHint,
       };
 
     default:

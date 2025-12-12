@@ -47,13 +47,20 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
   const loadEventData = async () => {
     try {
       setLoading(true)
+      const eventId = params.id
+      
+      console.log('Loading event with ID:', eventId)
+      
       const [eventData, rsvpsData] = await Promise.all([
-        EventService.getEvent(params.id),
-        EventService.getEventRSVPs(params.id)
+        EventService.getEvent(eventId),
+        EventService.getEventRSVPs(eventId)
       ])
+
+      console.log('Event data received:', eventData ? 'Found' : 'Not found', eventData?.id)
 
       if (!eventData) {
         // Event not found
+        console.warn('Event not found for ID:', eventId)
         setEvent(null)
         setRsvps([])
         return
@@ -63,7 +70,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       setRsvps(rsvpsData)
 
       if (user) {
-        const userRsvpData = await EventService.getUserRSVP(params.id, user.id)
+        const userRsvpData = await EventService.getUserRSVP(eventId, user.id)
         setUserRsvp(userRsvpData)
         if (userRsvpData) {
           setRsvpStatus(userRsvpData.status)
@@ -73,8 +80,10 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       }
     } catch (error: any) {
       console.error('Error loading event data:', error)
+      console.error('Event ID was:', params.id)
+      console.error('Error details:', error.message, error.code)
       // If event not found, set event to null to show error state
-      if (error?.message?.includes('not found') || error?.code === 'PGRST116') {
+      if (error?.message?.includes('not found') || error?.code === 'PGRST116' || error?.code === 'PGRST301') {
         setEvent(null)
       }
     } finally {

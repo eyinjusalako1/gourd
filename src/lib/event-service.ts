@@ -38,39 +38,48 @@ export class EventService {
 
   // Get event by ID
   static async getEvent(eventId: string): Promise<Event | null> {
-    // Try with is_active filter first
-    let query = supabase
-      .from('events')
-      .select('*')
-      .eq('id', eventId)
-      .eq('is_active', true)
-      .single()
+    if (!eventId || eventId.trim() === '') {
+      console.warn('Empty event ID provided')
+      return null
+    }
 
-    let { data, error } = await query
+    // Use API route which uses server-side Supabase (bypasses RLS)
+    // This ensures events created with supabaseServer can be read
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(eventId.trim())}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-    // If not found with is_active filter, try without it (in case is_active is null or false)
-    if (error && (error.code === 'PGRST116' || error.message?.includes('No rows'))) {
-      query = supabase
+      const json = await response.json()
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.warn('Event not found via API:', eventId)
+          return null
+        }
+        throw new Error(json.error || 'Failed to fetch event')
+      }
+
+      return json.event || null
+    } catch (error: any) {
+      console.error('Error fetching event via API:', error)
+      // Fallback to direct query if API fails
+      const { data, error: queryError } = await supabase
         .from('events')
         .select('*')
-        .eq('id', eventId)
-        .single()
-      
-      const result = await query
-      data = result.data
-      error = result.error
-    }
+        .eq('id', eventId.trim())
+        .maybeSingle()
 
-    if (error) {
-      // If event not found, return null instead of throwing
-      if (error.code === 'PGRST116' || error.message?.includes('No rows') || error.message?.includes('not found')) {
-        console.warn('Event not found:', eventId, error)
+      if (queryError) {
+        console.error('Fallback query error:', queryError)
         return null
       }
-      console.error('Error fetching event:', error)
-      throw error
+
+      return data
     }
-    return data
   }
 
   // Create a new event (requires Steward role - enforced by API)

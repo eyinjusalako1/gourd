@@ -137,7 +137,7 @@ export default function EventsPage() {
               </p>
             </div>
             
-            {user && isSteward && (
+            {user && (
               <button
                 onClick={() => router.push('/events/create')}
                 className="btn-primary flex items-center space-x-2"
@@ -238,7 +238,7 @@ export default function EventsPage() {
                 : 'Be the first to create an event in your community!'
               }
             </p>
-            {user && isSteward && (
+            {user && (
               <button
                 onClick={() => router.push('/events/create')}
                 className="btn-primary"

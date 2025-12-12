@@ -239,15 +239,9 @@ export default function DiscoveryAssistantPage() {
               {events.length === 0 ? (
                 <div className="text-center py-12 bg-slate-950 border border-slate-800 rounded-xl">
                   <p className="text-slate-300 mb-2">No events match this yet.</p>
-                  <p className="text-sm text-slate-400 mb-4">
-                    Try a different query or host your first hangout.
+                  <p className="text-sm text-slate-400">
+                    Try a different query to find events that match your interests.
                   </p>
-                  <button
-                    onClick={() => router.push("/events/create")}
-                    className="px-4 py-2 text-sm rounded-lg bg-emerald-500 text-slate-950 font-medium hover:bg-emerald-400 transition-colors"
-                  >
-                    Host your first hangout
-                  </button>
                 </div>
               ) : (
                 <div className="space-y-4">

@@ -3,6 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { EventService } from "@/lib/event-service";
+import { Event } from "@/types";
+import { Calendar, MapPin, Clock, Users } from "lucide-react";
 
 interface UserProfile {
   id: string;
@@ -19,10 +23,14 @@ interface UserProfile {
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { isSteward } = useUserProfile();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hostedEvents, setHostedEvents] = useState<Event[]>([]);
+  const [joinedEvents, setJoinedEvents] = useState<Event[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) {
@@ -60,6 +68,47 @@ export default function DashboardPage() {
 
     fetchProfile();
   }, [user?.id]);
+
+  // Load user's events (hosted and joined)
+  useEffect(() => {
+    if (!user?.id) {
+      setEventsLoading(false);
+      return;
+    }
+
+    const loadUserEvents = async () => {
+      setEventsLoading(true);
+      try {
+        const [hosted, joined] = await Promise.all([
+          EventService.getUserHostedEvents(user.id),
+          EventService.getUserRSVPedEvents(user.id),
+        ]);
+        setHostedEvents(hosted);
+        setJoinedEvents(joined);
+      } catch (err: any) {
+        console.error("Error loading user events:", err);
+      } finally {
+        setEventsLoading(false);
+      }
+    };
+
+    loadUserEvents();
+  }, [user?.id]);
+
+  const formatEventDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      time: date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
+    };
+  };
 
   const handleGoToDiscover = () => {
     router.push("/discovery");
@@ -180,18 +229,20 @@ export default function DashboardPage() {
                     </p>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={handleGoToHost}
-                    className="w-full text-left px-3 py-3 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800"
-                  >
-                    <p className="text-sm font-medium text-slate-100">
-                      📅 Host your first hangout
-                    </p>
-                    <p className="text-xs text-slate-300">
-                      Use the Activity Planner (coming soon) to turn your idea into a real event.
-                    </p>
-                  </button>
+                  {isSteward && (
+                    <button
+                      type="button"
+                      onClick={handleGoToHost}
+                      className="w-full text-left px-3 py-3 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800"
+                    >
+                      <p className="text-sm font-medium text-slate-100">
+                        📅 Host your first hangout
+                      </p>
+                      <p className="text-xs text-slate-300">
+                        Create an event and invite others to join you.
+                      </p>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -219,6 +270,135 @@ export default function DashboardPage() {
               </div>
             </section>
           </div>
+        )}
+
+        {/* My Events Section */}
+        {!loading && user && (
+          <section className="mt-8 space-y-6">
+            <h2 className="text-lg font-semibold">My Events</h2>
+
+            {/* Events You're Hosting */}
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+              <h3 className="text-sm font-semibold mb-3">Events You&apos;re Hosting</h3>
+              {eventsLoading ? (
+                <p className="text-xs text-slate-400">Loading...</p>
+              ) : hostedEvents.length === 0 ? (
+                <p className="text-xs text-slate-400">
+                  You haven&apos;t hosted any events yet.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {hostedEvents.slice(0, 3).map((event) => {
+                    const { date, time } = formatEventDate(event.start_time);
+                    return (
+                      <button
+                        key={event.id}
+                        onClick={() => router.push(`/events/${event.id}`)}
+                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-lg hover:border-emerald-500/50 transition-colors"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-200 truncate">
+                              {event.title}
+                            </p>
+                            <div className="flex items-center space-x-3 mt-1 text-xs text-slate-400">
+                              <span className="flex items-center space-x-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>{date}</span>
+                              </span>
+                              <span className="flex items-center space-x-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{time}</span>
+                              </span>
+                              {event.location && (
+                                <span className="flex items-center space-x-1">
+                                  <MapPin className="w-3 h-3" />
+                                  <span className="truncate">{event.location}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-2">
+                            <Users className="w-4 h-4 text-slate-400" />
+                            <span className="text-xs text-slate-400">{event.rsvp_count}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {hostedEvents.length > 3 && (
+                    <button
+                      onClick={() => router.push("/events")}
+                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                    >
+                      View all {hostedEvents.length} hosted events →
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Events You've Joined */}
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+              <h3 className="text-sm font-semibold mb-3">Events You&apos;ve Joined</h3>
+              {eventsLoading ? (
+                <p className="text-xs text-slate-400">Loading...</p>
+              ) : joinedEvents.length === 0 ? (
+                <p className="text-xs text-slate-400">
+                  You haven&apos;t joined any events yet.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {joinedEvents.slice(0, 3).map((event) => {
+                    const { date, time } = formatEventDate(event.start_time);
+                    return (
+                      <button
+                        key={event.id}
+                        onClick={() => router.push(`/events/${event.id}`)}
+                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-lg hover:border-emerald-500/50 transition-colors"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-200 truncate">
+                              {event.title}
+                            </p>
+                            <div className="flex items-center space-x-3 mt-1 text-xs text-slate-400">
+                              <span className="flex items-center space-x-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>{date}</span>
+                              </span>
+                              <span className="flex items-center space-x-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{time}</span>
+                              </span>
+                              {event.location && (
+                                <span className="flex items-center space-x-1">
+                                  <MapPin className="w-3 h-3" />
+                                  <span className="truncate">{event.location}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-2">
+                            <Users className="w-4 h-4 text-slate-400" />
+                            <span className="text-xs text-slate-400">{event.rsvp_count}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {joinedEvents.length > 3 && (
+                    <button
+                      onClick={() => router.push("/events")}
+                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                    >
+                      View all {joinedEvents.length} joined events →
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
         )}
       </div>
     </main>

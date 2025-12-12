@@ -67,6 +67,24 @@ function getMockResponse(agentName: string, body: any) {
           "Adds a null-check around the user prop in the component to prevent crashes when the user object is not yet loaded.",
       };
 
+    case "ActivityPlanner":
+      return {
+        suggested_title: body?.description?.includes("anime") 
+          ? "Anime & Board Games Night" 
+          : body?.description?.includes("coffee") 
+          ? "Coffee & Chat Hangout"
+          : "Chill Hangout",
+        suggested_description: body?.description 
+          ? `A relaxed ${body.description.toLowerCase()} where we can connect and have a good time. All welcome!`
+          : "A casual hangout where we can connect and have a good time. All welcome!",
+        suggested_group_size: body?.comfort_level?.includes("small") ? 4 : body?.comfort_level?.includes("big") ? 10 : 6,
+        suggested_tags: body?.description 
+          ? body.description.toLowerCase().split(" ").slice(0, 3).filter((w: string) => w.length > 3)
+          : ["casual", "hangout", "social"],
+        suggested_location_hint: body?.location_hint || "local coffee shop or casual venue",
+        suggested_time_hint: body?.time_hint || "Friday evening or weekend",
+      };
+
     default:
       return { note: "No mock defined for this agent yet." };
   }

@@ -48,16 +48,34 @@ export class EventService {
     return data
   }
 
-  // Create a new event
+  // Create a new event (requires Steward role - enforced by API)
   static async createEvent(eventData: Omit<Event, 'id' | 'created_at' | 'updated_at' | 'rsvp_count'>): Promise<Event> {
-    const { data, error } = await supabase
-      .from('events')
-      .insert([eventData])
-      .select()
-      .single()
+    // Get current user ID from session
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.user?.id) {
+      throw new Error('You must be logged in to create events')
+    }
 
-    if (error) throw error
-    return data
+    // Call backend API route which enforces Steward authorization
+    const response = await fetch('/api/events/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...eventData,
+        userId: session.user.id, // Include userId for server-side validation
+      }),
+    })
+
+    const json = await response.json()
+
+    if (!response.ok) {
+      throw new Error(json.error || 'Failed to create event')
+    }
+
+    return json.event
   }
 
   // Update event
@@ -258,6 +276,22 @@ export class EventService {
       .filter(Boolean) as Event[];
 
     return events;
+  }
+
+  // Get events hosted by a user
+  static async getUserHostedEvents(userId: string): Promise<Event[]> {
+    const now = new Date().toISOString()
+    
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('created_by', userId)
+      .eq('is_active', true)
+      .gte('start_time', now)
+      .order('start_time', { ascending: true })
+
+    if (error) throw error
+    return data || []
   }
 
   // Search events

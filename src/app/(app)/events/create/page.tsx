@@ -9,6 +9,7 @@ import BackButton from '@/components/BackButton'
 import { EventService } from '@/lib/event-service'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { Event, FellowshipGroup } from '@/types'
+import { ActivityPlannerRequest, ActivityPlannerAPIResponse } from '@/types/activity-planner'
 import { 
   MapPin, 
   Calendar, 
@@ -34,6 +35,33 @@ export default function CreateEventPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [userGroups, setUserGroups] = useState<FellowshipGroup[]>([])
+  const [aiDescription, setAiDescription] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
+  const [showAiSection, setShowAiSection] = useState(false)
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!profileLoading && !user) {
+      router.replace('/auth/login')
+      return
+    }
+  }, [user, profileLoading, router])
+
+  // Redirect if user is not a Steward
+  useEffect(() => {
+    if (!profileLoading && profile) {
+      if (!isSteward) {
+        toast({
+          title: 'Access Restricted',
+          description: 'Only Stewards can create events.',
+          variant: 'error',
+          duration: 4000,
+        })
+        router.replace('/dashboard')
+      }
+    }
+  }, [profile, isSteward, profileLoading, router, toast])
   
   const [formData, setFormData] = useState({
     title: '',
@@ -55,21 +83,7 @@ export default function CreateEventPage() {
     tags: '',
   })
 
-  // Redirect if user is not a steward
-  useEffect(() => {
-    if (!profileLoading && profile) {
-      if (!isSteward) {
-        toast({
-          title: 'Access Restricted',
-          description: 'Only stewards can create events or groups.',
-          variant: 'error',
-          duration: 4000,
-        })
-        router.replace('/dashboard')
-      }
-    }
-  }, [profile, isSteward, profileLoading, router, toast])
-
+  // Load user groups if user is a steward (optional feature)
   useEffect(() => {
     if (user && isSteward) {
       loadUserGroups()
@@ -118,7 +132,20 @@ export default function CreateEventPage() {
       const event = await EventService.createEvent(eventData)
       router.push(`/events/${event.id}`)
     } catch (err: any) {
-      setError(err.message || 'Failed to create event')
+      // Show specific error message from backend (e.g., "Only Stewards can create events")
+      const errorMessage = err.message || 'Failed to create event'
+      setError(errorMessage)
+      
+      // If it's an authorization error, redirect to dashboard
+      if (errorMessage.includes('Only Stewards') || errorMessage.includes('403')) {
+        toast({
+          title: 'Access Restricted',
+          description: errorMessage,
+          variant: 'error',
+          duration: 4000,
+        })
+        setTimeout(() => router.replace('/dashboard'), 2000)
+      }
     } finally {
       setLoading(false)
     }
@@ -130,6 +157,66 @@ export default function CreateEventPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }))
+  }
+
+  const handleGenerateWithAI = async () => {
+    if (!aiDescription.trim()) {
+      setAiError('Please describe the kind of hangout you want to host')
+      return
+    }
+
+    setAiLoading(true)
+    setAiError('')
+
+    try {
+      const requestBody: ActivityPlannerRequest = {
+        description: aiDescription.trim(),
+      }
+
+      const response = await fetch('/api/agents/ActivityPlanner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate event suggestions')
+      }
+
+      const result: ActivityPlannerAPIResponse = await response.json()
+
+      if (!result.data) {
+        throw new Error('Invalid response from Activity Planner')
+      }
+
+      // Auto-fill form with AI suggestions
+      setFormData(prev => ({
+        ...prev,
+        title: result.data.suggested_title || prev.title,
+        description: result.data.suggested_description || prev.description,
+        max_attendees: result.data.suggested_group_size?.toString() || prev.max_attendees,
+        tags: result.data.suggested_tags?.join(', ') || prev.tags,
+        location: result.data.suggested_location_hint || prev.location,
+      }))
+
+      // Show success message
+      toast({
+        title: 'Event suggestions generated!',
+        description: 'Review and edit the form fields as needed.',
+        variant: 'success',
+        duration: 3000,
+      })
+
+      // Optionally hide the AI section after successful generation
+      setShowAiSection(false)
+    } catch (err: any) {
+      console.error('ActivityPlanner error:', err)
+      setAiError(err.message || 'Failed to generate suggestions. Please try again.')
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   const getEventTypeIcon = (type: string) => {
@@ -149,8 +236,8 @@ export default function CreateEventPage() {
     }
   }
 
-  // Show loading while checking role
-  if (profileLoading) {
+  // Show loading while checking auth and role
+  if (profileLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -161,7 +248,7 @@ export default function CreateEventPage() {
     )
   }
 
-  // Don't render form if user is not a steward
+  // Don't render form if user is not a Steward
   if (!isSteward) {
     return null
   }
@@ -171,6 +258,75 @@ export default function CreateEventPage() {
       <BackButton label="Create Event" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* AI Assistance Section - Only visible to Stewards */}
+        {isSteward && (
+          <div className="mb-8 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Plan with AI
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAiSection(!showAiSection)}
+                className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
+              >
+                {showAiSection ? 'Hide' : 'Show'}
+              </button>
+            </div>
+
+            {showAiSection && (
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="ai-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Describe the kind of hangout you want to host
+                  </label>
+                  <textarea
+                    id="ai-description"
+                    value={aiDescription}
+                    onChange={(e) => setAiDescription(e.target.value)}
+                    placeholder="e.g. A chill anime and board games night near Stratford on a Friday evening, 4–6 people, low cost."
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
+                    rows={3}
+                    disabled={aiLoading}
+                  />
+                </div>
+
+                {aiError && (
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                    <p className="text-sm text-red-600 dark:text-red-400">{aiError}</p>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleGenerateWithAI}
+                  disabled={aiLoading || !aiDescription.trim()}
+                  className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center space-x-2"
+                >
+                  {aiLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Generate with Activity Planner</span>
+                    </>
+                  )}
+                </button>
+
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  The AI will suggest a title, description, group size, tags, and location based on your idea. You can edit all fields before submitting.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">

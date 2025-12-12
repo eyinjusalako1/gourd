@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Search, Home, Calendar, MessageCircle, Users, BookOpen, Heart, HelpCircle, User, Settings, Megaphone, Plus } from 'lucide-react'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 interface CommandItem {
   id: string
@@ -15,23 +16,38 @@ interface CommandItem {
 export default function CommandPalette() {
   const router = useRouter()
   const pathname = usePathname()
+  const { isSteward } = useUserProfile()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [activeIdx, setActiveIdx] = useState(0)
 
-  const items: CommandItem[] = useMemo(() => ([
-    { id: 'home', label: 'Dashboard', href: '/dashboard', icon: Home, keywords: 'home start' },
-    { id: 'events', label: 'Events', href: '/events', icon: Calendar, keywords: 'calendar' },
-    { id: 'chat', label: 'Chats', href: '/chat', icon: MessageCircle, keywords: 'messages dm group' },
-    { id: 'fellowships', label: 'Fellowships', href: '/fellowships', icon: Users, keywords: 'groups' },
-    { id: 'devotions', label: 'Devotions', href: '/devotions', icon: BookOpen, keywords: 'bible reading' },
-    { id: 'prayers', label: 'Prayer Requests', href: '/prayers', icon: Heart, keywords: 'intercession' },
-    { id: 'faq', label: 'Help & FAQ', href: '/faq', icon: HelpCircle, keywords: 'support help' },
-    { id: 'profile', label: 'My Profile', href: '/profile', icon: User, keywords: 'account' },
-    { id: 'announce', label: 'Create Announcement', href: '/announcements/create', icon: Megaphone, keywords: 'create new' },
-    { id: 'event-create', label: 'Create Event', href: '/events/create', icon: Plus, keywords: 'new schedule' },
-    { id: 'devo-create', label: 'Create Devotional', href: '/devotions/create', icon: BookOpen, keywords: 'write submit' },
-  ]), [])
+  const items: CommandItem[] = useMemo(() => {
+    const baseItems: CommandItem[] = [
+      { id: 'home', label: 'Dashboard', href: '/dashboard', icon: Home, keywords: 'home start' },
+      { id: 'events', label: 'Events', href: '/events', icon: Calendar, keywords: 'calendar' },
+      { id: 'chat', label: 'Chats', href: '/chat', icon: MessageCircle, keywords: 'messages dm group' },
+      { id: 'fellowships', label: 'Fellowships', href: '/fellowships', icon: Users, keywords: 'groups' },
+      { id: 'devotions', label: 'Devotions', href: '/devotions', icon: BookOpen, keywords: 'bible reading' },
+      { id: 'prayers', label: 'Prayer Requests', href: '/prayers', icon: Heart, keywords: 'intercession' },
+      { id: 'faq', label: 'Help & FAQ', href: '/faq', icon: HelpCircle, keywords: 'support help' },
+      { id: 'profile', label: 'My Profile', href: '/profile', icon: User, keywords: 'account' },
+      { id: 'announce', label: 'Create Announcement', href: '/announcements/create', icon: Megaphone, keywords: 'create new' },
+      { id: 'devo-create', label: 'Create Devotional', href: '/devotions/create', icon: BookOpen, keywords: 'write submit' },
+    ]
+
+    // Only add "Create Event" for Stewards
+    if (isSteward) {
+      baseItems.push({
+        id: 'event-create',
+        label: 'Create Event',
+        href: '/events/create',
+        icon: Plus,
+        keywords: 'new schedule'
+      })
+    }
+
+    return baseItems
+  }, [isSteward])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

@@ -9,10 +9,12 @@ import { supabaseServer } from "@/lib/supabaseServer";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const eventId = params.id;
+    // Handle both Promise and direct params (Next.js 14 vs 15 compatibility)
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const eventId = resolvedParams.id;
 
     if (!eventId) {
       return NextResponse.json(
@@ -21,13 +23,15 @@ export async function GET(
       );
     }
 
-    console.log('API: Fetching event with ID:', eventId);
+    // Decode the event ID in case it was URL encoded
+    const decodedEventId = decodeURIComponent(eventId.trim());
+    console.log('API: Fetching event with ID:', decodedEventId);
 
     // Query using server-side Supabase (bypasses RLS)
     const { data: event, error } = await supabaseServer
       .from("events")
       .select("*")
-      .eq("id", eventId.trim())
+      .eq("id", decodedEventId)
       .maybeSingle();
 
     if (error) {
@@ -39,9 +43,21 @@ export async function GET(
     }
 
     if (!event) {
-      console.warn("Event not found for ID:", eventId);
+      console.warn("Event not found for ID:", decodedEventId);
+      // Try one more time without trimming, in case there's a whitespace issue
+      const { data: eventRetry, error: retryError } = await supabaseServer
+        .from("events")
+        .select("*")
+        .eq("id", eventId.trim())
+        .maybeSingle();
+      
+      if (eventRetry) {
+        console.log("Event found on retry:", eventRetry.id, eventRetry.title);
+        return NextResponse.json({ event: eventRetry }, { status: 200 });
+      }
+      
       return NextResponse.json(
-        { error: "Event not found" },
+        { error: "Event not found", eventId: decodedEventId },
         { status: 404 }
       );
     }
@@ -56,4 +72,5 @@ export async function GET(
     );
   }
 }
+
 

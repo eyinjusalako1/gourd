@@ -27,7 +27,7 @@ import {
   Copy
 } from 'lucide-react'
 
-export default function EventDetailsPage({ params }: { params: { id: string } }) {
+export default function EventDetailsPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const { user } = useAuth()
   const router = useRouter()
   const [event, setEvent] = useState<Event | null>(null)
@@ -39,28 +39,43 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
   const [rsvpStatus, setRsvpStatus] = useState<'going' | 'maybe' | 'not_going'>('going')
   const [guestCount, setGuestCount] = useState(0)
   const [rsvpNotes, setRsvpNotes] = useState('')
+  const [eventId, setEventId] = useState<string>('')
 
+  // Resolve params (handle both Promise and direct params for Next.js 14/15 compatibility)
   useEffect(() => {
-    loadEventData()
-  }, [params.id, user])
+    const resolveParams = async () => {
+      try {
+        // In Next.js 14, params is typically an object, in Next.js 15 it might be a Promise
+        const resolvedParams = params instanceof Promise ? await params : params
+        const id = resolvedParams?.id || ''
+        if (id) {
+          setEventId(id)
+        }
+      } catch (error) {
+        console.error('Error resolving params:', error)
+      }
+    }
+    resolveParams()
+  }, [params])
 
-  const loadEventData = async () => {
+  const loadEventData = async (id: string) => {
+    if (!id) return
+    
     try {
       setLoading(true)
-      const eventId = params.id
       
-      console.log('Loading event with ID:', eventId)
+      console.log('Loading event with ID:', id)
       
       const [eventData, rsvpsData] = await Promise.all([
-        EventService.getEvent(eventId),
-        EventService.getEventRSVPs(eventId)
+        EventService.getEvent(id.trim()),
+        EventService.getEventRSVPs(id.trim())
       ])
 
       console.log('Event data received:', eventData ? 'Found' : 'Not found', eventData?.id)
 
       if (!eventData) {
         // Event not found
-        console.warn('Event not found for ID:', eventId)
+        console.warn('Event not found for ID:', id)
         setEvent(null)
         setRsvps([])
         return
@@ -70,7 +85,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       setRsvps(rsvpsData)
 
       if (user) {
-        const userRsvpData = await EventService.getUserRSVP(eventId, user.id)
+        const userRsvpData = await EventService.getUserRSVP(id.trim(), user.id)
         setUserRsvp(userRsvpData)
         if (userRsvpData) {
           setRsvpStatus(userRsvpData.status)
@@ -80,7 +95,7 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
       }
     } catch (error: any) {
       console.error('Error loading event data:', error)
-      console.error('Event ID was:', params.id)
+      console.error('Event ID was:', id)
       console.error('Error details:', error.message, error.code)
       // If event not found, set event to null to show error state
       if (error?.message?.includes('not found') || error?.code === 'PGRST116' || error?.code === 'PGRST301') {
@@ -91,6 +106,12 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
     }
   }
 
+  useEffect(() => {
+    if (eventId) {
+      loadEventData(eventId)
+    }
+  }, [eventId, user])
+
   const handleRsvp = async () => {
     if (!user || !event) return
 
@@ -98,9 +119,9 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
     try {
       // For non-RSVP events, default to 'going' status
       const status = event.requires_rsvp ? rsvpStatus : 'going'
-      await EventService.rsvpToEvent(params.id, user.id, status, guestCount, rsvpNotes)
+      await EventService.rsvpToEvent(eventId, user.id, status, guestCount, rsvpNotes)
       // Refresh event data to update RSVP count and user's RSVP status
-      await loadEventData()
+      await loadEventData(eventId)
       setShowRsvpModal(false)
     } catch (error: any) {
       console.error('RSVP error:', error)
@@ -118,8 +139,8 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
     setRsvpLoading(true)
     try {
       // Set RSVP status to "not_going" to effectively leave the event
-      await EventService.rsvpToEvent(params.id, user.id, 'not_going', 0, '')
-      await loadEventData() // Refresh data
+      await EventService.rsvpToEvent(eventId, user.id, 'not_going', 0, '')
+      await loadEventData(eventId) // Refresh data
     } catch (error: any) {
       alert(error.message || 'Failed to leave event')
     } finally {
@@ -447,16 +468,20 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
                 Attendees ({rsvps.filter(r => r.status === 'going').length})
               </h3>
               <div className="space-y-3">
-                {rsvps.filter(r => r.status === 'going').slice(0, 5).map((rsvp) => (
+                {rsvps.filter(r => r.status === 'going').slice(0, 5).map((rsvp) => {
+                  const userProfile = (rsvp as any).user_profile
+                  const userName = userProfile?.name || 'Unknown User'
+                  const userInitial = userName.charAt(0).toUpperCase()
+                  return (
                   <div key={rsvp.id} className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
                       <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
-                        {(rsvp as any).user?.user_metadata?.name?.charAt(0) || 'U'}
+                        {userInitial}
                       </span>
                     </div>
                     <div className="flex-1">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {(rsvp as any).user?.user_metadata?.name || 'Unknown User'}
+                        {userName}
                       </div>
                       {rsvp.guest_count && rsvp.guest_count > 0 && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -465,7 +490,8 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
                       )}
                     </div>
                   </div>
-                ))}
+                  )
+                })}
                 {rsvps.filter(r => r.status === 'going').length > 5 && (
                   <div className="text-sm text-gray-600 dark:text-gray-400 text-center pt-2">
                     +{rsvps.filter(r => r.status === 'going').length - 5} more attendees
@@ -481,18 +507,23 @@ export default function EventDetailsPage({ params }: { params: { id: string } })
                   Maybe Going ({rsvps.filter(r => r.status === 'maybe').length})
                 </h3>
                 <div className="space-y-3">
-                  {rsvps.filter(r => r.status === 'maybe').slice(0, 3).map((rsvp) => (
+                  {rsvps.filter(r => r.status === 'maybe').slice(0, 3).map((rsvp) => {
+                    const userProfile = (rsvp as any).user_profile
+                    const userName = userProfile?.name || 'Unknown User'
+                    const userInitial = userName.charAt(0).toUpperCase()
+                    return (
                     <div key={rsvp.id} className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
                         <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                          {(rsvp as any).user?.user_metadata?.name?.charAt(0) || 'U'}
+                          {userInitial}
                         </span>
                       </div>
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {(rsvp as any).user?.user_metadata?.name || 'Unknown User'}
+                        {userName}
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}

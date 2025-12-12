@@ -180,21 +180,38 @@ export class EventService {
 
   // Get event RSVPs
   static async getEventRSVPs(eventId: string): Promise<EventRSVP[]> {
-    const { data, error } = await supabase
-      .from('event_rsvps')
-      .select(`
-        *,
-        user:user_id (
-          id,
-          email,
-          user_metadata
-        )
-      `)
-      .eq('event_id', eventId)
-      .order('rsvp_date', { ascending: false })
+    // Use API route which uses server-side Supabase (bypasses RLS and can join with user_profiles)
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(eventId.trim())}/rsvps`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-    if (error) throw error
-    return data || []
+      const json = await response.json()
+
+      if (!response.ok) {
+        throw new Error(json.error || 'Failed to fetch RSVPs')
+      }
+
+      return json.rsvps || []
+    } catch (error: any) {
+      console.error('Error fetching RSVPs via API:', error)
+      // Fallback to direct query if API fails
+      const { data, error: queryError } = await supabase
+        .from('event_rsvps')
+        .select('*')
+        .eq('event_id', eventId.trim())
+        .order('rsvp_date', { ascending: false })
+
+      if (queryError) {
+        console.error('Fallback query error:', queryError)
+        return []
+      }
+
+      return data || []
+    }
   }
 
   // Get user's RSVP for an event

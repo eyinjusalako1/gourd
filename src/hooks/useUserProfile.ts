@@ -166,6 +166,74 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
     }
   }, [userId, updateProfile])
 
+  const uploadCoverPhoto = useCallback(async (file: File): Promise<string | null> => {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured. Cover photo upload is unavailable.')
+    }
+
+    if (!userId) {
+      throw new Error('No authenticated user')
+    }
+
+    try {
+      // Use the same avatars bucket for cover photos
+      const possibleBucketNames = ['Avatars', 'avatars', 'avatar', 'Avatar']
+      let uploadError: any = null
+      let successfulBucket: string | null = null
+      let filePath: string = ''
+
+      // Try each bucket name until one works
+      for (const bucketName of possibleBucketNames) {
+        filePath = `${bucketName.toLowerCase()}/${userId}/cover-${Date.now()}-${file.name}`
+        const { error } = await supabase.storage.from(bucketName).upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+        if (!error) {
+          successfulBucket = bucketName
+          break
+        } else {
+          uploadError = error
+          // If it's not a bucket not found error, stop trying
+          if (!error.message?.includes('Bucket') && !error.message?.includes('bucket') && !error.message?.includes('not found')) {
+            break
+          }
+        }
+      }
+
+      // If no bucket worked, provide helpful error
+      if (!successfulBucket) {
+        console.error('Cover photo upload failed:', uploadError)
+        
+        if (uploadError?.message?.includes('Bucket') || uploadError?.message?.includes('bucket') || uploadError?.message?.includes('not found')) {
+          throw new Error('Storage bucket not found. Please ensure a bucket named "Avatars" (or "avatars") exists in your Supabase Storage and is set to PUBLIC. Check your Supabase dashboard: Storage > Buckets.')
+        }
+        
+        throw new Error(`Failed to upload cover photo: ${uploadError?.message || 'Unknown error'}`)
+      }
+
+      // Get public URL using the successful bucket name
+      const { data: { publicUrl } } = supabase.storage.from(successfulBucket).getPublicUrl(filePath)
+      
+      // Update profile with new cover photo URL
+      try {
+        const updated = await updateProfile({ cover_image_url: publicUrl })
+        return publicUrl
+      } catch (profileError: any) {
+        // If profile update fails but upload succeeded, still return the URL
+        console.error('Profile update failed, but file uploaded successfully:', profileError)
+        if (profileError.message?.includes('row-level security') || profileError.message?.includes('RLS')) {
+          throw new Error('Cover photo uploaded successfully, but profile update was blocked. Please configure Row Level Security (RLS) policies in Supabase to allow users to update their own profiles.')
+        }
+        throw profileError
+      }
+    } catch (error: any) {
+      console.error('Error uploading cover photo:', error)
+      throw error
+    }
+  }, [userId, updateProfile])
+
   const invalidate = useCallback(() => swr.mutate(), [swr])
 
   useEffect(() => {
@@ -207,6 +275,7 @@ export function useUserProfile(options: UseUserProfileOptions = {}) {
     updateProfile,
     markProfileComplete,
     uploadAvatar,
+    uploadCoverPhoto,
     invalidate,
   }
 }

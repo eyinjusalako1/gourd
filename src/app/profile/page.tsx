@@ -13,7 +13,7 @@ import ProfileEditModal from '@/components/ProfileEditModal'
 export default function ProfilePage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
-  const { profile, uploadAvatar, updateProfile } = useUserProfile()
+  const { profile, uploadAvatar, uploadCoverPhoto, updateProfile } = useUserProfile()
   const toast = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -114,6 +114,22 @@ export default function ProfilePage() {
         }
       }
 
+      // If cover photo is a data URL (base64), we need to upload it first
+      let coverImageUrl = profileData.coverImageUrl
+      if (coverImageUrl && coverImageUrl.startsWith('data:image')) {
+        // Convert data URL to blob and upload
+        try {
+          const response = await fetch(coverImageUrl)
+          const blob = await response.blob()
+          const file = new File([blob], 'cover.jpg', { type: blob.type })
+          coverImageUrl = await uploadCoverPhoto(file)
+        } catch (uploadError: any) {
+          console.error('Error uploading cover photo:', uploadError)
+          // Continue without cover photo if upload fails
+          coverImageUrl = profile?.cover_image_url || null
+        }
+      }
+
       // Update profile fields
       await updateProfile({
         name: profileData.name || null,
@@ -122,6 +138,7 @@ export default function ProfilePage() {
         interests: profileData.interests && profileData.interests.length > 0 ? profileData.interests : null,
         availability: profileData.availability && profileData.availability.length > 0 ? profileData.availability : null,
         avatar_url: avatarUrl || null,
+        cover_image_url: coverImageUrl || null,
       })
 
       // Update user metadata (denomination, name) in auth.users
@@ -170,7 +187,7 @@ export default function ProfilePage() {
     interests: profile?.interests || [],
     availability: profile?.availability || [],
     avatarUrl: profile?.avatar_url || '',
-    coverImageUrl: '', // Not currently stored
+    coverImageUrl: profile?.cover_image_url || '',
   }
 
   return (

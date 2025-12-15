@@ -12,6 +12,7 @@ export type UserProfile = {
   email?: string | null
   name?: string | null
   avatar_url?: string | null
+  cover_image_url?: string | null
   bio?: string | null
   city?: string | null
   role?: Role | string | null

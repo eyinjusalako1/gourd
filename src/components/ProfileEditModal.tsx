@@ -199,12 +199,19 @@ export default function ProfileEditModal({
             onChange={(event) => {
               const file = event.target.files?.[0]
               if (!file) return
+              
+              // Use setTimeout to avoid React error #423 (updating component during render)
               const reader = new FileReader()
               reader.onload = () => {
-                setFormData(prev => ({
-                  ...prev,
-                  avatarUrl: typeof reader.result === 'string' ? reader.result : prev.avatarUrl
-                }))
+                setTimeout(() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    avatarUrl: typeof reader.result === 'string' ? reader.result : prev.avatarUrl
+                  }))
+                }, 0)
+              }
+              reader.onerror = () => {
+                console.error('Error reading avatar file')
               }
               reader.readAsDataURL(file)
             }}
@@ -244,12 +251,19 @@ export default function ProfileEditModal({
             onChange={(event) => {
               const file = event.target.files?.[0]
               if (!file) return
+              
+              // Use setTimeout to avoid React error #423 (updating component during render)
               const reader = new FileReader()
               reader.onload = () => {
-                setFormData(prev => ({
-                  ...prev,
-                  coverImageUrl: typeof reader.result === 'string' ? reader.result : prev.coverImageUrl
-                }))
+                setTimeout(() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    coverImageUrl: typeof reader.result === 'string' ? reader.result : prev.coverImageUrl
+                  }))
+                }, 0)
+              }
+              reader.onerror = () => {
+                console.error('Error reading cover photo file')
               }
               reader.readAsDataURL(file)
             }}

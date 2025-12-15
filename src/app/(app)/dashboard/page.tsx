@@ -17,6 +17,8 @@ interface UserProfile {
   social_style: string | null;
   preferred_group_size: string | null;
   availability_summary: string | null;
+  city?: string | null;
+  avatar_url?: string | null;
   profile_complete?: boolean;
 }
 
@@ -31,6 +33,8 @@ export default function DashboardPage() {
   const [hostedEvents, setHostedEvents] = useState<Event[]>([]);
   const [joinedEvents, setJoinedEvents] = useState<Event[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
+  const [recommendedEvents, setRecommendedEvents] = useState<Event[]>([]);
+  const [recommendedLoading, setRecommendedLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) {
@@ -110,6 +114,23 @@ export default function DashboardPage() {
     };
   };
 
+  // Load recommended upcoming events (simple v1)
+  useEffect(() => {
+    const loadRecommendedEvents = async () => {
+      setRecommendedLoading(true);
+      try {
+        const events = await EventService.getUpcomingEvents(undefined, 5);
+        setRecommendedEvents(events);
+      } catch (err) {
+        console.error("Error loading recommended events:", err);
+      } finally {
+        setRecommendedLoading(false);
+      }
+    };
+
+    loadRecommendedEvents();
+  }, []);
+
   const handleGoToDiscover = () => {
     router.push("/discovery");
   };
@@ -122,113 +143,200 @@ export default function DashboardPage() {
     router.push("/profile");
   };
 
+  const getFirstName = () => {
+    const displayName = profile?.display_name || user?.user_metadata?.name || "";
+    if (!displayName) return "";
+    return String(displayName).split(" ")[0];
+  };
+
+  const getAvatarInitial = () => {
+    const source =
+      profile?.display_name ||
+      user?.user_metadata?.name ||
+      (user?.email as string | undefined) ||
+      "";
+    if (!source) return "U";
+    return String(source).charAt(0).toUpperCase();
+  };
+
+  const firstName = getFirstName();
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex justify-center py-10">
-      <div className="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-lg">
-        <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
-              Welcome to Gathered
-            </p>
-            <h1 className="text-2xl font-semibold">
-              {profile?.display_name
-                ? `Hey, ${profile.display_name} 👋`
-                : "Hey, welcome 👋"}
-            </h1>
-            <p className="text-sm text-slate-400">
-              Your profile is set. Let&apos;s help you find your people and plan your next hangout.
-            </p>
+    <main className="min-h-screen bg-slate-950 text-slate-50 flex justify-center py-8 px-4">
+      <div className="w-full max-w-5xl space-y-6">
+        {/* Hero welcome section */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-900 to-emerald-700 border border-slate-800 shadow-2xl px-5 py-6 md:px-8 md:py-7">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute -top-24 -right-10 w-52 h-52 bg-emerald-400/20 blur-3xl rounded-full" />
+            <div className="absolute -bottom-20 -left-10 w-52 h-52 bg-indigo-500/15 blur-3xl rounded-full" />
           </div>
-        </header>
+
+          <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.2em] text-emerald-200/80">
+                Welcome to Gathered
+              </p>
+              <h1 className="text-2xl md:text-3xl font-semibold">
+                {firstName ? `Hey, ${firstName} 👋` : "Hey, welcome 👋"}
+              </h1>
+              <p className="text-sm md:text-base text-slate-100/80 max-w-xl">
+                Your profile is set. Let&apos;s help you find your people and plan your
+                next hangout.
+              </p>
+            </div>
+
+            <div className="mt-2 md:mt-0 flex-shrink-0">
+              <div className="rounded-2xl bg-slate-950/40 border border-emerald-300/30 px-4 py-3 backdrop-blur-md min-w-[190px]">
+                <p className="text-[11px] uppercase tracking-wide text-emerald-200/80 mb-1">
+                  Your activity
+                </p>
+                {eventsLoading ? (
+                  <p className="text-xs text-slate-200/80">Loading stats…</p>
+                ) : hostedEvents.length > 0 || joinedEvents.length > 0 ? (
+                  <div className="flex items-center gap-4 text-xs text-slate-50">
+                    <div>
+                      <p className="font-semibold">{hostedEvents.length}</p>
+                      <p className="text-[11px] text-slate-200/80">
+                        Events hosted
+                      </p>
+                    </div>
+                    <div className="h-8 w-px bg-emerald-300/30" />
+                    <div>
+                      <p className="font-semibold">{joinedEvents.length}</p>
+                      <p className="text-[11px] text-slate-200/80">
+                        Events joined
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-200/80">
+                    You haven&apos;t joined or hosted any events yet. Let&apos;s change
+                    that.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {loading && (
-          <p className="text-sm text-slate-300">Loading your dashboard...</p>
+          <p className="text-sm text-slate-200">Loading your dashboard...</p>
         )}
 
         {error && !loading && (
-          <p className="text-sm text-red-400">
-            {error}
-          </p>
+          <p className="text-sm text-red-400">{error}</p>
         )}
 
+        {/* Profile snapshot + quick actions */}
         {!loading && profile && (
-          <div className="grid gap-6 mt-4 md:grid-cols-[2fr,3fr]">
-            {/* TODO: Replace profile summary with visual card */}
-            {/* Left: profile summary */}
-            <section className="space-y-4">
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                <h2 className="text-sm font-semibold mb-2">Your profile</h2>
-                {profile.short_bio && (
-                  <p className="text-sm text-slate-200 mb-1">
-                    {profile.short_bio}
-                  </p>
-                )}
-                {profile.long_bio && (
-                  <p className="text-xs text-slate-400">
-                    {profile.long_bio}
-                  </p>
-                )}
+          <section className="grid gap-5 md:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
+            {/* Profile snapshot card */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+              <div className="flex items-start gap-4">
+                <div className="relative">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-emerald-400 to-amber-300 flex items-center justify-center text-slate-950 font-semibold text-xl border-4 border-slate-950 shadow-lg">
+                    {getAvatarInitial()}
+                  </div>
+                </div>
 
-                <div className="mt-3 space-y-1">
-                  {profile.tags && profile.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {profile.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-1 rounded-full bg-slate-800 text-xs text-slate-200"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1">
+                    <div>
+                      <h2 className="text-base md:text-lg font-semibold truncate">
+                        {profile.display_name || firstName || "Your profile"}
+                      </h2>
+                      {profile.city && (
+                        <p className="text-xs text-slate-400 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          <span>{profile.city}</span>
+                        </p>
+                      )}
                     </div>
+                    <button
+                      type="button"
+                      onClick={handleEditProfile}
+                      className="inline-flex items-center justify-center rounded-full border border-slate-700 px-3 py-1.5 text-[11px] font-medium text-slate-50 hover:bg-slate-800 transition-colors mt-1 md:mt-0"
+                    >
+                      Edit profile
+                    </button>
+                  </div>
+
+                  {profile.short_bio && (
+                    <p className="text-xs text-slate-200 mt-1 line-clamp-2">
+                      {profile.short_bio}
+                    </p>
                   )}
-                  <p className="text-xs text-slate-400">
-                    <span className="font-medium text-slate-300">Social style:</span>{" "}
+                  {profile.long_bio && !profile.short_bio && (
+                    <p className="text-xs text-slate-200 mt-1 line-clamp-2">
+                      {profile.long_bio}
+                    </p>
+                  )}
+
+                  <p className="mt-2 text-[11px] text-slate-400">
+                    The better your profile, the easier it is to find your people.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 text-[11px] text-slate-300 md:grid-cols-3">
+                <div className="rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2">
+                  <p className="text-slate-400">Social style</p>
+                  <p className="font-medium text-slate-100 mt-0.5">
                     {profile.social_style || "Not set"}
                   </p>
-                  <p className="text-xs text-slate-400">
-                    <span className="font-medium text-slate-300">Group size:</span>{" "}
+                </div>
+                <div className="rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2">
+                  <p className="text-slate-400">Group size</p>
+                  <p className="font-medium text-slate-100 mt-0.5">
                     {profile.preferred_group_size || "Not set"}
                   </p>
-                  <p className="text-xs text-slate-400">
-                    <span className="font-medium text-slate-300">Availability:</span>{" "}
+                </div>
+                <div className="rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2">
+                  <p className="text-slate-400">Availability</p>
+                  <p className="font-medium text-slate-100 mt-0.5 truncate">
                     {profile.availability_summary || "Not set"}
                   </p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleEditProfile}
-                  className="mt-4 text-xs px-3 py-2 rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-800"
-                >
-                  Edit profile
-                </button>
               </div>
-            </section>
 
-            {/* TODO: Replace this card with new Hero section */}
-            {/* TODO: Add quick actions section with icons */}
-            {/* Right: next actions */}
-            <section className="space-y-4">
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                <h2 className="text-sm font-semibold mb-2">
+              {profile.tags && profile.tags.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-[11px] text-slate-400 mb-1">Interests</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {profile.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-[11px] text-emerald-200 border border-emerald-400/40"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Quick actions card */}
+            <div className="space-y-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                <h2 className="text-sm font-semibold mb-1">
                   Start with one of these
                 </h2>
-                <p className="text-xs text-slate-400 mb-3">
-                  Think of this as your first mission. We&apos;ll keep it light.
+                <p className="text-xs text-slate-400 mb-4">
+                  Think of these as your first missions. We&apos;ll keep it light.
                 </p>
 
                 <div className="space-y-3">
                   <button
                     type="button"
                     onClick={handleGoToDiscover}
-                    className="w-full text-left px-3 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/60 hover:bg-emerald-500/20"
+                    className="w-full text-left px-4 py-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-400/60 hover:bg-emerald-500/25 transition-colors shadow-sm"
                   >
-                    <p className="text-sm font-medium text-emerald-300">
+                    <p className="text-sm font-semibold text-emerald-200 mb-0.5">
                       🔍 Find your people
                     </p>
-                    <p className="text-xs text-slate-200">
-                      Use Discovery Assistant to search for people, groups, and events that match your vibe.
+                    <p className="text-xs text-emerald-50/90">
+                      Use Discovery Assistant to find events and people that match your vibe.
                     </p>
                   </button>
 
@@ -236,27 +344,28 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={handleGoToHost}
-                      className="w-full text-left px-3 py-3 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800"
+                      className="w-full text-left px-4 py-3.5 rounded-2xl bg-slate-950 border border-amber-300/60 hover:bg-slate-900 transition-colors shadow-sm"
                     >
-                      <p className="text-sm font-medium text-slate-100">
+                      <p className="text-sm font-semibold text-amber-200 mb-0.5">
                         📅 Host your first hangout
                       </p>
-                      <p className="text-xs text-slate-300">
-                        Create an event and invite others to join you.
+                      <p className="text-xs text-amber-50/90">
+                        Use Activity Planner to turn an idea into a real event.
                       </p>
                     </button>
                   )}
                 </div>
               </div>
 
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                <h2 className="text-sm font-semibold mb-2">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-[11px] text-slate-300">
+                <p className="font-semibold text-slate-100 mb-1">
                   What we know about you so far
-                </h2>
-                <p className="text-xs text-slate-300 mb-2">
-                  We&apos;ll use this to recommend better people and activities as Gathered grows:
                 </p>
-                <ul className="text-xs text-slate-400 list-disc list-inside space-y-1">
+                <p className="mb-2 text-slate-400">
+                  We&apos;ll use this to recommend better people and activities as
+                  Gathered grows:
+                </p>
+                <ul className="list-disc list-inside space-y-1">
                   {profile.tags && profile.tags.length > 0 && (
                     <li>You&apos;re into: {profile.tags.join(", ")}</li>
                   )}
@@ -269,36 +378,71 @@ export default function DashboardPage() {
                   {profile.availability_summary && (
                     <li>Best times to meet: {profile.availability_summary}</li>
                   )}
+                  {!profile.tags?.length &&
+                    !profile.social_style &&
+                    !profile.preferred_group_size &&
+                    !profile.availability_summary && (
+                      <li>We&apos;ll learn more as you update your profile.</li>
+                    )}
                 </ul>
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
         )}
 
-        {/* TODO: Add trending suggestions section */}
-        {/* My Events Section */}
+        {/* My events section */}
         {!loading && user && (
-          <section className="mt-8 space-y-6">
-            <h2 className="text-lg font-semibold">My Events</h2>
+          <section className="mt-2 space-y-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base md:text-lg font-semibold">My events</h2>
+            </div>
 
-            {/* Events You're Hosting */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-              <h3 className="text-sm font-semibold mb-3">Events You&apos;re Hosting</h3>
+            {/* Events you’re hosting */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-sm font-semibold">
+                    Events you&apos;re hosting
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Invite others into what you&apos;re building.
+                  </p>
+                </div>
+                {isSteward && (
+                  <button
+                    type="button"
+                    onClick={handleGoToHost}
+                    className="hidden md:inline-flex items-center rounded-full border border-slate-700 px-3 py-1.5 text-[11px] text-slate-50 hover:bg-slate-800"
+                  >
+                    Host event
+                  </button>
+                )}
+              </div>
+
               {eventsLoading ? (
                 <p className="text-xs text-slate-400">Loading...</p>
               ) : hostedEvents.length === 0 ? (
-                <p className="text-xs text-slate-400">
-                  You haven&apos;t hosted any events yet.
-                </p>
+                <div className="text-xs text-slate-400">
+                  <p>You&apos;re not hosting any events yet.</p>
+                  {isSteward && (
+                    <button
+                      type="button"
+                      onClick={handleGoToHost}
+                      className="mt-3 inline-flex items-center rounded-full bg-emerald-500 text-slate-950 px-3 py-1.5 text-[11px] font-semibold hover:bg-emerald-400"
+                    >
+                      Host an event
+                    </button>
+                  )}
+                </div>
               ) : (
-                <div className="space-y-2">
+                <div className="grid gap-3 md:grid-cols-2">
                   {hostedEvents.slice(0, 3).map((event) => {
                     const { date, time } = formatEventDate(event.start_time);
                     return (
                       <button
                         key={event.id}
                         onClick={() => router.push(`/events/${event.id}`)}
-                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-lg hover:border-emerald-500/50 transition-colors"
+                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-xl hover:border-emerald-500/50 transition-colors shadow-sm"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -317,14 +461,18 @@ export default function DashboardPage() {
                               {event.location && (
                                 <span className="flex items-center space-x-1">
                                   <MapPin className="w-3 h-3" />
-                                  <span className="truncate">{event.location}</span>
+                                  <span className="truncate">
+                                    {event.location}
+                                  </span>
                                 </span>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2 ml-2">
                             <Users className="w-4 h-4 text-slate-400" />
-                            <span className="text-xs text-slate-400">{event.rsvp_count}</span>
+                            <span className="text-xs text-slate-400">
+                              {event.rsvp_count}
+                            </span>
                           </div>
                         </div>
                       </button>
@@ -342,24 +490,40 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Events You've Joined */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-              <h3 className="text-sm font-semibold mb-3">Events You&apos;ve Joined</h3>
+            {/* Events you’re going to */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold">
+                  Events you&apos;re going to
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  Keep track of where you&apos;re showing up next.
+                </p>
+              </div>
+
               {eventsLoading ? (
                 <p className="text-xs text-slate-400">Loading...</p>
               ) : joinedEvents.length === 0 ? (
                 <p className="text-xs text-slate-400">
-                  You haven&apos;t joined any events yet.
+                  You haven&apos;t joined any events yet. Try{" "}
+                  <button
+                    type="button"
+                    onClick={handleGoToDiscover}
+                    className="underline underline-offset-2 text-emerald-300 hover:text-emerald-200"
+                  >
+                    Find your people
+                  </button>{" "}
+                  above.
                 </p>
               ) : (
-                <div className="space-y-2">
+                <div className="grid gap-3 md:grid-cols-2">
                   {joinedEvents.slice(0, 3).map((event) => {
                     const { date, time } = formatEventDate(event.start_time);
                     return (
                       <button
                         key={event.id}
                         onClick={() => router.push(`/events/${event.id}`)}
-                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-lg hover:border-emerald-500/50 transition-colors"
+                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-xl hover:border-emerald-500/50 transition-colors shadow-sm"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -378,14 +542,18 @@ export default function DashboardPage() {
                               {event.location && (
                                 <span className="flex items-center space-x-1">
                                   <MapPin className="w-3 h-3" />
-                                  <span className="truncate">{event.location}</span>
+                                  <span className="truncate">
+                                    {event.location}
+                                  </span>
                                 </span>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2 ml-2">
                             <Users className="w-4 h-4 text-slate-400" />
-                            <span className="text-xs text-slate-400">{event.rsvp_count}</span>
+                            <span className="text-xs text-slate-400">
+                              {event.rsvp_count}
+                            </span>
                           </div>
                         </div>
                       </button>
@@ -404,6 +572,64 @@ export default function DashboardPage() {
             </div>
           </section>
         )}
+
+        {/* Recommended for you */}
+        <section className="space-y-3 pb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base md:text-lg font-semibold">
+              Recommended for you
+            </h2>
+            {/* TODO: Surface filters (interests, location) once available */}
+          </div>
+
+          {recommendedLoading ? (
+            <p className="text-xs text-slate-400">Loading recommendations…</p>
+          ) : recommendedEvents.length === 0 ? (
+            <p className="text-xs text-slate-400">
+              No upcoming events yet. As people start hosting, we&apos;ll show
+              them here.
+            </p>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-3">
+              {recommendedEvents.map((event) => {
+                const { date, time } = formatEventDate(event.start_time);
+                return (
+                  <button
+                    key={event.id}
+                    onClick={() => router.push(`/events/${event.id}`)}
+                    className="text-left bg-slate-900 border border-slate-800 rounded-2xl p-4 hover:border-emerald-400/60 hover:bg-slate-900/80 transition-colors shadow-sm"
+                  >
+                    <p className="text-sm font-semibold text-slate-50 line-clamp-2">
+                      {event.title}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-400 line-clamp-2">
+                      {event.description}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-300">
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>{date}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{time}</span>
+                      </span>
+                      {event.location && (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          <span className="truncate max-w-[100px]">
+                            {event.location}
+                          </span>
+                        </span>
+                      )}
+                    </div>
+                    {/* TODO: Filter recommendations by user interests & location */}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
     </main>
   );

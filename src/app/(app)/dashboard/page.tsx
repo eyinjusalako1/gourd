@@ -161,19 +161,30 @@ export default function DashboardPage() {
 
   const firstName = getFirstName();
 
+  const hasProfileSignals =
+    !!(
+      profile &&
+      (profile.social_style ||
+        profile.preferred_group_size ||
+        profile.availability_summary ||
+        (profile.tags && profile.tags.length > 0))
+    );
+
+  const showCompleteVibe = !hasProfileSignals;
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex justify-center py-8 px-4">
+    <main className="min-h-screen bg-navy-900 text-slate-50 flex justify-center py-8 px-4">
       <div className="w-full max-w-5xl space-y-6">
         {/* Hero welcome section */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-900 to-emerald-700 border border-slate-800 shadow-2xl px-5 py-6 md:px-8 md:py-7">
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-navy-900 via-navy-800 to-purple-900 border border-gold-600/20 hover:border-gold-500/40 shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-colors px-5 py-6 md:px-8 md:py-7">
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-24 -right-10 w-52 h-52 bg-emerald-400/20 blur-3xl rounded-full" />
+            <div className="absolute -top-24 -right-10 w-52 h-52 bg-gold-500/15 blur-3xl rounded-full" />
             <div className="absolute -bottom-20 -left-10 w-52 h-52 bg-indigo-500/15 blur-3xl rounded-full" />
           </div>
 
           <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.2em] text-emerald-200/80">
+              <p className="text-xs uppercase tracking-[0.2em] text-gold-500">
                 Welcome to Gathered
               </p>
               <h1 className="text-2xl md:text-3xl font-semibold">
@@ -186,8 +197,8 @@ export default function DashboardPage() {
             </div>
 
             <div className="mt-2 md:mt-0 flex-shrink-0">
-              <div className="rounded-2xl bg-slate-950/40 border border-emerald-300/30 px-4 py-3 backdrop-blur-md min-w-[190px]">
-                <p className="text-[11px] uppercase tracking-wide text-emerald-200/80 mb-1">
+              <div className="rounded-2xl bg-navy-900/40 border border-gold-600/20 px-4 py-3 backdrop-blur-md min-w-[190px]">
+                <p className="text-[11px] uppercase tracking-wide text-gold-500 mb-1">
                   Your activity
                 </p>
                 {eventsLoading ? (
@@ -200,7 +211,7 @@ export default function DashboardPage() {
                         Events hosted
                       </p>
                     </div>
-                    <div className="h-8 w-px bg-emerald-300/30" />
+                    <div className="h-8 w-px bg-gold-600/35" />
                     <div>
                       <p className="font-semibold">{joinedEvents.length}</p>
                       <p className="text-[11px] text-slate-200/80">
@@ -231,10 +242,10 @@ export default function DashboardPage() {
         {!loading && profile && (
           <section className="grid gap-5 md:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
             {/* Profile snapshot card */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+            <div className="bg-navy-900/40 border border-white/10 rounded-2xl p-5 shadow-lg hover:border-gold-500/30 hover:shadow-[0_0_25px_rgba(245,196,81,0.35)] transition-colors">
               <div className="flex items-start gap-4">
                 <div className="relative">
-                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-emerald-400 to-amber-300 flex items-center justify-center text-slate-950 font-semibold text-xl border-4 border-slate-950 shadow-lg">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center text-navy-900 font-semibold text-xl border-4 border-navy-900 shadow-lg">
                     {getAvatarInitial()}
                   </div>
                 </div>
@@ -255,7 +266,7 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={handleEditProfile}
-                      className="inline-flex items-center justify-center rounded-full border border-slate-700 px-3 py-1.5 text-[11px] font-medium text-slate-50 hover:bg-slate-800 transition-colors mt-1 md:mt-0"
+                      className="inline-flex items-center justify-center rounded-full border border-gold-600/40 px-3 py-1.5 text-[11px] font-medium text-gold-500 hover:bg-gold-500/10 transition-colors mt-1 md:mt-0"
                     >
                       Edit profile
                     </button>
@@ -279,19 +290,19 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-4 grid gap-3 text-[11px] text-slate-300 md:grid-cols-3">
-                <div className="rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2">
+                <div className="rounded-xl bg-navy-900/60 border border-white/10 px-3 py-2">
                   <p className="text-slate-400">Social style</p>
                   <p className="font-medium text-slate-100 mt-0.5">
                     {profile.social_style || "Not set"}
                   </p>
                 </div>
-                <div className="rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2">
+                <div className="rounded-xl bg-navy-900/60 border border-white/10 px-3 py-2">
                   <p className="text-slate-400">Group size</p>
                   <p className="font-medium text-slate-100 mt-0.5">
                     {profile.preferred_group_size || "Not set"}
                   </p>
                 </div>
-                <div className="rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2">
+                <div className="rounded-xl bg-navy-900/60 border border-white/10 px-3 py-2">
                   <p className="text-slate-400">Availability</p>
                   <p className="font-medium text-slate-100 mt-0.5 truncate">
                     {profile.availability_summary || "Not set"}
@@ -306,7 +317,7 @@ export default function DashboardPage() {
                     {profile.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-[11px] text-emerald-200 border border-emerald-400/40"
+                        className="px-2.5 py-1 rounded-full bg-gold-500/10 text-[11px] text-gold-500 border border-gold-500/40"
                       >
                         {tag}
                       </span>
@@ -318,7 +329,7 @@ export default function DashboardPage() {
 
             {/* Quick actions card */}
             <div className="space-y-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+              <div className="bg-navy-900/40 border border-white/10 rounded-2xl p-5 shadow-lg hover:border-gold-500/30 hover:shadow-[0_0_25px_rgba(245,196,81,0.35)] transition-colors">
                 <h2 className="text-sm font-semibold mb-1">
                   Start with one of these
                 </h2>
@@ -330,12 +341,12 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={handleGoToDiscover}
-                    className="w-full text-left px-4 py-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-400/60 hover:bg-emerald-500/25 transition-colors shadow-sm"
+                    className="w-full text-left px-4 py-3.5 rounded-2xl bg-gold-500 text-navy-900 hover:bg-gold-600 transition-colors shadow-sm font-semibold"
                   >
-                    <p className="text-sm font-semibold text-emerald-200 mb-0.5">
+                    <p className="text-sm mb-0.5">
                       🔍 Find your people
                     </p>
-                    <p className="text-xs text-emerald-50/90">
+                    <p className="text-xs text-navy-900/80">
                       Use Discovery Assistant to find events and people that match your vibe.
                     </p>
                   </button>
@@ -344,12 +355,12 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={handleGoToHost}
-                      className="w-full text-left px-4 py-3.5 rounded-2xl bg-slate-950 border border-amber-300/60 hover:bg-slate-900 transition-colors shadow-sm"
+                      className="w-full text-left px-4 py-3.5 rounded-2xl bg-gold-500 text-navy-900 hover:bg-gold-600 transition-colors shadow-sm font-semibold"
                     >
-                      <p className="text-sm font-semibold text-amber-200 mb-0.5">
+                      <p className="text-sm mb-0.5">
                         📅 Host your first hangout
                       </p>
-                      <p className="text-xs text-amber-50/90">
+                      <p className="text-xs text-navy-900/80">
                         Use Activity Planner to turn an idea into a real event.
                       </p>
                     </button>
@@ -357,34 +368,74 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-[11px] text-slate-300">
-                <p className="font-semibold text-slate-100 mb-1">
-                  What we know about you so far
-                </p>
-                <p className="mb-2 text-slate-400">
-                  We&apos;ll use this to recommend better people and activities as
-                  Gathered grows:
-                </p>
-                <ul className="list-disc list-inside space-y-1">
-                  {profile.tags && profile.tags.length > 0 && (
-                    <li>You&apos;re into: {profile.tags.join(", ")}</li>
-                  )}
-                  {profile.social_style && (
-                    <li>Your social energy: {profile.social_style}</li>
-                  )}
-                  {profile.preferred_group_size && (
-                    <li>Preferred hangout size: {profile.preferred_group_size}</li>
-                  )}
-                  {profile.availability_summary && (
-                    <li>Best times to meet: {profile.availability_summary}</li>
-                  )}
-                  {!profile.tags?.length &&
-                    !profile.social_style &&
-                    !profile.preferred_group_size &&
-                    !profile.availability_summary && (
-                      <li>We&apos;ll learn more as you update your profile.</li>
+              <div className="bg-navy-900/40 border border-white/10 rounded-2xl p-4 text-[11px] text-slate-300 hover:border-gold-500/30 hover:shadow-[0_0_20px_rgba(245,196,81,0.25)] transition-colors">
+                {showCompleteVibe ? (
+                  <>
+                    <p className="font-semibold text-slate-100 mb-1">
+                      Complete your vibe
+                    </p>
+                    <p className="mb-2 text-slate-400">
+                      Finish these details to get better recommendations.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleEditProfile}
+                      className="mt-2 inline-flex items-center rounded-full border border-gold-600/40 px-3 py-1.5 text-[11px] font-medium text-gold-500 hover:bg-gold-500/10 transition-colors"
+                    >
+                      Finish profile
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold text-slate-100 mb-1">
+                      Recommended for you
+                    </p>
+                    <p className="mb-2 text-slate-400">
+                      A few things that might fit your rhythm.
+                    </p>
+                    {recommendedLoading ? (
+                      <p className="text-slate-400">Loading suggestions…</p>
+                    ) : recommendedEvents.length === 0 ? (
+                      <p className="text-slate-400">
+                        As events appear, we&apos;ll surface the best ones for you
+                        here.
+                      </p>
+                    ) : (
+                      <ul className="space-y-1.5">
+                        {recommendedEvents.slice(0, 2).map((event) => {
+                          const { date, time } = formatEventDate(
+                            event.start_time
+                          );
+                          return (
+                            <li key={event.id}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  router.push(`/events/${event.id}`)
+                                }
+                                className="w-full text-left rounded-xl bg-navy-900/60 border border-white/10 px-3 py-2 hover:border-gold-500/40 hover:bg-navy-900/80 transition-colors"
+                              >
+                                <p className="text-[11px] font-semibold text-slate-50 line-clamp-1">
+                                  {event.title}
+                                </p>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-slate-300">
+                                  <span className="inline-flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>{date}</span>
+                                  </span>
+                                  <span className="inline-flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    <span>{time}</span>
+                                  </span>
+                                </div>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
                     )}
-                </ul>
+                  </>
+                )}
               </div>
             </div>
           </section>
@@ -398,7 +449,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Events you’re hosting */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5">
+            <div className="bg-navy-900/40 border border-white/10 rounded-2xl p-4 md:p-5 hover:border-gold-500/30 hover:shadow-[0_0_25px_rgba(245,196,81,0.35)] transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-sm font-semibold">
@@ -428,7 +479,7 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={handleGoToHost}
-                      className="mt-3 inline-flex items-center rounded-full bg-emerald-500 text-slate-950 px-3 py-1.5 text-[11px] font-semibold hover:bg-emerald-400"
+                      className="mt-3 inline-flex items-center rounded-full bg-gold-500 text-navy-900 px-3 py-1.5 text-[11px] font-semibold hover:bg-gold-600"
                     >
                       Host an event
                     </button>
@@ -442,7 +493,7 @@ export default function DashboardPage() {
                       <button
                         key={event.id}
                         onClick={() => router.push(`/events/${event.id}`)}
-                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-xl hover:border-emerald-500/50 transition-colors shadow-sm"
+                        className="w-full text-left p-3 bg-navy-900/60 border border-white/10 rounded-xl hover:border-gold-500/40 transition-colors shadow-sm"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -491,7 +542,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Events you’re going to */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5">
+            <div className="bg-navy-900/40 border border-white/10 rounded-2xl p-4 md:p-5 hover:border-gold-500/30 hover:shadow-[0_0_25px_rgba(245,196,81,0.35)] transition-colors">
               <div className="mb-3">
                 <h3 className="text-sm font-semibold">
                   Events you&apos;re going to
@@ -509,7 +560,7 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={handleGoToDiscover}
-                    className="underline underline-offset-2 text-emerald-300 hover:text-emerald-200"
+                    className="underline underline-offset-2 text-gold-500 hover:text-gold-600"
                   >
                     Find your people
                   </button>{" "}
@@ -523,7 +574,7 @@ export default function DashboardPage() {
                       <button
                         key={event.id}
                         onClick={() => router.push(`/events/${event.id}`)}
-                        className="w-full text-left p-3 bg-slate-950 border border-slate-800 rounded-xl hover:border-emerald-500/50 transition-colors shadow-sm"
+                        className="w-full text-left p-3 bg-navy-900/60 border border-white/10 rounded-xl hover:border-gold-500/40 transition-colors shadow-sm"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -562,7 +613,7 @@ export default function DashboardPage() {
                   {joinedEvents.length > 3 && (
                     <button
                       onClick={() => router.push("/events")}
-                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                      className="text-xs text-gold-500 hover:text-gold-600"
                     >
                       View all {joinedEvents.length} joined events →
                     </button>
@@ -597,7 +648,7 @@ export default function DashboardPage() {
                   <button
                     key={event.id}
                     onClick={() => router.push(`/events/${event.id}`)}
-                    className="text-left bg-slate-900 border border-slate-800 rounded-2xl p-4 hover:border-emerald-400/60 hover:bg-slate-900/80 transition-colors shadow-sm"
+                    className="text-left bg-navy-900/40 border border-white/10 rounded-2xl p-4 hover:border-gold-500/30 hover:bg-navy-900/70 transition-colors shadow-sm"
                   >
                     <p className="text-sm font-semibold text-slate-50 line-clamp-2">
                       {event.title}

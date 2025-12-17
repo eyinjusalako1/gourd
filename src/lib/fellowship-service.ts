@@ -241,6 +241,33 @@ export class FellowshipService {
     return !error && !!data
   }
 
+  // Get user's membership for a specific group (returns membership or null)
+  static async getUserMembershipForGroup(userId: string, groupId: string): Promise<GroupMembership | null> {
+    const { data, error } = await supabase
+      .from('group_memberships')
+      .select('*')
+      .eq('group_id', groupId)
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single()
+
+    if (error) {
+      // If no membership found, return null (not an error)
+      if (error.code === 'PGRST116') {
+        return null
+      }
+      throw error
+    }
+
+    return data || null
+  }
+
+  // Check if user is member of group (alias for consistency)
+  static async isUserMemberOfGroup(userId: string, groupId: string): Promise<boolean> {
+    const membership = await this.getUserMembershipForGroup(userId, groupId)
+    return membership !== null
+  }
+
   // Check if user is admin of group
   static async isAdmin(groupId: string, userId: string): Promise<boolean> {
     const { data, error } = await supabase

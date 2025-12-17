@@ -81,10 +81,22 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
       setGroup(groupData)
       setMemberships(membershipsData || [])
 
+      // Check membership status directly using dedicated method
       if (user) {
-        const userMembership = membershipsData?.find(m => m.user_id === user.id)
-        setIsMember(!!userMembership)
-        setIsAdmin(userMembership?.role === 'admin')
+        try {
+          const userMembership = await FellowshipService.getUserMembershipForGroup(user.id, groupId)
+          setIsMember(!!userMembership)
+          setIsAdmin(userMembership?.role === 'admin')
+        } catch (error) {
+          console.error('Error checking membership:', error)
+          // Fallback to checking memberships list
+          const userMembership = membershipsData?.find(m => m.user_id === user.id)
+          setIsMember(!!userMembership)
+          setIsAdmin(userMembership?.role === 'admin')
+        }
+      } else {
+        setIsMember(false)
+        setIsAdmin(false)
       }
     } catch (error: any) {
       console.error('Error loading group:', error)
@@ -139,7 +151,17 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
           description: 'You have successfully joined this fellowship group',
           variant: 'success',
         })
-        await loadGroupData()
+        // Immediately check membership status
+        try {
+          const userMembership = await FellowshipService.getUserMembershipForGroup(user.id, groupId)
+          setIsMember(!!userMembership)
+          setIsAdmin(userMembership?.role === 'admin')
+          // Refresh group data to update member count
+          await loadGroupData()
+        } catch (membershipError) {
+          // If membership check fails, still reload all data
+          await loadGroupData()
+        }
       }
     } catch (error: any) {
       console.error('Error joining group:', error)
@@ -165,11 +187,11 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
         variant: 'success',
       })
       setShowLeaveConfirm(false)
-      await loadGroupData()
+      // Update state immediately
+      setIsMember(false)
+      setIsAdmin(false)
       // Redirect to groups list after leaving
-      setTimeout(() => {
-        router.push('/fellowship')
-      }, 1000)
+      router.push('/fellowship')
     } catch (error: any) {
       console.error('Error leaving group:', error)
       toast({

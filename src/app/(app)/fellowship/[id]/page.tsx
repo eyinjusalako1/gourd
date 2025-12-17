@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
-import AppHeader from '@/components/AppHeader'
 import { FellowshipService } from '@/lib/fellowship-service'
-import { FellowshipGroup, GroupMembership } from '@/types'
+import { EventService } from '@/lib/event-service'
+import { FellowshipGroup, GroupMembership, Event } from '@/types'
+import { getGradientFromName } from '@/utils/gradient'
 import { 
   Users, 
   MapPin, 
@@ -16,35 +18,61 @@ import {
   MessageCircle,
   Settings,
   UserPlus,
-  BookOpen,
-  Sparkles,
-  Heart
+  LogOut,
+  ArrowRight,
+  Clock,
+  Plus
 } from 'lucide-react'
 
-export default function FellowshipDetailPage({ params }: { params: { id: string } }) {
+export default function FellowshipDetailPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const { user } = useAuth()
   const router = useRouter()
+  const { isSteward } = useUserProfile()
   const toast = useToast()
   const [group, setGroup] = useState<FellowshipGroup | null>(null)
   const [memberships, setMemberships] = useState<GroupMembership[]>([])
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([])
+  const [eventsLoading, setEventsLoading] = useState(true)
   const [isMember, setIsMember] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [joining, setJoining] = useState(false)
+  const [leaving, setLeaving] = useState(false)
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
+  const [groupId, setGroupId] = useState<string>('')
+
+  // Resolve params (handle both Promise and direct params for Next.js 14/15 compatibility)
+  useEffect(() => {
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = params instanceof Promise ? await params : params
+        const id = resolvedParams?.id || ''
+        setGroupId(id)
+      } catch (error) {
+        console.error('Error resolving params:', error)
+      }
+    }
+    resolveParams()
+  }, [params])
 
   useEffect(() => {
-    loadGroupData()
+    if (groupId) {
+      loadGroupData()
+      loadUpcomingEvents()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id, user])
+  }, [groupId, user])
 
   const loadGroupData = async () => {
+    if (!groupId) return
     try {
-      const groupData = await FellowshipService.getGroup(params.id)
+      setLoading(true)
+      const groupData = await FellowshipService.getGroup(groupId)
       let membershipsData: GroupMembership[] = []
       
       if (groupData) {
         try {
-          membershipsData = await FellowshipService.getGroupMembers(params.id)
+          membershipsData = await FellowshipService.getGroupMembers(groupId)
         } catch (error) {
           console.error('Error loading members:', error)
         }
@@ -70,20 +98,42 @@ export default function FellowshipDetailPage({ params }: { params: { id: string 
     }
   }
 
+  const loadUpcomingEvents = async () => {
+    if (!groupId) return
+    try {
+      setEventsLoading(true)
+      // TODO: Filter events by group_id when group_id linkage is fully implemented
+      // For now, try to fetch events for this group
+      const events = await EventService.getEvents(user?.id, groupId)
+      const now = new Date().toISOString()
+      const upcoming = events
+        .filter(event => event.start_time >= now)
+        .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+        .slice(0, 5)
+      setUpcomingEvents(upcoming)
+    } catch (error) {
+      console.error('Error loading upcoming events:', error)
+      // Graceful fallback - show empty state
+      setUpcomingEvents([])
+    } finally {
+      setEventsLoading(false)
+    }
+  }
+
   const handleJoin = async () => {
     if (!user || !group) return
 
     setJoining(true)
     try {
       if (group.is_private) {
-        await FellowshipService.requestToJoinGroup(params.id, user.id)
+        await FellowshipService.requestToJoinGroup(groupId, user.id)
         toast({
           title: 'Join request sent',
           description: 'Your request to join this group has been sent to the group admin',
           variant: 'success',
         })
       } else {
-        await FellowshipService.joinGroup(params.id, user.id)
+        await FellowshipService.joinGroup(groupId, user.id)
         toast({
           title: 'Joined group',
           description: 'You have successfully joined this fellowship group',
@@ -103,114 +153,176 @@ export default function FellowshipDetailPage({ params }: { params: { id: string 
     }
   }
 
-  const getGroupTypeIcon = (type: string) => {
-    switch (type) {
-      case 'bible_study':
-        return <BookOpen className="w-5 h-5" />
-      case 'prayer_group':
-        return <Sparkles className="w-5 h-5" />
-      default:
-        return <Heart className="w-5 h-5" />
+  const handleLeave = async () => {
+    if (!user || !group) return
+
+    setLeaving(true)
+    try {
+      await FellowshipService.leaveGroup(groupId, user.id)
+      toast({
+        title: 'Left group',
+        description: 'You have left this fellowship group',
+        variant: 'success',
+      })
+      setShowLeaveConfirm(false)
+      await loadGroupData()
+      // Redirect to groups list after leaving
+      setTimeout(() => {
+        router.push('/fellowship')
+      }, 1000)
+    } catch (error: any) {
+      console.error('Error leaving group:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to leave group',
+        variant: 'error',
+      })
+    } finally {
+      setLeaving(false)
     }
+  }
+
+  const formatEventDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return {
+      date: date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      time: date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
+    }
+  }
+
+  const getUserInitial = (membership: GroupMembership): string => {
+    const userData = (membership as any).user
+    const name = userData?.user_metadata?.name || userData?.email || 'U'
+    return String(name).charAt(0).toUpperCase()
+  }
+
+  const getUserName = (membership: GroupMembership): string => {
+    const userData = (membership as any).user
+    return userData?.user_metadata?.name || userData?.email || 'Unknown User'
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen bg-navy-900 text-slate-50 flex items-center justify-center py-8 px-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading group...</p>
+          <p className="mt-4 text-slate-300">Loading group...</p>
         </div>
-      </div>
+      </main>
     )
   }
 
   if (!group) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen bg-navy-900 text-slate-50 flex items-center justify-center py-8 px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Group Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">The group you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-          <button onClick={() => router.push('/fellowship')} className="btn-primary">
+          <h1 className="text-2xl font-bold text-slate-50 mb-4">Group Not Found</h1>
+          <p className="text-slate-400 mb-6">The group you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+          <button 
+            onClick={() => router.push('/fellowship')} 
+            className="inline-flex items-center gap-2 rounded-full bg-gold-500 text-navy-900 px-4 py-2 text-sm font-semibold hover:bg-gold-600 transition-colors"
+          >
             Back to Groups
           </button>
         </div>
-      </div>
+      </main>
     )
   }
 
   return (
-    <>
-      <AppHeader 
-        title={group.name}
-        backHref="/fellowship"
-        rightSlot={
-          isAdmin && (
-            <button
-              onClick={() => router.push(`/fellowships/${group.id}/manage`)}
-              className="p-2 text-white/60 hover:text-white transition-colors"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-          )
-        }
-      />
+    <main className="min-h-screen bg-navy-900 text-slate-50">
+      {/* Hero Header with Gradient Cover */}
+      <div className="relative">
+        <div
+          className="h-48 w-full"
+          style={{ background: getGradientFromName(group.name) }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/80 to-transparent" />
+        
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+          <button
+            onClick={() => router.push('/fellowship')}
+            className="mb-4 text-sm text-slate-300 hover:text-gold-500 transition-colors inline-flex items-center gap-1"
+          >
+            ← Back to groups
+          </button>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Group Header */}
-        <div className="bg-white dark:bg-navy-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-start space-x-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl flex items-center justify-center">
-              {getGroupTypeIcon(group.group_type)}
-            </div>
+          <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-2">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
+              <div className="flex items-center gap-3 mb-3">
+                <h1 className="text-3xl md:text-4xl font-bold text-slate-50">{group.name}</h1>
                 {group.is_private ? (
-                  <Lock className="w-5 h-5 text-gray-400" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-900/60 border border-white/20 rounded-full text-xs text-slate-300">
+                    <Lock className="w-3 h-3" />
+                    <span>Private</span>
+                  </span>
                 ) : (
-                  <Globe className="w-5 h-5 text-gray-400" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-900/60 border border-white/20 rounded-full text-xs text-slate-300">
+                    <Globe className="w-3 h-3" />
+                    <span>Public</span>
+                  </span>
+                )}
+                {isMember && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gold-500/20 border border-gold-500/40 rounded-full text-xs text-gold-500">
+                    <span>Member</span>
+                  </span>
                 )}
               </div>
-              <p className="text-gray-600 dark:text-gray-400">{group.description}</p>
-            </div>
-          </div>
+              
+              <p className="text-slate-200 text-lg mb-4">{group.description}</p>
 
-          {/* Group Info */}
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            {group.location && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <MapPin className="w-4 h-4" />
-                <span>{group.location}</span>
+              {/* Info Chips */}
+              <div className="flex flex-wrap items-center gap-3">
+                {group.location && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-navy-900/60 border border-white/20 rounded-full text-sm text-slate-300">
+                    <MapPin className="w-4 h-4" />
+                    <span>{group.location}</span>
+                  </div>
+                )}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-navy-900/60 border border-white/20 rounded-full text-sm text-slate-300">
+                  <Users className="w-4 h-4" />
+                  <span>{group.member_count || 0} {group.member_count === 1 ? 'member' : 'members'}</span>
+                </div>
+                {group.meeting_schedule && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-navy-900/60 border border-white/20 rounded-full text-sm text-slate-300">
+                    <Calendar className="w-4 h-4" />
+                    <span>{group.meeting_schedule}</span>
+                  </div>
+                )}
               </div>
-            )}
-            {group.meeting_schedule && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <Calendar className="w-4 h-4" />
-                <span>{group.meeting_schedule}</span>
-              </div>
-            )}
-            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <Users className="w-4 h-4" />
-              <span>
-                {group.member_count} member{group.member_count !== 1 ? 's' : ''}
-                {group.max_members && ` / ${group.max_members} max`}
-              </span>
             </div>
+
+            {isAdmin && (
+              <button
+                onClick={() => router.push(`/fellowships/${group.id}/manage`)}
+                className="p-2 text-slate-300 hover:text-gold-500 transition-colors"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Join Button */}
-        {user && !isMember && (
-          <div className="bg-white dark:bg-navy-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {!isMember ? (
             <button
               onClick={handleJoin}
               disabled={joining}
-              className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gold-500 text-navy-900 px-6 py-3 text-sm font-semibold hover:bg-gold-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {joining ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-navy-900"></div>
                   <span>Joining...</span>
                 </>
               ) : (
@@ -220,52 +332,215 @@ export default function FellowshipDetailPage({ params }: { params: { id: string 
                 </>
               )}
             </button>
-          </div>
-        )}
+          ) : (
+            <>
+              <button
+                onClick={() => setShowLeaveConfirm(true)}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 text-slate-300 px-6 py-3 text-sm font-medium hover:bg-white/10 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Leave Group</span>
+              </button>
+              <button
+                onClick={() => router.push(`/chat`)}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-gold-600/40 text-gold-500 px-6 py-3 text-sm font-medium hover:bg-gold-500/10 transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>Go to Chats</span>
+              </button>
+            </>
+          )}
+        </div>
 
-        {/* Members */}
-        {memberships.length > 0 && (
-          <div className="bg-white dark:bg-navy-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Members ({memberships.length})
-            </h2>
-            <div className="space-y-3">
-              {memberships.slice(0, 10).map((membership) => (
-                <div key={membership.id} className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-gold-500 to-gold-600 rounded-full flex items-center justify-center text-white font-semibold">
-                    {(membership as any).user?.user_metadata?.name?.charAt(0) || 'U'}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      {(membership as any).user?.user_metadata?.name || 'Unknown User'}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {membership.role === 'admin' ? 'Admin' : 'Member'}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {memberships.length > 10 && (
-                <div className="text-sm text-gray-600 dark:text-gray-400 text-center pt-2">
-                  +{memberships.length - 10} more members
-                </div>
-              )}
+        {/* Leave Confirmation Modal */}
+        {showLeaveConfirm && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-navy-900 border border-white/10 rounded-2xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-semibold text-slate-50 mb-2">Leave Group?</h3>
+              <p className="text-sm text-slate-300 mb-6">
+                You&apos;ll stop receiving updates and won&apos;t be able to access group chats. You can rejoin anytime.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLeaveConfirm(false)}
+                  className="flex-1 rounded-xl border border-white/20 text-slate-300 px-4 py-2 text-sm font-medium hover:bg-white/10 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLeave}
+                  disabled={leaving}
+                  className="flex-1 rounded-xl bg-red-500 text-white px-4 py-2 text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
+                >
+                  {leaving ? 'Leaving...' : 'Leave Group'}
+                </button>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Chat Button */}
-        {isMember && (
-          <button
-            onClick={() => router.push(`/fellowships/${group.id}/chat`)}
-            className="w-full btn-primary flex items-center justify-center space-x-2"
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span>Open Group Chat</span>
-          </button>
-        )}
+        {/* What's Happening */}
+        <div className="space-y-6">
+          {/* Upcoming Hangouts */}
+          <section className="bg-navy-900/40 border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-50">Upcoming hangouts</h2>
+              {isMember && isSteward && (
+                <button
+                  onClick={() => router.push(`/events/create?group_id=${groupId}`)}
+                  className="text-xs text-gold-500 hover:text-gold-600 transition-colors"
+                >
+                  Host hangout →
+                </button>
+              )}
+            </div>
+
+            {eventsLoading ? (
+              <p className="text-sm text-slate-400">Loading events...</p>
+            ) : upcomingEvents.length > 0 ? (
+              <div className="space-y-3">
+                {upcomingEvents.map((event) => {
+                  const { date, time } = formatEventDate(event.start_time)
+                  return (
+                    <button
+                      key={event.id}
+                      onClick={() => router.push(`/events/${event.id}`)}
+                      className="w-full text-left p-4 bg-navy-900/60 border border-white/10 rounded-xl hover:border-gold-500/40 hover:shadow-[0_0_10px_rgba(245,196,81,0.15)] transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-slate-200 truncate mb-1">
+                            {event.title}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>{date}</span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{time}</span>
+                            </span>
+                            {event.location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                <span className="truncate">{event.location}</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                          <Users className="w-4 h-4" />
+                          <span>{event.rsvp_count}</span>
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <Calendar className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-sm text-slate-300 mb-2">
+                  No hangouts scheduled yet
+                </p>
+                <p className="text-xs text-slate-400 mb-4">
+                  {isMember && isSteward
+                    ? 'Host the first hangout for this group'
+                    : 'Stewards can host the first one'}
+                </p>
+                {isMember && isSteward && (
+                  <button
+                    onClick={() => router.push(`/events/create?group_id=${groupId}`)}
+                    className="inline-flex items-center gap-2 rounded-full bg-gold-500 text-navy-900 px-4 py-2 text-sm font-semibold hover:bg-gold-600 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Host a hangout
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Chats Section */}
+          <section className="bg-navy-900/40 border border-white/10 rounded-2xl p-6">
+            <h2 className="text-lg font-semibold text-slate-50 mb-4">Group chats</h2>
+            {isMember ? (
+              <div className="text-center py-6">
+                <MessageCircle className="w-12 h-12 text-gold-500/60 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-slate-200 mb-2">
+                  Group chats are launching soon
+                </p>
+                <p className="text-xs text-slate-400 mb-4">
+                  You&apos;ll be able to chat with your group members. For now, you can still explore and RSVP to hangouts.
+                </p>
+                <button
+                  onClick={() => router.push('/chat')}
+                  className="inline-flex items-center gap-2 rounded-full border border-gold-600/40 text-gold-500 px-4 py-2 text-sm font-medium hover:bg-gold-500/10 transition-colors"
+                >
+                  Go to chats
+                </button>
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <MessageCircle className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-slate-200 mb-2">
+                  Join to unlock chats
+                </p>
+                <p className="text-xs text-slate-400 mb-4">
+                  Join this group to access group chats and connect with members.
+                </p>
+                <button
+                  onClick={handleJoin}
+                  disabled={joining}
+                  className="inline-flex items-center gap-2 rounded-full bg-gold-500 text-navy-900 px-4 py-2 text-sm font-semibold hover:bg-gold-600 transition-colors disabled:opacity-50"
+                >
+                  {joining ? 'Joining...' : 'Join Group'}
+                </button>
+              </div>
+            )}
+          </section>
+
+          {/* Members Preview */}
+          {memberships.length > 0 && (
+            <section className="bg-navy-900/40 border border-white/10 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-50">
+                  Members ({memberships.length})
+                </h2>
+                {memberships.length > 6 && (
+                  <button
+                    onClick={() => router.push(`/fellowship/${group.id}/members`)}
+                    className="text-xs text-gold-500 hover:text-gold-600 transition-colors"
+                  >
+                    View all →
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {memberships.slice(0, 6).map((membership) => (
+                  <div
+                    key={membership.id}
+                    className="flex items-center gap-3 p-3 bg-navy-900/60 border border-white/10 rounded-xl"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-gold-500 to-gold-600 rounded-full flex items-center justify-center text-navy-900 font-semibold text-sm">
+                      {getUserInitial(membership)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-slate-200 truncate">
+                        {getUserName(membership)}
+                      </div>
+                      <div className="text-xs text-slate-400">
+                        {membership.role === 'admin' ? 'Admin' : 'Member'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
-    </>
+    </main>
   )
 }
-

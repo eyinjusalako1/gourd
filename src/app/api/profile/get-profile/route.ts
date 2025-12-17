@@ -13,12 +13,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // If your table is called "profiles", change "user_profiles" to "profiles"
+    // Query without .single() to avoid relationship resolution issues
     const { data, error } = await supabaseServer
       .from("user_profiles")
       .select("*")
       .eq("id", userId)
-      .single();
+      .limit(1);
 
     if (error) {
       console.error("Get profile error:", error);
@@ -28,14 +28,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!data) {
+    // Return first result or null
+    const profile = data && data.length > 0 ? data[0] : null;
+
+    if (!profile) {
       return NextResponse.json(
         { error: "Profile not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ profile: data }, { status: 200 });
+    return NextResponse.json({ profile }, { status: 200 });
   } catch (err: any) {
     console.error("Unexpected get-profile error:", err);
     return NextResponse.json(
@@ -44,4 +47,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+
 

@@ -9,7 +9,12 @@ import { FellowshipService } from '@/lib/fellowship-service'
 import { EventService } from '@/lib/event-service'
 import { FellowshipGroup, GroupMembership, Event } from '@/types'
 import { getGradientFromName } from '@/utils/gradient'
-import { ActivityPlannerRequest, ActivityPlannerAPIResponse } from '@/types/activity-planner'
+import { ActivityPlannerRequest, ActivityPlannerAPIResponse, ActivityPlannerResponse } from '@/types/activity-planner'
+
+// Extended suggestion type with category
+type SuggestionWithCategory = ActivityPlannerResponse & {
+  category: 'chill' | 'activity' | 'service'
+}
 import { 
   Users, 
   MapPin, 
@@ -41,7 +46,7 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
   const [leaving, setLeaving] = useState(false)
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
   const [groupId, setGroupId] = useState<string>('')
-  const [suggestions, setSuggestions] = useState<ActivityPlannerAPIResponse['data'][]>([])
+  const [suggestions, setSuggestions] = useState<SuggestionWithCategory[]>([])
   const [suggestionsLoading, setSuggestionsLoading] = useState(false)
 
   // Resolve params (handle both Promise and direct params for Next.js 14/15 compatibility)
@@ -159,58 +164,63 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
         group.meeting_schedule ? `meeting ${group.meeting_schedule}` : ''
       ].filter(Boolean).join(', ')
 
-      // Generate 2-3 different hangout ideas
-      const suggestionPromises = [
-        // Idea 1: General fellowship hangout
+      // Generate 3 different hangout ideas with explicit categories
+      const suggestionConfigs = [
+        {
+          category: 'chill' as const,
+          description: `A casual hangout for ${group.name}. ${groupContext}. Something relaxed and social.`,
+          location_hint: group.location || undefined,
+          time_hint: group.meeting_schedule || 'Friday evening or weekend',
+          comfort_level: 'small group'
+        },
+        {
+          category: 'activity' as const,
+          description: `A fun activity for ${group.name}. ${groupContext}. Something engaging and interactive.`,
+          location_hint: group.location || undefined,
+          time_hint: group.meeting_schedule || 'Saturday afternoon',
+          comfort_level: 'medium group'
+        },
+        {
+          category: 'service' as const,
+          description: `A meaningful gathering for ${group.name}. ${groupContext}. Something that brings people together.`,
+          location_hint: group.location || undefined,
+          time_hint: group.meeting_schedule || 'Sunday afternoon',
+          comfort_level: 'small group'
+        }
+      ]
+
+      const suggestionPromises = suggestionConfigs.map(config =>
         fetch('/api/agents/ActivityPlanner', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            description: `A casual hangout for ${group.name}. ${groupContext}. Something relaxed and social.`,
-            location_hint: group.location || undefined,
-            time_hint: group.meeting_schedule || 'Friday evening or weekend',
-            comfort_level: 'small group'
-          } as ActivityPlannerRequest)
-        }),
-        // Idea 2: Activity-based
-        fetch('/api/agents/ActivityPlanner', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            description: `A fun activity for ${group.name}. ${groupContext}. Something engaging and interactive.`,
-            location_hint: group.location || undefined,
-            time_hint: group.meeting_schedule || 'Saturday afternoon',
-            comfort_level: 'medium group'
-          } as ActivityPlannerRequest)
-        }),
-        // Idea 3: Community/service focused
-        fetch('/api/agents/ActivityPlanner', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            description: `A meaningful gathering for ${group.name}. ${groupContext}. Something that brings people together.`,
-            location_hint: group.location || undefined,
-            time_hint: group.meeting_schedule || 'Sunday afternoon',
-            comfort_level: 'small group'
+            description: config.description,
+            location_hint: config.location_hint,
+            time_hint: config.time_hint,
+            comfort_level: config.comfort_level
           } as ActivityPlannerRequest)
         })
-      ]
+      )
 
       const responses = await Promise.all(suggestionPromises)
       const results = await Promise.all(
-        responses.map(async (res) => {
+        responses.map(async (res, index) => {
           if (!res.ok) return null
           const data: ActivityPlannerAPIResponse = await res.json()
-          return data.data
+          // Assign category explicitly based on index
+          return {
+            ...data.data,
+            category: suggestionConfigs[index].category
+          } as SuggestionWithCategory
         })
       )
 
       // Filter out nulls and limit to 3
-      const validSuggestions = results.filter((s): s is ActivityPlannerAPIResponse['data'] => s !== null).slice(0, 3)
+      const validSuggestions = results.filter((s): s is SuggestionWithCategory => s !== null).slice(0, 3)
       setSuggestions(validSuggestions)
     } catch (error) {
       console.error('Error generating suggestions:', error)
-      // Fallback: create simple mock suggestions
+      // Fallback: create simple mock suggestions with categories
       setSuggestions([
         {
           suggested_title: 'Casual Hangout',
@@ -218,7 +228,8 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
           suggested_group_size: 6,
           suggested_tags: ['casual', 'social', 'hangout'],
           suggested_location_hint: group.location || 'local venue',
-          suggested_time_hint: group.meeting_schedule || 'Friday evening'
+          suggested_time_hint: group.meeting_schedule || 'Friday evening',
+          category: 'chill' as const
         },
         {
           suggested_title: 'Activity Night',
@@ -226,7 +237,17 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
           suggested_group_size: 8,
           suggested_tags: ['activity', 'fun', 'social'],
           suggested_location_hint: group.location || 'local venue',
-          suggested_time_hint: group.meeting_schedule || 'Saturday afternoon'
+          suggested_time_hint: group.meeting_schedule || 'Saturday afternoon',
+          category: 'activity' as const
+        },
+        {
+          suggested_title: 'Community Service',
+          suggested_description: `A meaningful gathering for ${group.name} to serve and connect.`,
+          suggested_group_size: 6,
+          suggested_tags: ['service', 'community', 'meaningful'],
+          suggested_location_hint: group.location || 'local venue',
+          suggested_time_hint: group.meeting_schedule || 'Sunday afternoon',
+          category: 'service' as const
         }
       ])
     } finally {
@@ -234,7 +255,7 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
     }
   }
 
-  const handleHostSuggestion = (suggestion: ActivityPlannerAPIResponse['data']) => {
+  const handleHostSuggestion = (suggestion: SuggestionWithCategory) => {
     // Build query params for event creation with prefill
     const params = new URLSearchParams({
       group_id: groupId,
@@ -597,21 +618,56 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
                 ) : suggestions.length > 0 ? (
                   <div className="space-y-3">
                     <h3 className="text-sm font-semibold text-slate-200 mb-3">Suggested hangouts</h3>
-                    {suggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="p-4 bg-navy-900/60 border border-white/10 rounded-xl hover:border-gold-500/30 transition-all"
-                      >
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-semibold text-slate-200 mb-1">
-                              {suggestion.suggested_title}
-                            </h4>
-                            <p className="text-xs text-slate-400 line-clamp-2">
-                              {suggestion.suggested_description}
-                            </p>
+                    {suggestions.map((suggestion, index) => {
+                      // Get badge styles based on category
+                      const getBadgeStyles = (category: 'chill' | 'activity' | 'service') => {
+                        switch (category) {
+                          case 'chill':
+                            return 'bg-gold-500/15 text-gold-500 border-gold-600/30'
+                          case 'activity':
+                            return 'bg-purple-500/15 text-purple-300 border-purple-400/30'
+                          case 'service':
+                            return 'bg-blue-500/15 text-blue-300 border-blue-400/30'
+                          default:
+                            return 'bg-gold-500/15 text-gold-500 border-gold-600/30'
+                        }
+                      }
+
+                      const getBadgeLabel = (category: 'chill' | 'activity' | 'service') => {
+                        switch (category) {
+                          case 'chill':
+                            return 'Chill'
+                          case 'activity':
+                            return 'Activity'
+                          case 'service':
+                            return 'Service'
+                          default:
+                            return 'Chill'
+                        }
+                      }
+
+                      return (
+                        <div
+                          key={index}
+                          className="p-4 bg-navy-900/60 border border-white/10 rounded-xl hover:border-gold-500/30 transition-all"
+                        >
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span
+                                  className={`text-xs px-2 py-0.5 rounded-full border ${getBadgeStyles(suggestion.category)}`}
+                                >
+                                  {getBadgeLabel(suggestion.category)}
+                                </span>
+                                <h4 className="text-sm font-semibold text-slate-200">
+                                  {suggestion.suggested_title}
+                                </h4>
+                              </div>
+                              <p className="text-xs text-slate-400 line-clamp-2">
+                                {suggestion.suggested_description}
+                              </p>
+                            </div>
                           </div>
-                        </div>
                         
                         {/* Tags */}
                         {suggestion.suggested_tags && suggestion.suggested_tags.length > 0 && (
@@ -664,7 +720,8 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
                           </div>
                         )}
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 ) : null}
               </div>

@@ -11,6 +11,7 @@ function getActiveTab(pathname: string): string {
   if (pathname.startsWith('/chat')) return 'chat'
   if (pathname.startsWith('/fellowship')) return 'fellowships'
   if (pathname.startsWith('/devotions')) return 'devotions'
+  if (pathname.startsWith('/more') || pathname.startsWith('/profile') || pathname.startsWith('/settings')) return 'more'
   return 'home'
 }
 
@@ -65,6 +66,9 @@ export default function AppLayout({
         break
       case 'devotions':
         router.push('/devotions')
+        break
+      case 'more':
+        router.push('/more')
         break
       default:
         break

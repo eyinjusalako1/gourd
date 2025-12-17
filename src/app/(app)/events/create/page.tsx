@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
 import BackButton from '@/components/BackButton'
@@ -30,11 +30,14 @@ import {
 export default function CreateEventPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const toast = useToast()
   const { profile, isSteward, isLoading: profileLoading } = useUserProfile()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [userGroups, setUserGroups] = useState<FellowshipGroup[]>([])
+  const [prefillGroup, setPrefillGroup] = useState<FellowshipGroup | null>(null)
+  const [loadingGroup, setLoadingGroup] = useState(false)
   const [aiDescription, setAiDescription] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
@@ -82,6 +85,51 @@ export default function CreateEventPage() {
     allow_guests: true,
     tags: '',
   })
+
+  // Load group and prefill data from URL query params
+  useEffect(() => {
+    const groupId = searchParams?.get('group_id')
+    const title = searchParams?.get('title')
+    const description = searchParams?.get('description')
+    const tags = searchParams?.get('tags')
+    const locationHint = searchParams?.get('location_hint')
+    const timeHint = searchParams?.get('time_hint')
+
+    if (groupId && user) {
+      loadPrefillGroup(groupId)
+    }
+
+    // Prefill form fields from query params (from suggestion cards)
+    if (title || description || tags || locationHint || timeHint) {
+      setFormData(prev => ({
+        ...prev,
+        ...(title && { title }),
+        ...(description && { description }),
+        ...(tags && { tags }),
+        ...(locationHint && { location: locationHint }),
+      }))
+    }
+  }, [searchParams, user])
+
+  const loadPrefillGroup = async (groupId: string) => {
+    try {
+      setLoadingGroup(true)
+      const group = await FellowshipService.getGroup(groupId)
+      if (group) {
+        setPrefillGroup(group)
+        // Prefill group_id in form
+        setFormData(prev => ({
+          ...prev,
+          group_id: groupId
+        }))
+      }
+    } catch (error) {
+      console.error('Error loading group for prefill:', error)
+      // Don't show error to user, just silently fail
+    } finally {
+      setLoadingGroup(false)
+    }
+  }
 
   // Load user groups if user is a steward (optional feature)
   useEffect(() => {
@@ -258,6 +306,33 @@ export default function CreateEventPage() {
       <BackButton label="Create Event" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Group Prefill Banner */}
+        {prefillGroup && (
+          <div className="mb-6 bg-gradient-to-br from-navy-800/40 to-indigo-800/40 border border-gold-500/30 rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold-500/20 to-gold-600/20 flex items-center justify-center border border-gold-500/30">
+                <Users className="w-5 h-5 text-gold-500" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Hosting for:</p>
+                <p className="font-semibold text-gold-500">{prefillGroup.name}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setPrefillGroup(null)
+                setFormData(prev => ({ ...prev, group_id: '' }))
+                // Remove query param from URL
+                router.replace('/events/create')
+              }}
+              className="text-sm text-gray-400 hover:text-gold-500 transition-colors"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+
         {/* AI Assistance Section - Only visible to Stewards */}
         {isSteward && (
           <div className="mb-8 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6">

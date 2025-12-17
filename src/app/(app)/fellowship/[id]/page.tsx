@@ -9,6 +9,7 @@ import { FellowshipService } from '@/lib/fellowship-service'
 import { EventService } from '@/lib/event-service'
 import { FellowshipGroup, GroupMembership, Event } from '@/types'
 import { getGradientFromName } from '@/utils/gradient'
+import { ActivityPlannerRequest, ActivityPlannerAPIResponse } from '@/types/activity-planner'
 import { 
   Users, 
   MapPin, 
@@ -40,6 +41,8 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
   const [leaving, setLeaving] = useState(false)
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
   const [groupId, setGroupId] = useState<string>('')
+  const [suggestions, setSuggestions] = useState<ActivityPlannerAPIResponse['data'][]>([])
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false)
 
   // Resolve params (handle both Promise and direct params for Next.js 14/15 compatibility)
   useEffect(() => {
@@ -62,6 +65,16 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId, user])
+
+  // Load suggestions when there are no events
+  useEffect(() => {
+    if (!eventsLoading && upcomingEvents.length === 0 && group) {
+      generateSuggestions()
+    } else {
+      setSuggestions([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventsLoading, upcomingEvents.length, group])
 
   const loadGroupData = async () => {
     if (!groupId) return
@@ -130,6 +143,108 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
     } finally {
       setEventsLoading(false)
     }
+  }
+
+  const generateSuggestions = async () => {
+    if (!group) return
+    
+    try {
+      setSuggestionsLoading(true)
+      
+      // Build description from group context
+      const groupContext = [
+        group.name,
+        group.description || '',
+        group.location ? `in ${group.location}` : '',
+        group.meeting_schedule ? `meeting ${group.meeting_schedule}` : ''
+      ].filter(Boolean).join(', ')
+
+      // Generate 2-3 different hangout ideas
+      const suggestionPromises = [
+        // Idea 1: General fellowship hangout
+        fetch('/api/agents/ActivityPlanner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            description: `A casual hangout for ${group.name}. ${groupContext}. Something relaxed and social.`,
+            location_hint: group.location || undefined,
+            time_hint: group.meeting_schedule || 'Friday evening or weekend',
+            comfort_level: 'small group'
+          } as ActivityPlannerRequest)
+        }),
+        // Idea 2: Activity-based
+        fetch('/api/agents/ActivityPlanner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            description: `A fun activity for ${group.name}. ${groupContext}. Something engaging and interactive.`,
+            location_hint: group.location || undefined,
+            time_hint: group.meeting_schedule || 'Saturday afternoon',
+            comfort_level: 'medium group'
+          } as ActivityPlannerRequest)
+        }),
+        // Idea 3: Community/service focused
+        fetch('/api/agents/ActivityPlanner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            description: `A meaningful gathering for ${group.name}. ${groupContext}. Something that brings people together.`,
+            location_hint: group.location || undefined,
+            time_hint: group.meeting_schedule || 'Sunday afternoon',
+            comfort_level: 'small group'
+          } as ActivityPlannerRequest)
+        })
+      ]
+
+      const responses = await Promise.all(suggestionPromises)
+      const results = await Promise.all(
+        responses.map(async (res) => {
+          if (!res.ok) return null
+          const data: ActivityPlannerAPIResponse = await res.json()
+          return data.data
+        })
+      )
+
+      // Filter out nulls and limit to 3
+      const validSuggestions = results.filter((s): s is ActivityPlannerAPIResponse['data'] => s !== null).slice(0, 3)
+      setSuggestions(validSuggestions)
+    } catch (error) {
+      console.error('Error generating suggestions:', error)
+      // Fallback: create simple mock suggestions
+      setSuggestions([
+        {
+          suggested_title: 'Casual Hangout',
+          suggested_description: `A relaxed gathering for ${group.name} members to connect and chat.`,
+          suggested_group_size: 6,
+          suggested_tags: ['casual', 'social', 'hangout'],
+          suggested_location_hint: group.location || 'local venue',
+          suggested_time_hint: group.meeting_schedule || 'Friday evening'
+        },
+        {
+          suggested_title: 'Activity Night',
+          suggested_description: `A fun activity for ${group.name} to enjoy together.`,
+          suggested_group_size: 8,
+          suggested_tags: ['activity', 'fun', 'social'],
+          suggested_location_hint: group.location || 'local venue',
+          suggested_time_hint: group.meeting_schedule || 'Saturday afternoon'
+        }
+      ])
+    } finally {
+      setSuggestionsLoading(false)
+    }
+  }
+
+  const handleHostSuggestion = (suggestion: ActivityPlannerAPIResponse['data']) => {
+    // Build query params for event creation with prefill
+    const params = new URLSearchParams({
+      group_id: groupId,
+      title: suggestion.suggested_title,
+      description: suggestion.suggested_description,
+      tags: suggestion.suggested_tags.join(','),
+      location_hint: suggestion.suggested_location_hint,
+      time_hint: suggestion.suggested_time_hint
+    })
+    router.push(`/events/create?${params.toString()}`)
   }
 
   const handleJoin = async () => {
@@ -461,25 +576,97 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
                 })}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <Calendar className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <p className="text-sm text-slate-300 mb-2">
-                  No hangouts scheduled yet
-                </p>
-                <p className="text-xs text-slate-400 mb-4">
-                  {isMember && isSteward
-                    ? 'Host the first hangout for this group'
-                    : 'Stewards can host the first one'}
-                </p>
-                {isMember && isSteward && (
-                  <button
-                    onClick={() => router.push(`/events/create?group_id=${groupId}`)}
-                    className="inline-flex items-center gap-2 rounded-full bg-gold-500 text-navy-900 px-4 py-2 text-sm font-semibold hover:bg-gold-600 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Host a hangout
-                  </button>
-                )}
+              <div className="space-y-6">
+                <div className="text-center py-4">
+                  <Calendar className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                  <p className="text-sm text-slate-300 mb-1">
+                    No hangouts scheduled yet
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {isMember && isSteward
+                      ? 'Host the first hangout for this group'
+                      : 'Stewards can host the first one'}
+                  </p>
+                </div>
+
+                {/* Suggested Hangouts */}
+                {suggestionsLoading ? (
+                  <div className="text-center py-4">
+                    <p className="text-xs text-slate-400">Generating ideas...</p>
+                  </div>
+                ) : suggestions.length > 0 ? (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-slate-200 mb-3">Suggested hangouts</h3>
+                    {suggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="p-4 bg-navy-900/60 border border-white/10 rounded-xl hover:border-gold-500/30 transition-all"
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-slate-200 mb-1">
+                              {suggestion.suggested_title}
+                            </h4>
+                            <p className="text-xs text-slate-400 line-clamp-2">
+                              {suggestion.suggested_description}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Tags */}
+                        {suggestion.suggested_tags && suggestion.suggested_tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {suggestion.suggested_tags.map((tag, tagIndex) => (
+                              <span
+                                key={tagIndex}
+                                className="px-2 py-0.5 text-xs bg-navy-800/60 text-gold-500/80 rounded-full border border-gold-500/20"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Details */}
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mb-3">
+                          {suggestion.suggested_location_hint && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              <span>{suggestion.suggested_location_hint}</span>
+                            </span>
+                          )}
+                          {suggestion.suggested_time_hint && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{suggestion.suggested_time_hint}</span>
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            <span>{suggestion.suggested_group_size} people</span>
+                          </span>
+                        </div>
+
+                        {/* CTA */}
+                        {isMember && isSteward ? (
+                          <button
+                            onClick={() => handleHostSuggestion(suggestion)}
+                            className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 text-navy-900 px-4 py-2 text-sm font-semibold hover:bg-gold-600 transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Host this
+                          </button>
+                        ) : (
+                          <div className="text-center">
+                            <p className="text-xs text-slate-400">
+                              Share this idea with a Steward to host
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             )}
           </section>

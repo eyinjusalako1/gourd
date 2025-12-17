@@ -232,7 +232,9 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
         
         // Check if we've seen a similar title (exact match or very similar)
         let isDuplicate = false
-        for (const seenTitle of seenTitles) {
+        const seenTitlesArray = Array.from(seenTitles)
+        for (let i = 0; i < seenTitlesArray.length; i++) {
+          const seenTitle = seenTitlesArray[i]
           // Check for exact match or very similar (e.g., "Games Night" vs "Game Night")
           if (normalizedTitle === seenTitle || 
               normalizedTitle.includes(seenTitle) || 

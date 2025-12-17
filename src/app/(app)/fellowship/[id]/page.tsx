@@ -165,24 +165,25 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
       ].filter(Boolean).join(', ')
 
       // Generate 3 different hangout ideas with explicit categories
+      // Make descriptions more distinct to avoid duplicates
       const suggestionConfigs = [
         {
           category: 'chill' as const,
-          description: `A casual hangout for ${group.name}. ${groupContext}. Something relaxed and social.`,
+          description: `A casual coffee and conversation hangout for ${group.name}. ${groupContext}. Focus on relaxed social connection, maybe board games or just chatting. Keep it low-key and comfortable.`,
           location_hint: group.location || undefined,
           time_hint: group.meeting_schedule || 'Friday evening or weekend',
           comfort_level: 'small group'
         },
         {
           category: 'activity' as const,
-          description: `A fun activity for ${group.name}. ${groupContext}. Something engaging and interactive.`,
+          description: `An active event for ${group.name}. ${groupContext}. Think sports, games, outdoor activities, or creative workshops. Something hands-on and engaging where people can participate actively.`,
           location_hint: group.location || undefined,
           time_hint: group.meeting_schedule || 'Saturday afternoon',
           comfort_level: 'medium group'
         },
         {
           category: 'service' as const,
-          description: `A meaningful gathering for ${group.name}. ${groupContext}. Something that brings people together.`,
+          description: `A community service or volunteer opportunity for ${group.name}. ${groupContext}. Focus on giving back, helping others, or serving the community together. Make it meaningful and impactful.`,
           location_hint: group.location || undefined,
           time_hint: group.meeting_schedule || 'Sunday afternoon',
           comfort_level: 'small group'
@@ -215,9 +216,53 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
         })
       )
 
-      // Filter out nulls and limit to 3
-      const validSuggestions = results.filter((s): s is SuggestionWithCategory => s !== null).slice(0, 3)
-      setSuggestions(validSuggestions)
+      // Filter out nulls
+      let validSuggestions = results.filter((s): s is SuggestionWithCategory => s !== null)
+      
+      // Deduplicate suggestions by title (case-insensitive, normalized)
+      const seenTitles = new Set<string>()
+      const uniqueSuggestions: SuggestionWithCategory[] = []
+      
+      for (const suggestion of validSuggestions) {
+        // Normalize title: lowercase, trim, remove extra spaces
+        const normalizedTitle = suggestion.suggested_title
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, ' ')
+        
+        // Check if we've seen a similar title (exact match or very similar)
+        let isDuplicate = false
+        for (const seenTitle of seenTitles) {
+          // Check for exact match or very similar (e.g., "Games Night" vs "Game Night")
+          if (normalizedTitle === seenTitle || 
+              normalizedTitle.includes(seenTitle) || 
+              seenTitle.includes(normalizedTitle)) {
+            isDuplicate = true
+            break
+          }
+        }
+        
+        if (!isDuplicate) {
+          seenTitles.add(normalizedTitle)
+          uniqueSuggestions.push(suggestion)
+        }
+      }
+      
+      // Ensure we have at least one suggestion per category if possible
+      // If we lost suggestions due to duplicates, try to keep category diversity
+      const categoryMap = new Map<'chill' | 'activity' | 'service', SuggestionWithCategory>()
+      for (const suggestion of uniqueSuggestions) {
+        if (!categoryMap.has(suggestion.category)) {
+          categoryMap.set(suggestion.category, suggestion)
+        }
+      }
+      
+      // Prioritize suggestions that maintain category diversity
+      const finalSuggestions = uniqueSuggestions.length >= 3
+        ? uniqueSuggestions.slice(0, 3)
+        : Array.from(categoryMap.values()).slice(0, 3)
+      
+      setSuggestions(finalSuggestions)
     } catch (error) {
       console.error('Error generating suggestions:', error)
       // Fallback: create simple mock suggestions with categories

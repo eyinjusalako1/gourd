@@ -35,9 +35,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate required fields
-    if (!eventData.title || !eventData.description || !eventData.start_time) {
+    if (!eventData.title || !eventData.description || !eventData.start_time || !eventData.end_time) {
       return NextResponse.json(
-        { error: "Missing required fields: title, description, start_time" },
+        { error: "Missing required fields: title, description, start_time, end_time" },
         { status: 400 }
       );
     }
@@ -49,18 +49,46 @@ export async function POST(req: NextRequest) {
       is_active: true,
     };
 
+    // Clean up eventData - remove undefined values and ensure proper types
+    const cleanedEventData: any = {
+      title: finalEventData.title,
+      description: finalEventData.description,
+      event_type: finalEventData.event_type,
+      start_time: finalEventData.start_time,
+      end_time: finalEventData.end_time,
+      created_by: finalEventData.created_by,
+      is_active: finalEventData.is_active,
+    }
+
+    // Add optional fields only if they exist
+    if (finalEventData.location) cleanedEventData.location = finalEventData.location
+    if (finalEventData.is_virtual !== undefined) cleanedEventData.is_virtual = finalEventData.is_virtual
+    if (finalEventData.virtual_link) cleanedEventData.virtual_link = finalEventData.virtual_link
+    if (finalEventData.virtual_platform) cleanedEventData.virtual_platform = finalEventData.virtual_platform
+    if (finalEventData.max_attendees) cleanedEventData.max_attendees = finalEventData.max_attendees
+    if (finalEventData.is_recurring !== undefined) cleanedEventData.is_recurring = finalEventData.is_recurring
+    if (finalEventData.recurrence_pattern) cleanedEventData.recurrence_pattern = finalEventData.recurrence_pattern
+    if (finalEventData.recurrence_end_date) cleanedEventData.recurrence_end_date = finalEventData.recurrence_end_date
+    if (finalEventData.group_id) cleanedEventData.group_id = finalEventData.group_id
+    if (finalEventData.tags && Array.isArray(finalEventData.tags) && finalEventData.tags.length > 0) {
+      cleanedEventData.tags = finalEventData.tags
+    }
+    if (finalEventData.requires_rsvp !== undefined) cleanedEventData.requires_rsvp = finalEventData.requires_rsvp
+    if (finalEventData.allow_guests !== undefined) cleanedEventData.allow_guests = finalEventData.allow_guests
+
     // Insert event using service role (bypasses RLS)
-    // Use limit(1) instead of single() to avoid PostgREST relationship resolution issues
+    // Select only specific columns to avoid PostgREST relationship resolution issues
     const { data: events, error: insertError } = await supabaseServer
       .from("events")
-      .insert([finalEventData])
-      .select()
+      .insert([cleanedEventData])
+      .select('id, title, description, event_type, location, is_virtual, virtual_link, virtual_platform, start_time, end_time, created_by, created_at, updated_at, rsvp_count, max_attendees, is_recurring, recurrence_pattern, recurrence_end_date, group_id, is_active, tags, requires_rsvp, allow_guests')
       .limit(1);
 
     if (insertError) {
       console.error("Error creating event:", insertError);
+      console.error("Event data attempted:", cleanedEventData);
       return NextResponse.json(
-        { error: "Failed to create event", details: insertError.message },
+        { error: "Failed to create event", details: insertError.message, code: insertError.code },
         { status: 500 }
       );
     }

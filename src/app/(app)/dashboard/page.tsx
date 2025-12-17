@@ -8,7 +8,6 @@ import { EventService } from "@/lib/event-service";
 import { FellowshipService } from "@/lib/fellowship-service";
 import { Event, FellowshipGroup } from "@/types";
 import { Calendar, MapPin, Clock, Users, MessageCircle, Users as UsersIcon } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 interface UserProfile {
   id: string;
@@ -39,8 +38,6 @@ export default function DashboardPage() {
   const [recommendedLoading, setRecommendedLoading] = useState(true);
   const [userGroups, setUserGroups] = useState<FellowshipGroup[]>([]);
   const [groupsLoading, setGroupsLoading] = useState(true);
-  const [activeGroupsCount, setActiveGroupsCount] = useState(0);
-  const [newMessagesCount, setNewMessagesCount] = useState(0);
 
   useEffect(() => {
     if (!user?.id) {
@@ -115,28 +112,12 @@ export default function DashboardPage() {
     const loadUserGroups = async () => {
       setGroupsLoading(true);
       try {
-        // TODO: Implement getUserJoinedGroups method in FellowshipService
-        // For now, get all groups and filter by membership
-        const allGroups = await FellowshipService.getGroups(user.id);
-        
-        // Filter to only groups user is a member of
-        // TODO: Replace with direct query once getUserJoinedGroups is implemented
-        const { data: memberships } = await supabase
-          .from('group_memberships')
-          .select('group_id')
-          .eq('user_id', user.id)
-          .eq('status', 'active');
-        
-        const userGroupIds = new Set(memberships?.map(m => m.group_id) || []);
-        const joinedGroups = allGroups.filter(g => userGroupIds.has(g.id));
-        
+        const joinedGroups = await FellowshipService.getUserJoinedGroups(user.id);
         setUserGroups(joinedGroups);
-        setActiveGroupsCount(joinedGroups.length);
       } catch (err: any) {
         console.error("Error loading user groups:", err);
         // Graceful fallback - show empty state
         setUserGroups([]);
-        setActiveGroupsCount(0);
       } finally {
         setGroupsLoading(false);
       }
@@ -145,13 +126,6 @@ export default function DashboardPage() {
     loadUserGroups();
   }, [user?.id]);
 
-  // TODO: Load chat data when chat service is implemented
-  useEffect(() => {
-    // Placeholder for chat data loading
-    // TODO: Implement chat message count fetching
-    // For now, set placeholder count
-    setNewMessagesCount(0);
-  }, [user?.id]);
 
   const formatEventDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -262,41 +236,78 @@ export default function DashboardPage() {
                 <p className="text-[11px] uppercase tracking-wide text-gold-500 mb-1">
                   Community activity
                 </p>
-                {groupsLoading ? (
+                {groupsLoading || recommendedLoading ? (
                   <p className="text-xs text-slate-200/80">Loading…</p>
-                ) : activeGroupsCount > 0 || newMessagesCount > 0 ? (
-                  <div className="space-y-1.5 text-xs text-slate-50">
-                    {activeGroupsCount > 0 && (
-                      <div>
-                        <p className="font-semibold">{activeGroupsCount}</p>
-                        <p className="text-[11px] text-slate-200/80">
-                          {activeGroupsCount === 1 ? "Active group" : "Active groups"}
-                          {profile?.city && ` near ${profile.city}`}
+                ) : (() => {
+                  const groupsJoined = userGroups.length;
+                  const upcomingHangouts = recommendedEvents.length;
+                  
+                  // Calculate events near user location
+                  let nearYouCount = 0;
+                  if (profile?.city && recommendedEvents.length > 0) {
+                    const cityLower = profile.city.toLowerCase();
+                    nearYouCount = recommendedEvents.filter(event => 
+                      event.location && event.location.toLowerCase().includes(cityLower)
+                    ).length;
+                  }
+                  
+                  // Determine which chips to show
+                  const chips: Array<{ label: string; value: string }> = [];
+                  
+                  if (groupsJoined > 0) {
+                    chips.push({
+                      label: groupsJoined === 1 ? "Group joined" : "Groups joined",
+                      value: String(groupsJoined)
+                    });
+                  }
+                  
+                  if (upcomingHangouts > 0) {
+                    chips.push({
+                      label: upcomingHangouts === 1 ? "Upcoming hangout" : "Upcoming hangouts",
+                      value: String(upcomingHangouts)
+                    });
+                  }
+                  
+                  if (nearYouCount > 0 && profile?.city) {
+                    chips.push({
+                      label: `${nearYouCount === 1 ? "hangout" : "hangouts"} near ${profile.city}`,
+                      value: String(nearYouCount)
+                    });
+                  }
+                  
+                  // Fallback if no stats
+                  if (chips.length === 0) {
+                    return (
+                      <div className="text-center">
+                        <p className="text-xs text-slate-200/80 font-medium">
+                          Start by joining a group
                         </p>
                       </div>
-                    )}
-                    {newMessagesCount > 0 && (
-                      <>
-                        {activeGroupsCount > 0 && <div className="h-4 w-px bg-gold-600/35 my-1" />}
-                        <div>
-                          <p className="font-semibold">{newMessagesCount}</p>
-                          <p className="text-[11px] text-slate-200/80">
-                            {newMessagesCount === 1 ? "New message today" : "New messages today"}
-                          </p>
+                    );
+                  }
+                  
+                  // Render chips
+                  return (
+                    <div className="space-y-1.5 text-xs text-slate-50">
+                      {chips.map((chip, index) => (
+                        <div key={index}>
+                          {chip.value && (
+                            <>
+                              <p className="font-semibold">{chip.value}</p>
+                              <p className="text-[11px] text-slate-200/80">{chip.label}</p>
+                            </>
+                          )}
+                          {!chip.value && (
+                            <p className="text-[11px] text-slate-200/80">{chip.label}</p>
+                          )}
+                          {index < chips.length - 1 && (
+                            <div className="h-3 w-px bg-gold-600/35 my-1.5" />
+                          )}
                         </div>
-                      </>
-                    )}
-                    {activeGroupsCount === 0 && newMessagesCount === 0 && (
-                      <p className="text-xs text-slate-200/80">
-                        Join a group to start connecting.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-xs text-slate-200/80">
-                    Join a group to start connecting.
-                  </p>
-                )}
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -601,30 +612,62 @@ export default function DashboardPage() {
           <section className="mt-8 space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-base md:text-lg font-semibold">Recent chats</h2>
-              <button
-                type="button"
-                onClick={handleGoToChats}
-                className="text-xs text-gold-500 hover:text-gold-600"
-              >
-                Go to chats →
-              </button>
-            </div>
-
-            <div className="bg-navy-900/40 border border-white/10 rounded-2xl p-6 md:p-7 hover:border-gold-500/30 hover:shadow-[0_0_15px_rgba(245,196,81,0.2)] transition-colors">
-              {/* TODO: Implement chat data fetching when chat service is available */}
-              <div className="text-center py-6">
-                <MessageCircle className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <p className="text-sm text-slate-300 mb-2">
-                  Your recent chats will appear here.
-                </p>
+              {userGroups.length > 0 && (
                 <button
                   type="button"
                   onClick={handleGoToChats}
-                  className="mt-4 inline-flex items-center rounded-full border border-gold-600/40 text-gold-500 px-4 py-2 text-sm font-medium hover:bg-gold-500/10 transition-colors"
+                  className="text-xs text-gold-500 hover:text-gold-600"
                 >
-                  Go to chats
+                  Go to chats →
                 </button>
-              </div>
+              )}
+            </div>
+
+            <div className="bg-navy-900/40 border border-white/10 rounded-2xl p-6 md:p-7 hover:border-gold-500/30 hover:shadow-[0_0_15px_rgba(245,196,81,0.2)] transition-colors">
+              {userGroups.length === 0 ? (
+                <div className="text-center py-6">
+                  <MessageCircle className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                  <h3 className="text-sm font-semibold text-slate-200 mb-2">
+                    Chats unlock when you join a group
+                  </h3>
+                  <p className="text-xs text-slate-400 mb-4 max-w-sm mx-auto">
+                    Join a fellowship group to start meeting people and chatting.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleBrowseGroups}
+                    className="inline-flex items-center rounded-full bg-gold-500 text-navy-900 px-4 py-2 text-sm font-semibold hover:bg-gold-600 transition-colors"
+                  >
+                    Explore groups
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <MessageCircle className="w-12 h-12 text-gold-500/60 mx-auto mb-3" />
+                  <h3 className="text-sm font-semibold text-slate-200 mb-2">
+                    Group chats are launching soon
+                  </h3>
+                  <p className="text-xs text-slate-400 mb-4 max-w-sm mx-auto">
+                    You&apos;ll be able to chat inside your groups. For now, you can still explore and RSVP to hangouts.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleGoToChats}
+                      className="inline-flex items-center rounded-full border border-gold-600/40 text-gold-500 px-4 py-2 text-sm font-medium hover:bg-gold-500/10 transition-colors"
+                    >
+                      Go to chats
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBrowseGroups}
+                      className="text-xs text-slate-400 hover:text-gold-500 transition-colors underline underline-offset-2"
+                    >
+                      Browse groups
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         )}

@@ -2,6 +2,43 @@ import { supabase } from './supabase'
 import { FellowshipGroup, GroupMembership, JoinRequest } from '@/types'
 
 export class FellowshipService {
+  // Get groups the user has joined (active memberships only)
+  static async getUserJoinedGroups(userId: string): Promise<FellowshipGroup[]> {
+    // First, get the user's active group memberships
+    const { data: memberships, error: membershipsError } = await supabase
+      .from('group_memberships')
+      .select('group_id, joined_at')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+
+    if (membershipsError) throw membershipsError
+
+    if (!memberships || memberships.length === 0) {
+      return []
+    }
+
+    // Then, fetch the groups for those IDs
+    const groupIds = memberships.map(m => m.group_id)
+    const { data: groups, error: groupsError } = await supabase
+      .from('fellowship_groups')
+      .select('*')
+      .in('id', groupIds)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+
+    if (groupsError) throw groupsError
+
+    // Sort by joined_at (most recently joined first)
+    const joinedAtMap = new Map(memberships.map(m => [m.group_id, m.joined_at]))
+    const sortedGroups = (groups || []).sort((a, b) => {
+      const aJoined = joinedAtMap.get(a.id) || a.created_at
+      const bJoined = joinedAtMap.get(b.id) || b.created_at
+      return new Date(bJoined).getTime() - new Date(aJoined).getTime()
+    })
+
+    return sortedGroups
+  }
+
   // Get all public groups or groups user is member of
   static async getGroups(userId?: string): Promise<FellowshipGroup[]> {
     let query = supabase
@@ -245,6 +282,8 @@ export class FellowshipService {
     await this.updateMemberCount(groupId)
   }
 }
+
+
 
 
 

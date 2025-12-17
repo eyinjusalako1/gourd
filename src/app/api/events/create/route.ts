@@ -50,11 +50,12 @@ export async function POST(req: NextRequest) {
     };
 
     // Insert event using service role (bypasses RLS)
-    const { data: event, error: insertError } = await supabaseServer
+    // Use limit(1) instead of single() to avoid PostgREST relationship resolution issues
+    const { data: events, error: insertError } = await supabaseServer
       .from("events")
       .insert([finalEventData])
       .select()
-      .single();
+      .limit(1);
 
     if (insertError) {
       console.error("Error creating event:", insertError);
@@ -63,6 +64,9 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Get first result (should only be one)
+    const event = events && events.length > 0 ? events[0] : null;
 
     // Ensure event has an ID before returning
     if (!event || !event.id) {

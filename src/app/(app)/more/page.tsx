@@ -21,15 +21,9 @@ export default function MorePage() {
   const router = useRouter()
   const { user } = useAuth()
   const { profile } = useUserProfile()
-  const [firstName, setFirstName] = useState('')
-
-  useEffect(() => {
-    if (profile?.first_name) {
-      setFirstName(profile.first_name)
-    } else if (user?.user_metadata?.first_name) {
-      setFirstName(user.user_metadata.first_name)
-    }
-  }, [profile, user])
+  // Extract name from profile
+  const displayName = profile?.name || user?.email?.split('@')[0] || 'User'
+  const firstName = displayName.split(' ')[0] || displayName
 
   const menuItems = [
     {
@@ -82,11 +76,12 @@ export default function MorePage() {
   }
 
   const getInitials = () => {
-    if (profile?.first_name && profile?.last_name) {
-      return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase()
-    }
-    if (profile?.first_name) {
-      return profile.first_name[0].toUpperCase()
+    if (profile?.name) {
+      const nameParts = profile.name.trim().split(' ')
+      if (nameParts.length >= 2) {
+        return `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase()
+      }
+      return profile.name[0].toUpperCase()
     }
     if (user?.email) {
       return user.email[0].toUpperCase()
@@ -111,7 +106,7 @@ export default function MorePage() {
                 <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gold-500/30">
                   <Image
                     src={profile.avatar_url}
-                    alt={profile.first_name || 'User'}
+                    alt={profile?.name || 'User'}
                     width={64}
                     height={64}
                     className="w-full h-full object-cover"
@@ -129,9 +124,7 @@ export default function MorePage() {
             {/* User Info */}
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-slate-50 truncate">
-                {profile?.first_name && profile?.last_name
-                  ? `${profile.first_name} ${profile.last_name}`
-                  : profile?.first_name || user?.email?.split('@')[0] || 'User'}
+                {profile?.name || user?.email?.split('@')[0] || 'User'}
               </h2>
               {profile?.city && (
                 <div className="flex items-center gap-1 text-sm text-slate-400 mt-1">

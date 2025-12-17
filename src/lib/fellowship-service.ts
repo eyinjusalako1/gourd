@@ -236,30 +236,28 @@ export class FellowshipService {
       .eq('group_id', groupId)
       .eq('user_id', userId)
       .eq('status', 'active')
-      .single()
+      .limit(1)
 
-    return !error && !!data
+    return !error && !!data && data.length > 0
   }
 
   // Get user's membership for a specific group (returns membership or null)
   static async getUserMembershipForGroup(userId: string, groupId: string): Promise<GroupMembership | null> {
+    // Query without .single() to avoid relationship resolution issues
     const { data, error } = await supabase
       .from('group_memberships')
-      .select('*')
+      .select('id, group_id, user_id, role, status, joined_at, invited_by')
       .eq('group_id', groupId)
       .eq('user_id', userId)
       .eq('status', 'active')
-      .single()
+      .limit(1)
 
     if (error) {
-      // If no membership found, return null (not an error)
-      if (error.code === 'PGRST116') {
-        return null
-      }
       throw error
     }
 
-    return data || null
+    // Return first result or null
+    return (data && data.length > 0) ? (data[0] as GroupMembership) : null
   }
 
   // Check if user is member of group (alias for consistency)

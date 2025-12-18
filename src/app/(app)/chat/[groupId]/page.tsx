@@ -260,7 +260,7 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
                 className="flex items-center space-x-2 bg-gold-500/10 border border-gold-600/40 text-gold-500 hover:bg-gold-500/20 px-4 py-2 rounded-lg font-medium transition-colors"
               >
                 <BookOpen className="w-4 h-4" />
-                <span>Share today's devotion</span>
+                <span>Share today&apos;s devotion</span>
               </button>
             </div>
           ) : (

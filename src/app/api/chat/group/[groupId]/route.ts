@@ -58,21 +58,10 @@ export async function GET(
     }
 
     // Fetch messages (RLS will also enforce access)
+    // Use explicit column selection to avoid PostgREST relationship resolution issues
     const { data: messages, error: messagesError } = await supabaseServer
       .from("group_chat_messages")
-      .select(`
-        id,
-        group_id,
-        user_id,
-        content,
-        type,
-        metadata,
-        created_at,
-        user:user_id (
-          id,
-          email
-        )
-      `)
+      .select("id, group_id, user_id, content, type, metadata, created_at")
       .eq("group_id", groupId)
       .order("created_at", { ascending: true })
       .limit(50);
@@ -80,35 +69,52 @@ export async function GET(
     if (messagesError) {
       console.error("Error fetching messages:", messagesError);
       return NextResponse.json(
-        { error: "Failed to fetch messages" },
+        { error: "Failed to fetch messages", details: messagesError.message },
         { status: 500 }
       );
     }
 
-    // Get user profiles for message authors
-    const userIds = Array.from(new Set(messages?.map((m: any) => m.user_id) || []));
-    const { data: profiles } = await supabaseServer
-      .from("user_profiles")
-      .select("id, name, avatar_url")
-      .in("id", userIds);
+    if (!messages || messages.length === 0) {
+      return NextResponse.json({ messages: [] });
+    }
 
-    const profileMap = new Map(profiles?.map((p: any) => [p.id, p]) || []);
+    // Get user profiles for message authors (fetch separately to avoid relationship issues)
+    const userIds = Array.from(new Set(messages.map((m: any) => m.user_id)));
+    let profileMap = new Map();
+    
+    if (userIds.length > 0) {
+      const { data: profiles, error: profilesError } = await supabaseServer
+        .from("user_profiles")
+        .select("id, name, avatar_url")
+        .in("id", userIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        // Continue without profiles - we'll use fallbacks
+      } else if (profiles) {
+        profileMap = new Map(profiles.map((p: any) => [p.id, p]));
+      }
+    }
 
     // Combine messages with user profiles
-    const messagesWithProfiles = (messages || []).map((message: any) => ({
-      id: message.id,
-      group_id: message.group_id,
-      user_id: message.user_id,
-      content: message.content,
-      type: message.type,
-      metadata: message.metadata,
-      created_at: message.created_at,
-      user: {
-        id: message.user_id,
-        name: profileMap.get(message.user_id)?.name || message.user?.email?.split("@")[0] || "User",
-        avatar_url: profileMap.get(message.user_id)?.avatar_url || null,
-      },
-    }));
+    const messagesWithProfiles = messages.map((message: any) => {
+      const profile = profileMap.get(message.user_id);
+      
+      return {
+        id: message.id,
+        group_id: message.group_id,
+        user_id: message.user_id,
+        content: message.content,
+        type: message.type,
+        metadata: message.metadata,
+        created_at: message.created_at,
+        user: {
+          id: message.user_id,
+          name: profile?.name || `User ${message.user_id.substring(0, 8)}`,
+          avatar_url: profile?.avatar_url || null,
+        },
+      };
+    });
 
     return NextResponse.json({ messages: messagesWithProfiles });
   } catch (error: any) {
@@ -187,7 +193,7 @@ export async function POST(
     }
 
     // Insert message (RLS will also enforce access)
-    const { data: message, error: insertError } = await supabaseServer
+    const { data: messages, error: insertError } = await supabaseServer
       .from("group_chat_messages")
       .insert({
         group_id: groupId,
@@ -205,27 +211,37 @@ export async function POST(
         metadata,
         created_at
       `)
-      .limit(1)
-      .single();
+      .limit(1);
 
     if (insertError) {
       console.error("Error inserting message:", insertError);
       return NextResponse.json(
-        { error: "Failed to post message" },
+        { error: "Failed to post message", details: insertError.message },
         { status: 500 }
       );
     }
 
-    // Get user profile for the message author
-    const { data: profile } = await supabaseServer
+    // Get first result (should only be one)
+    const newMessage = messages && messages.length > 0 ? messages[0] : null;
+    
+    if (!newMessage) {
+      return NextResponse.json(
+        { error: "Message created but could not be retrieved" },
+        { status: 500 }
+      );
+    }
+
+    // Get user profile for the message author (use limit(1) instead of single() to avoid relationship issues)
+    const { data: profileData } = await supabaseServer
       .from("user_profiles")
       .select("id, name, avatar_url")
       .eq("id", userId)
-      .limit(1)
-      .single();
+      .limit(1);
+
+    const profile = profileData && profileData.length > 0 ? profileData[0] : null;
 
     const messageWithProfile = {
-      ...message,
+      ...newMessage,
       user: {
         id: userId,
         name: profile?.name || session.user.email?.split("@")[0] || "User",

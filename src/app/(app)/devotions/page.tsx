@@ -21,7 +21,8 @@ import {
   Heart,
   MessageCircle,
   Users,
-  ArrowRight
+  ArrowRight,
+  Share2
 } from 'lucide-react'
 
 interface Reading {
@@ -299,6 +300,39 @@ export default function DevotionsPage() {
       })
     }
   }
+  
+  const handleShareToGroup = async () => {
+    if (userGroups.length === 0) {
+      router.push('/fellowship')
+      return
+    }
+    
+    // Build formatted message
+    let message = `📖 Today's Reading: ${todayReading.verse}\n`
+    
+    if (reflection.trim()) {
+      message += `Reflection: ${reflection.trim()}\n`
+    }
+    
+    message += `Let's discuss this together on Gathered 🙌`
+    
+    try {
+      await navigator.clipboard.writeText(message)
+      toast({
+        title: 'Copied!',
+        description: 'Paste into your group chat',
+        variant: 'success',
+        duration: 3000,
+      })
+    } catch (error) {
+      toast({
+        title: 'Failed to copy',
+        description: 'Please try again.',
+        variant: 'error',
+        duration: 2000,
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-navy-900">
@@ -454,6 +488,25 @@ export default function DevotionsPage() {
               >
                 Save reflection
               </button>
+              
+              {/* Share to Group */}
+              {userGroups.length > 0 ? (
+                <button
+                  onClick={handleShareToGroup}
+                  className="w-full flex items-center justify-center space-x-2 border border-gold-600/40 text-gold-500 hover:bg-gold-500/10 px-4 py-3 rounded-lg font-medium transition-colors"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Share to group</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => router.push('/fellowship')}
+                  className="w-full flex items-center justify-center space-x-2 border border-gold-600/40 text-gold-500 hover:bg-gold-500/10 px-4 py-3 rounded-lg font-medium transition-colors"
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Join a group to discuss</span>
+                </button>
+              )}
             </div>
           )}
         </div>

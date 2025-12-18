@@ -44,3 +44,5 @@ SELECT COUNT(*) as profile_count FROM user_profiles;
 -- 6. List a few user IDs from auth.users to compare format
 SELECT id, email FROM auth.users LIMIT 3;
 
+
+

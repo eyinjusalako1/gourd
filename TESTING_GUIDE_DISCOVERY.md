@@ -207,3 +207,4 @@ Test in:
 
 **Quick Start:** Just navigate to `/discovery`, type "anime events in London", and click the button. You should see filters appear, then matching events (if any exist in your database).
 
+

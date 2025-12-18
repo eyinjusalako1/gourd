@@ -48,3 +48,5 @@ FROM pg_policies
 WHERE tablename = 'user_profiles'
 ORDER BY policyname;
 
+
+

@@ -12,3 +12,5 @@ INSERT INTO user_profiles (id, avatar_url, updated_at)
 VALUES ('YOUR_USER_ID_HERE', 'https://example.com/test.jpg', NOW());
 */
 
+
+

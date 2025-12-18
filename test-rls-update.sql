@@ -22,3 +22,5 @@ CREATE POLICY "Users can update own profile"
   WITH CHECK (auth.uid() = id);
 */
 
+
+

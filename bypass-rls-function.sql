@@ -28,3 +28,5 @@ GRANT EXECUTE ON FUNCTION update_user_profile_avatar(UUID, TEXT) TO authenticate
 -- Test the function (replace with actual user ID)
 -- SELECT update_user_profile_avatar('YOUR_USER_ID_HERE'::UUID, 'https://example.com/avatar.jpg');
 
+
+

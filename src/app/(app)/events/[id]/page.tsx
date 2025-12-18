@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import BackButton from '@/components/BackButton'
 import { EventService } from '@/lib/event-service'
-import { Event, EventRSVP } from '@/types'
+import { FellowshipService } from '@/lib/fellowship-service'
+import { Event, EventRSVP, FellowshipGroup } from '@/types'
 import { 
   MapPin, 
   Calendar, 
@@ -24,8 +25,10 @@ import {
   UserPlus,
   MessageCircle,
   Share2,
-  Copy
+  Copy,
+  Link as LinkIcon
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function EventDetailsPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const { user } = useAuth()
@@ -33,6 +36,7 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
   const [event, setEvent] = useState<Event | null>(null)
   const [rsvps, setRsvps] = useState<EventRSVP[]>([])
   const [userRsvp, setUserRsvp] = useState<EventRSVP | null>(null)
+  const [eventGroup, setEventGroup] = useState<FellowshipGroup | null>(null)
   const [loading, setLoading] = useState(true)
   const [rsvpLoading, setRsvpLoading] = useState(false)
   const [showRsvpModal, setShowRsvpModal] = useState(false)
@@ -83,6 +87,17 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
 
       setEvent(eventData)
       setRsvps(rsvpsData)
+
+      // Load group if event is associated with a group
+      if (eventData.group_id) {
+        try {
+          const group = await FellowshipService.getGroup(eventData.group_id)
+          setEventGroup(group)
+        } catch (error) {
+          console.error('Error loading event group:', error)
+          // Silently fail, don't break the page
+        }
+      }
 
       if (user) {
         const userRsvpData = await EventService.getUserRSVP(id.trim(), user.id)
@@ -327,6 +342,23 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">Location</div>
                       <div className="text-gray-600 dark:text-gray-400">{event.location}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Group Association */}
+                {eventGroup && (
+                  <div className="flex items-start space-x-3">
+                    <Users className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">Hosted by</div>
+                      <Link 
+                        href={`/fellowship/${eventGroup.id}`}
+                        className="text-gold-500 hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300 flex items-center space-x-1 transition-colors"
+                      >
+                        <span>{eventGroup.name}</span>
+                        <LinkIcon className="w-3 h-3" />
+                      </Link>
                     </div>
                   </div>
                 )}

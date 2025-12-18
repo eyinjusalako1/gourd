@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { getAuthenticatedUser } from "@/lib/server-auth-utils";
 
 /**
  * GET /api/chat/group/[groupId]
@@ -26,20 +27,17 @@ export async function GET(
       );
     }
 
-    // Get authenticated user from session
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabaseServer.auth.getSession();
-
-    if (sessionError || !session?.user?.id) {
+    // Get authenticated user from request
+    const authUser = await getAuthenticatedUser(req);
+    
+    if (!authUser) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const userId = authUser.userId;
 
     // Verify user is an active member of the group
     const { data: membership, error: membershipError } = await supabaseServer
@@ -161,20 +159,17 @@ export async function POST(
       );
     }
 
-    // Get authenticated user from session
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabaseServer.auth.getSession();
-
-    if (sessionError || !session?.user?.id) {
+    // Get authenticated user from request
+    const authUser = await getAuthenticatedUser(req);
+    
+    if (!authUser) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const userId = authUser.userId;
 
     // Verify user is an active member of the group
     const { data: membership, error: membershipError } = await supabaseServer
@@ -244,7 +239,7 @@ export async function POST(
       ...newMessage,
       user: {
         id: userId,
-        name: profile?.name || session.user.email?.split("@")[0] || "User",
+        name: profile?.name || authUser.email?.split("@")[0] || "User",
         avatar_url: profile?.avatar_url || null,
       },
     };

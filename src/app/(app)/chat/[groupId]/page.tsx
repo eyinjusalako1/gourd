@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup, GroupChatMessage } from '@/types'
+import { supabase } from '@/lib/supabase'
 import BackButton from '@/components/BackButton'
 import { Send, Users, Loader2 } from 'lucide-react'
 // Helper function to get initials from name
@@ -89,10 +90,16 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
   }
 
   const loadMessages = async (showLoading = true) => {
-    if (!groupId) return
+    if (!groupId || !user?.id) return
     try {
       if (showLoading) setLoading(true)
-      const response = await fetch(`/api/chat/group/${groupId}`)
+      // Get session to include access token
+      const { data: { session } } = await supabase.auth.getSession()
+      const response = await fetch(`/api/chat/group/${groupId}`, {
+        headers: {
+          'Authorization': session?.access_token ? `Bearer ${session.access_token}` : '',
+        },
+      })
       
       if (!response.ok) {
         if (response.status === 403) {

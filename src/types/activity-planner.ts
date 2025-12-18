@@ -35,3 +35,4 @@ export interface ActivityPlannerAPIResponse {
   warning?: string; // Warning message if fallback was used
 }
 
+

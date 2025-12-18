@@ -27,7 +27,9 @@ export async function getAuthenticatedUser(req: NextRequest): Promise<{ userId: 
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.substring(7);
       const { data: { user }, error } = await supabase.auth.getUser(token);
-      if (!error && user) {
+      if (error) {
+        console.error("Error verifying token from Authorization header:", error);
+      } else if (user) {
         return { userId: user.id, email: user.email };
       }
     }

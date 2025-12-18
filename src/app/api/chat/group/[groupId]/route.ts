@@ -66,8 +66,18 @@ export async function GET(
 
     if (messagesError) {
       console.error("Error fetching messages:", messagesError);
+      console.error("Messages error details:", {
+        message: messagesError.message,
+        code: messagesError.code,
+        details: messagesError.details,
+        hint: messagesError.hint,
+      });
       return NextResponse.json(
-        { error: "Failed to fetch messages", details: messagesError.message },
+        { 
+          error: "Failed to fetch messages", 
+          details: messagesError.message,
+          hint: messagesError.hint || "Check if group_chat_messages table exists"
+        },
         { status: 500 }
       );
     }
@@ -117,8 +127,16 @@ export async function GET(
     return NextResponse.json({ messages: messagesWithProfiles });
   } catch (error: any) {
     console.error("Error in GET /api/chat/group/[groupId]:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      { 
+        error: error.message || "Internal server error",
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
@@ -210,8 +228,18 @@ export async function POST(
 
     if (insertError) {
       console.error("Error inserting message:", insertError);
+      console.error("Insert error details:", {
+        message: insertError.message,
+        code: insertError.code,
+        details: insertError.details,
+        hint: insertError.hint,
+      });
       return NextResponse.json(
-        { error: "Failed to post message", details: insertError.message },
+        { 
+          error: "Failed to post message", 
+          details: insertError.message,
+          hint: insertError.hint || "Check if group_chat_messages table exists and RLS policies are set"
+        },
         { status: 500 }
       );
     }

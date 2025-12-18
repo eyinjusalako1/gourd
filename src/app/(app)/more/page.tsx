@@ -13,7 +13,9 @@ import {
   MapPin,
   Edit,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  BookOpen,
+  Heart
 } from 'lucide-react'
 import Image from 'next/image'
 
@@ -27,18 +29,27 @@ export default function MorePage() {
 
   const menuItems = [
     {
-      id: 'profile',
-      label: 'Profile',
-      icon: User,
-      route: '/profile',
-      description: 'View and edit your profile'
+      id: 'saved-verses',
+      label: 'Saved Verses',
+      icon: Sparkles,
+      route: '/more/saved-verses',
+      description: 'Verses you\'ve saved from devotions',
+      comingSoon: false
     },
     {
-      id: 'saved-events',
-      label: 'Saved Events',
-      icon: Calendar,
-      route: '/events', // Placeholder - can be updated when saved events feature is implemented
-      description: 'Events you\'ve saved',
+      id: 'reflections',
+      label: 'Saved Reflections',
+      icon: BookOpen,
+      route: '/more/reflections',
+      description: 'Your devotional reflections',
+      comingSoon: false
+    },
+    {
+      id: 'prayers',
+      label: 'Saved Prayers',
+      icon: Heart,
+      route: '/more/prayers',
+      description: 'Your devotional prayers',
       comingSoon: false
     },
     {

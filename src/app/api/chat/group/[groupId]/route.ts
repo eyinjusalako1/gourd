@@ -12,12 +12,12 @@ import { supabaseServer } from "@/lib/supabaseServer";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ groupId: string }> | { id: string } }
+  { params }: { params: Promise<{ groupId: string }> | { groupId: string } }
 ) {
   try {
     // Resolve params (handle both Promise and direct params)
     const resolvedParams = params instanceof Promise ? await params : params;
-    const groupId = 'groupId' in resolvedParams ? resolvedParams.groupId : ('id' in resolvedParams ? resolvedParams.id : '');
+    const groupId = resolvedParams.groupId;
 
     if (!groupId) {
       return NextResponse.json(
@@ -131,12 +131,12 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ groupId: string }> | { id: string } }
+  { params }: { params: Promise<{ groupId: string }> | { groupId: string } }
 ) {
   try {
     // Resolve params
     const resolvedParams = params instanceof Promise ? await params : params;
-    const groupId = 'groupId' in resolvedParams ? resolvedParams.groupId : ('id' in resolvedParams ? resolvedParams.id : '');
+    const groupId = resolvedParams.groupId;
 
     if (!groupId) {
       return NextResponse.json(

@@ -17,7 +17,7 @@ export async function GET(
   try {
     // Resolve params (handle both Promise and direct params)
     const resolvedParams = params instanceof Promise ? await params : params;
-    const groupId = resolvedParams?.groupId || resolvedParams?.id;
+    const groupId = 'groupId' in resolvedParams ? resolvedParams.groupId : ('id' in resolvedParams ? resolvedParams.id : '');
 
     if (!groupId) {
       return NextResponse.json(
@@ -136,7 +136,7 @@ export async function POST(
   try {
     // Resolve params
     const resolvedParams = params instanceof Promise ? await params : params;
-    const groupId = resolvedParams?.groupId || resolvedParams?.id;
+    const groupId = 'groupId' in resolvedParams ? resolvedParams.groupId : ('id' in resolvedParams ? resolvedParams.id : '');
 
     if (!groupId) {
       return NextResponse.json(

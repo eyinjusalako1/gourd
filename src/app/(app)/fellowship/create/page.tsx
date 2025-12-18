@@ -390,7 +390,7 @@ export default function CreateGroupPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
                     { value: 'bible_study', label: 'Bible Study', icon: <BookOpen className="w-4 h-4" /> },
-                    { value: 'prayer_group', label: 'Sparkles Group', icon: <Sparkles className="w-4 h-4" /> },
+                    { value: 'prayer_group', label: 'Prayer Group', icon: <Sparkles className="w-4 h-4" /> },
                     { value: 'fellowship', label: 'Fellowship', icon: <Heart className="w-4 h-4" /> },
                     { value: 'youth_group', label: 'Youth Group', icon: <Users className="w-4 h-4" /> },
                     { value: 'senior_group', label: 'Senior Group', icon: <Users className="w-4 h-4" /> },

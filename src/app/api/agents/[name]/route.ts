@@ -177,9 +177,9 @@ function getMockResponse(agentName: string, body: any) {
         groupName = "Worship & Fellowship";
       } else {
         // Extract key words from goal
-        const words = goal.split(' ').filter(w => w.length > 4).slice(0, 2);
+        const words = goal.split(' ').filter((w: string) => w.length > 4).slice(0, 2);
         if (words.length > 0) {
-          groupName = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') + " Group";
+          groupName = words.map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') + " Group";
         }
       }
 
@@ -193,12 +193,12 @@ function getMockResponse(agentName: string, body: any) {
 
       // Generate tags
       const tagWords = [
-        ...(goal.split(' ').filter(w => w.length > 3 && !["with", "that", "this", "have", "will", "from", "near", "in", "the", "and", "for", "are"].includes(w.toLowerCase())).slice(0, 3)),
+        ...(goal.split(' ').filter((w: string) => w.length > 3 && !["with", "that", "this", "have", "will", "from", "near", "in", "the", "and", "for", "are"].includes(w.toLowerCase())).slice(0, 3)),
         ...(audience ? [audience.toLowerCase()] : []),
         ...(tone === "chill" ? ["casual"] : tone === "structured" ? ["structured"] : tone === "deep" ? ["deep study"] : ["social"]),
         "fellowship"
       ];
-      const uniqueTags = Array.from(new Set(tagWords.map(t => t.toLowerCase()))).slice(0, 6);
+      const uniqueTags = Array.from(new Set(tagWords.map((t: string) => t.toLowerCase()))).slice(0, 6);
 
       // Generate meeting schedule
       const schedule = meetingFreq === "weekly" 

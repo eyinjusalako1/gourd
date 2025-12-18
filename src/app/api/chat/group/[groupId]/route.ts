@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabaseServer";
-import { getAuthenticatedUser } from "@/lib/server-auth-utils";
+import { createUserSupabaseClient } from "@/lib/server-auth-utils";
 
 /**
  * GET /api/chat/group/[groupId]
@@ -27,19 +27,20 @@ export async function GET(
       );
     }
 
-    // Get authenticated user from request
-    const authUser = await getAuthenticatedUser(req);
+    // Create user-authenticated Supabase client (respects RLS)
+    const authResult = await createUserSupabaseClient(req);
     
-    if (!authUser) {
+    if (!authResult) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    const userId = authUser.userId;
+    const { client: supabase, userId } = authResult;
 
-    // Verify user is an active member of the group
+    // Defense-in-depth: Verify user is an active member of the group
+    // (Using service role for this check only, as it's a read operation for verification)
     const { data: membership, error: membershipError } = await supabaseServer
       .from("group_memberships")
       .select("id")
@@ -55,9 +56,9 @@ export async function GET(
       );
     }
 
-    // Fetch messages (RLS will also enforce access)
+    // Fetch messages using user-authenticated client (RLS enforces access)
     // Use explicit column selection to avoid PostgREST relationship resolution issues
-    const { data: messages, error: messagesError } = await supabaseServer
+    const { data: messages, error: messagesError } = await supabase
       .from("group_chat_messages")
       .select("id, group_id, user_id, content, type, metadata, created_at")
       .eq("group_id", groupId)
@@ -87,11 +88,12 @@ export async function GET(
     }
 
     // Get user profiles for message authors (fetch separately to avoid relationship issues)
+    // Using user-authenticated client (RLS will enforce access to profiles)
     const userIds = Array.from(new Set(messages.map((m: any) => m.user_id)));
     let profileMap = new Map();
     
     if (userIds.length > 0) {
-      const { data: profiles, error: profilesError } = await supabaseServer
+      const { data: profiles, error: profilesError } = await supabase
         .from("user_profiles")
         .select("id, name, avatar_url")
         .in("id", userIds);
@@ -177,19 +179,20 @@ export async function POST(
       );
     }
 
-    // Get authenticated user from request
-    const authUser = await getAuthenticatedUser(req);
+    // Create user-authenticated Supabase client (respects RLS)
+    const authResult = await createUserSupabaseClient(req);
     
-    if (!authUser) {
+    if (!authResult) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    const userId = authUser.userId;
+    const { client: supabase, userId } = authResult;
 
-    // Verify user is an active member of the group
+    // Defense-in-depth: Verify user is an active member of the group
+    // (Using service role for this check only, as it's a read operation for verification)
     const { data: membership, error: membershipError } = await supabaseServer
       .from("group_memberships")
       .select("id")
@@ -205,8 +208,8 @@ export async function POST(
       );
     }
 
-    // Insert message (RLS will also enforce access)
-    const { data: messages, error: insertError } = await supabaseServer
+    // Insert message using user-authenticated client (RLS enforces access)
+    const { data: messages, error: insertError } = await supabase
       .from("group_chat_messages")
       .insert({
         group_id: groupId,
@@ -254,8 +257,8 @@ export async function POST(
       );
     }
 
-    // Get user profile for the message author (use limit(1) instead of single() to avoid relationship issues)
-    const { data: profileData } = await supabaseServer
+    // Get user profile for the message author using user-authenticated client
+    const { data: profileData } = await supabase
       .from("user_profiles")
       .select("id, name, avatar_url")
       .eq("id", userId)
@@ -263,11 +266,14 @@ export async function POST(
 
     const profile = profileData && profileData.length > 0 ? profileData[0] : null;
 
+    // Get user email from auth for fallback
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+
     const messageWithProfile = {
       ...newMessage,
       user: {
         id: userId,
-        name: profile?.name || authUser.email?.split("@")[0] || "User",
+        name: profile?.name || authUser?.email?.split("@")[0] || "User",
         avatar_url: profile?.avatar_url || null,
       },
     };

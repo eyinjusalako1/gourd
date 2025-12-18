@@ -8,7 +8,7 @@ import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup, GroupChatMessage } from '@/types'
 import { supabase } from '@/lib/supabase'
 import BackButton from '@/components/BackButton'
-import { Send, Users, Loader2 } from 'lucide-react'
+import { Send, Users, Loader2, BookOpen, ArrowRight } from 'lucide-react'
 // Helper function to get initials from name
 const getInitials = (name: string): string => {
   if (!name) return 'U'
@@ -169,8 +169,12 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
       setMessages(prev => [...prev, data.message])
       setMessageInput('')
       
-      // Refresh messages to get latest
-      setTimeout(() => loadMessages(false), 500)
+      // Scroll to bottom after sending
+      setTimeout(() => {
+        scrollToBottom()
+        // Refresh messages to get latest
+        loadMessages(false)
+      }, 100)
     } catch (error) {
       console.error('Error sending message:', error)
       toast({
@@ -185,19 +189,18 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
   }
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
   }
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`
-    return date.toLocaleDateString()
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    })
   }
 
   const isMyMessage = (message: GroupChatMessage) => {
@@ -248,10 +251,17 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
               <div className="w-16 h-16 bg-navy-800/40 border border-gold-500/20 rounded-full flex items-center justify-center mb-4">
                 <Send className="w-8 h-8 text-gold-500/50" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-50 mb-2">No messages yet</h3>
-              <p className="text-slate-400 text-sm text-center max-w-sm">
-                Be the first to start the conversation!
+              <h3 className="text-lg font-semibold text-slate-50 mb-2">Start the conversation</h3>
+              <p className="text-slate-400 text-sm text-center max-w-sm mb-4">
+                Be the first to share a message with your group!
               </p>
+              <button
+                onClick={() => router.push('/devotions')}
+                className="flex items-center space-x-2 bg-gold-500/10 border border-gold-600/40 text-gold-500 hover:bg-gold-500/20 px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Share today's devotion</span>
+              </button>
             </div>
           ) : (
             messages.map((message) => {
@@ -261,12 +271,12 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
               return (
                 <div
                   key={message.id}
-                  className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${isMine ? 'justify-end' : 'justify-start'} mb-4`}
                 >
-                  <div className={`flex items-start space-x-3 max-w-[75%] ${isMine ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    {/* Avatar */}
+                  <div className={`flex items-end space-x-2 max-w-[75%] ${isMine ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                    {/* Avatar - only for other users */}
                     {!isMine && (
-                      <div className="w-8 h-8 rounded-full bg-gold-500/15 border border-gold-500/30 flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gold-500/15 border border-gold-500/30 flex items-center justify-center flex-shrink-0 mb-1">
                         {message.user.avatar_url ? (
                           <img
                             src={message.user.avatar_url}
@@ -281,26 +291,67 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
                       </div>
                     )}
 
-                    {/* Message Bubble */}
-                    <div className={`rounded-2xl px-4 py-2 ${
-                      isMine
-                        ? 'bg-gold-500 text-navy-900'
-                        : 'bg-navy-800/50 text-slate-50 border border-white/10'
-                    }`}>
-                      {!isMine && (
-                        <div className="text-xs font-semibold mb-1 opacity-80">
-                          {message.user.name}
-                        </div>
-                      )}
+                    {/* Message Content */}
+                    <div className="flex flex-col">
                       {isDevotionShare ? (
-                        <div className="space-y-2">
-                          <div className="text-xs opacity-80">📖 Devotion Share</div>
-                          <div className="whitespace-pre-wrap">{message.content}</div>
+                        // Devotion Share Card
+                        <div className="bg-navy-800/40 border border-gold-600/30 rounded-xl p-4 space-y-3 max-w-md">
+                          <div className="flex items-center space-x-2">
+                            <BookOpen className="w-5 h-5 text-gold-500" />
+                            <h4 className="text-sm font-semibold text-slate-50">📖 Devotion shared</h4>
+                          </div>
+                          
+                          {message.metadata?.passageRef && (
+                            <div className="bg-navy-900/60 rounded-lg p-3 border border-white/5">
+                              <p className="text-sm font-medium text-gold-500 mb-1">
+                                {message.metadata.passageRef}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {message.metadata?.reflection && (
+                            <div className="bg-navy-900/60 rounded-lg p-3 border border-white/5">
+                              <p className="text-xs text-slate-400 mb-1">Reflection:</p>
+                              <p className="text-sm text-slate-200 whitespace-pre-wrap line-clamp-3">
+                                {message.metadata.reflection}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {!message.metadata?.passageRef && (
+                            <p className="text-sm text-slate-300 whitespace-pre-wrap">
+                              {message.content}
+                            </p>
+                          )}
+                          
+                          <button
+                            onClick={() => router.push('/devotions')}
+                            className="w-full flex items-center justify-center space-x-2 bg-gold-500 hover:bg-gold-600 text-navy-900 px-4 py-2 rounded-lg font-medium transition-colors"
+                          >
+                            <span>Open Devotions</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
                         </div>
                       ) : (
-                        <div className="whitespace-pre-wrap">{message.content}</div>
+                        // Regular Message Bubble
+                        <div className={`rounded-2xl px-4 py-3 ${
+                          isMine
+                            ? 'bg-navy-900/60 border border-gold-600/30 text-slate-50'
+                            : 'bg-navy-900/40 border border-white/10 text-slate-50'
+                        }`}>
+                          {!isMine && (
+                            <div className="text-xs font-semibold mb-1.5 text-gold-500">
+                              {message.user.name}
+                            </div>
+                          )}
+                          <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                            {message.content}
+                          </div>
+                        </div>
                       )}
-                      <div className={`text-xs mt-1 ${isMine ? 'text-navy-900/70' : 'text-slate-400'}`}>
+                      
+                      {/* Timestamp */}
+                      <div className={`text-xs mt-1 px-1 ${isMine ? 'text-right' : 'text-left'} text-slate-400/60`}>
                         {formatTime(message.created_at)}
                       </div>
                     </div>
@@ -313,8 +364,8 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="bg-navy-800/50 border-t border-white/10 px-4 py-3 sticky bottom-0 z-10">
+      {/* Input Area - Sticky at bottom */}
+      <div className="bg-navy-800/50 border-t border-white/10 px-4 py-3 fixed bottom-0 left-0 right-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center space-x-3">
           <input
             type="text"

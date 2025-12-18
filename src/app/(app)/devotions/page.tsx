@@ -7,6 +7,7 @@ import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/components/ui/Toast'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup } from '@/types'
+import { supabase } from '@/lib/supabase'
 import { 
   BookOpen, 
   Calendar, 
@@ -333,11 +334,15 @@ export default function DevotionsPage() {
       
       message += `Let's discuss this together on Gathered 🙌`
       
+      // Get session to include access token
+      const { data: { session } } = await supabase.auth.getSession()
+      
       // Post to group chat
       const response = await fetch(`/api/chat/group/${selectedGroupId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': session?.access_token ? `Bearer ${session.access_token}` : '',
         },
         body: JSON.stringify({
           content: message,

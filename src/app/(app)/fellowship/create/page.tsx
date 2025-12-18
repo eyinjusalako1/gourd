@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/Toast'
 import BackButton from '@/components/BackButton'
 import { FellowshipService } from '@/lib/fellowship-service'
 import { FellowshipGroup } from '@/types'
+import { GroupPlannerRequest, GroupPlannerAPIResponse } from '@/types/group-planner'
 import { 
   MapPin, 
   Users, 
@@ -27,6 +28,14 @@ export default function CreateGroupPage() {
   const { profile, isSteward, isLoading: profileLoading } = useUserProfile()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showAiSection, setShowAiSection] = useState(false)
+  const [aiGoal, setAiGoal] = useState('')
+  const [aiLocationHint, setAiLocationHint] = useState('')
+  const [aiAudience, setAiAudience] = useState('')
+  const [aiMeetingFrequency, setAiMeetingFrequency] = useState('weekly')
+  const [aiTone, setAiTone] = useState<'chill' | 'structured' | 'deep' | 'social'>('chill')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
 
   // Redirect if user is not a steward
   useEffect(() => {
@@ -34,11 +43,11 @@ export default function CreateGroupPage() {
       if (!isSteward) {
         toast({
           title: 'Access Restricted',
-          description: 'Only stewards can create events or groups.',
+          description: 'Only Stewards can create groups.',
           variant: 'error',
           duration: 4000,
         })
-        router.replace('/dashboard')
+        router.replace('/fellowship')
       }
     }
   }, [profile, isSteward, profileLoading, router, toast])
@@ -94,6 +103,87 @@ export default function CreateGroupPage() {
     }))
   }
 
+  const handleGenerateWithAI = async () => {
+    if (!aiGoal.trim()) {
+      setAiError('Please describe the group you want to start')
+      return
+    }
+
+    setAiLoading(true)
+    setAiError('')
+
+    try {
+      const requestBody: GroupPlannerRequest = {
+        goal: aiGoal.trim(),
+        location_hint: aiLocationHint.trim() || undefined,
+        audience: aiAudience.trim() || undefined,
+        meeting_frequency: aiMeetingFrequency || undefined,
+        tone: aiTone
+      }
+
+      const response = await fetch('/api/agents/GroupPlanner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate group setup')
+      }
+
+      const result: GroupPlannerAPIResponse = await response.json()
+
+      if (!result.data) {
+        throw new Error('Invalid response from Group Planner')
+      }
+
+      const data = result.data
+
+      // Quality safeguards
+      // Deduplicate tags (case-insensitive)
+      const uniqueTags = Array.from(new Set(
+        data.suggested_tags.map(tag => tag.toLowerCase().trim())
+      )).filter(tag => tag.length > 0)
+
+      // Ensure name isn't empty
+      const safeName = data.suggested_name?.trim() || `Fellowship Group - ${new Date().toLocaleDateString()}`
+
+      // Truncate short description to 120 chars
+      const safeShortDesc = data.suggested_short_description 
+        ? data.suggested_short_description.substring(0, 120).trim()
+        : ''
+
+      // Auto-fill form with AI suggestions
+      setFormData(prev => ({
+        ...prev,
+        name: safeName,
+        description: data.suggested_full_description || prev.description,
+        location: aiLocationHint || prev.location,
+        meeting_schedule: data.suggested_meeting_schedule || prev.meeting_schedule,
+        tags: uniqueTags.join(', '),
+        is_private: data.suggested_privacy === 'private'
+      }))
+
+      // Show success message
+      toast({
+        title: 'Group setup generated!',
+        description: 'Review and edit the form fields as needed.',
+        variant: 'success',
+        duration: 3000,
+      })
+
+      // Optionally hide the AI section after successful generation
+      setShowAiSection(false)
+    } catch (err: any) {
+      console.error('GroupPlanner error:', err)
+      setAiError(err.message || 'Failed to generate group setup. Please try again.')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   const getGroupTypeIcon = (type: string) => {
     switch (type) {
       case 'bible_study':
@@ -127,6 +217,142 @@ export default function CreateGroupPage() {
       <BackButton label="Create Fellowship Group" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* AI Assistance Section - Only visible to Stewards */}
+        {isSteward && (
+          <div className="mb-8 bg-gradient-to-br from-navy-800/40 to-indigo-800/40 border border-gold-500/30 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-5 h-5 text-gold-500" />
+                <h2 className="text-lg font-semibold text-slate-50">
+                  Create with AI
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAiSection(!showAiSection)}
+                className="text-sm text-gold-500 hover:text-gold-400 transition-colors"
+              >
+                {showAiSection ? 'Hide' : 'Show'}
+              </button>
+            </div>
+
+            {showAiSection && (
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="ai-goal" className="block text-sm font-medium text-slate-200 mb-2">
+                    Describe the group you want to start *
+                  </label>
+                  <textarea
+                    id="ai-goal"
+                    value={aiGoal}
+                    onChange={(e) => setAiGoal(e.target.value)}
+                    placeholder="e.g., a chill weekly young adults bible study in Dartford on Saturdays, welcoming new believers"
+                    className="w-full px-4 py-3 border border-white/10 rounded-lg bg-navy-900/60 text-slate-50 placeholder-slate-400 focus:ring-2 focus:ring-gold-500 focus:border-gold-500 resize-none"
+                    rows={3}
+                    disabled={aiLoading}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="ai-location" className="block text-sm font-medium text-slate-200 mb-2">
+                      Location (optional)
+                    </label>
+                    <input
+                      id="ai-location"
+                      type="text"
+                      value={aiLocationHint}
+                      onChange={(e) => setAiLocationHint(e.target.value)}
+                      placeholder="e.g., Dartford, Kent"
+                      className="w-full px-4 py-2 border border-white/10 rounded-lg bg-navy-900/60 text-slate-50 placeholder-slate-400 focus:ring-2 focus:ring-gold-500 focus:border-gold-500"
+                      disabled={aiLoading}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="ai-audience" className="block text-sm font-medium text-slate-200 mb-2">
+                      Audience (optional)
+                    </label>
+                    <input
+                      id="ai-audience"
+                      type="text"
+                      value={aiAudience}
+                      onChange={(e) => setAiAudience(e.target.value)}
+                      placeholder="e.g., young adults, new believers"
+                      className="w-full px-4 py-2 border border-white/10 rounded-lg bg-navy-900/60 text-slate-50 placeholder-slate-400 focus:ring-2 focus:ring-gold-500 focus:border-gold-500"
+                      disabled={aiLoading}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="ai-frequency" className="block text-sm font-medium text-slate-200 mb-2">
+                      Meeting Frequency
+                    </label>
+                    <select
+                      id="ai-frequency"
+                      value={aiMeetingFrequency}
+                      onChange={(e) => setAiMeetingFrequency(e.target.value)}
+                      className="w-full px-4 py-2 border border-white/10 rounded-lg bg-navy-900/60 text-slate-50 focus:ring-2 focus:ring-gold-500 focus:border-gold-500"
+                      disabled={aiLoading}
+                    >
+                      <option value="weekly">Weekly</option>
+                      <option value="biweekly">Biweekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="ai-tone" className="block text-sm font-medium text-slate-200 mb-2">
+                    Tone
+                  </label>
+                  <select
+                    id="ai-tone"
+                    value={aiTone}
+                    onChange={(e) => setAiTone(e.target.value as 'chill' | 'structured' | 'deep' | 'social')}
+                    className="w-full px-4 py-2 border border-white/10 rounded-lg bg-navy-900/60 text-slate-50 focus:ring-2 focus:ring-gold-500 focus:border-gold-500"
+                    disabled={aiLoading}
+                  >
+                    <option value="chill">Chill</option>
+                    <option value="structured">Structured</option>
+                    <option value="deep">Deep</option>
+                    <option value="social">Social</option>
+                  </select>
+                </div>
+
+                {aiError && (
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+                    <p className="text-sm text-red-400">{aiError}</p>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleGenerateWithAI}
+                  disabled={aiLoading || !aiGoal.trim()}
+                  className="w-full px-4 py-3 bg-gold-500 hover:bg-gold-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-navy-900 font-medium rounded-lg transition-colors flex items-center justify-center space-x-2"
+                >
+                  {aiLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-navy-900"></div>
+                      <span>Creating your group setup...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Generate group setup</span>
+                    </>
+                  )}
+                </button>
+
+                <p className="text-xs text-slate-400">
+                  The AI will suggest a name, descriptions, meeting schedule, tags, privacy setting, rules, and welcome message. You can edit all fields before submitting.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">

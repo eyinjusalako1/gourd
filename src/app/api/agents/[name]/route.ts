@@ -152,6 +152,86 @@ function getMockResponse(agentName: string, body: any) {
         suggested_time_hint: timeHint,
       };
 
+    case "GroupPlanner":
+      const goal = (body?.goal || "").toLowerCase();
+      const locationHint = body?.location_hint || "";
+      const audience = body?.audience || "";
+      const meetingFreq = body?.meeting_frequency || "weekly";
+      const tone = body?.tone || "chill";
+
+      // Generate name based on goal and context
+      let groupName = "Fellowship Group";
+      if (goal.includes("bible") || goal.includes("study")) {
+        if (locationHint) {
+          groupName = `${locationHint.split(',')[0]} Bible Study`;
+        } else if (audience) {
+          groupName = `${audience} Bible Study`;
+        } else {
+          groupName = "Word & Worship";
+        }
+      } else if (goal.includes("prayer")) {
+        groupName = locationHint ? `${locationHint.split(',')[0]} Prayer Circle` : "Prayer Circle";
+      } else if (goal.includes("young adults") || goal.includes("youth")) {
+        groupName = locationHint ? `${locationHint.split(',')[0]} Young Adults` : "Young Adults Fellowship";
+      } else if (goal.includes("worship")) {
+        groupName = "Worship & Fellowship";
+      } else {
+        // Extract key words from goal
+        const words = goal.split(' ').filter(w => w.length > 4).slice(0, 2);
+        if (words.length > 0) {
+          groupName = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') + " Group";
+        }
+      }
+
+      // Generate short description
+      const shortDesc = goal.length > 120 
+        ? goal.substring(0, 117) + "..."
+        : goal || "A welcoming fellowship group for connection and growth.";
+
+      // Generate full description
+      const fullDesc = `${goal || "A welcoming fellowship group"}. We meet ${meetingFreq} to connect, grow, and support each other. ${audience ? `This group is designed for ${audience}.` : ""} All are welcome to join us on this journey.`;
+
+      // Generate tags
+      const tagWords = [
+        ...(goal.split(' ').filter(w => w.length > 3 && !["with", "that", "this", "have", "will", "from", "near", "in", "the", "and", "for", "are"].includes(w.toLowerCase())).slice(0, 3)),
+        ...(audience ? [audience.toLowerCase()] : []),
+        ...(tone === "chill" ? ["casual"] : tone === "structured" ? ["structured"] : tone === "deep" ? ["deep study"] : ["social"]),
+        "fellowship"
+      ];
+      const uniqueTags = Array.from(new Set(tagWords.map(t => t.toLowerCase()))).slice(0, 6);
+
+      // Generate meeting schedule
+      const schedule = meetingFreq === "weekly" 
+        ? "Every Saturday 7pm"
+        : meetingFreq === "biweekly"
+        ? "First and third Sunday of each month at 6:30pm"
+        : meetingFreq === "monthly"
+        ? "First Sunday of each month at 6pm"
+        : `Every ${meetingFreq} at 7pm`;
+
+      // Generate rules
+      const rules = [
+        "Be respectful and kind to all members",
+        "Commit to regular attendance when possible",
+        "Keep discussions confidential and supportive",
+        "Come with an open heart and willingness to grow",
+        "Respect different perspectives and backgrounds"
+      ].slice(0, 5);
+
+      // Generate welcome message
+      const welcomeMsg = `Welcome! We're excited to have you join our ${groupName.toLowerCase()}. We're here to support each other and grow together. Feel free to introduce yourself and jump into the conversation!`;
+
+      return {
+        suggested_name: groupName,
+        suggested_short_description: shortDesc,
+        suggested_full_description: fullDesc,
+        suggested_meeting_schedule: schedule,
+        suggested_tags: uniqueTags,
+        suggested_privacy: goal.includes("private") ? "private" : "public",
+        suggested_group_rules: rules,
+        suggested_welcome_message: welcomeMsg,
+      };
+
     default:
       return { note: "No mock defined for this agent yet." };
   }

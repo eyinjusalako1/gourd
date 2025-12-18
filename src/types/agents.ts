@@ -11,6 +11,7 @@ export type AgentName =
   | "QAEngine"
   | "InsightsEngine"
   | "DevOpsAssistant"
+  | "GroupPlanner"
 
 export interface AgentConfig {
   name: AgentName

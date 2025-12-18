@@ -85,26 +85,34 @@ export class FellowshipService {
 
   // Create a new fellowship group
   static async createGroup(groupData: Omit<FellowshipGroup, 'id' | 'created_at' | 'updated_at' | 'member_count'>): Promise<FellowshipGroup> {
-    const { data, error } = await supabase
+    // Use limit(1) instead of single() to avoid PostgREST relationship resolution issues
+    const { data: groups, error } = await supabase
       .from('fellowship_groups')
       .insert([groupData])
       .select()
-      .single()
+      .limit(1)
 
     if (error) throw error
+
+    // Get first result (should only be one)
+    const group = groups && groups.length > 0 ? groups[0] : null
+
+    if (!group || !group.id) {
+      throw new Error('Group created but ID is missing')
+    }
 
     // Add creator as admin member
     await supabase
       .from('group_memberships')
       .insert([{
-        group_id: data.id,
+        group_id: group.id,
         user_id: groupData.created_by,
         role: 'admin',
         status: 'active',
         joined_at: new Date().toISOString()
       }])
 
-    return data
+    return group
   }
 
   // Join a group (for public groups)

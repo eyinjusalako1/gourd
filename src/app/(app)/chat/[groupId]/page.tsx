@@ -133,14 +133,18 @@ export default function GroupChatPage({ params }: GroupChatPageProps) {
   }
 
   const handleSendMessage = async () => {
-    if (!messageInput.trim() || !groupId || sending) return
+    if (!messageInput.trim() || !groupId || sending || !user?.id) return
 
     setSending(true)
     try {
+      // Get session to include access token
+      const { data: { session } } = await supabase.auth.getSession()
+      
       const response = await fetch(`/api/chat/group/${groupId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': session?.access_token ? `Bearer ${session.access_token}` : '',
         },
         body: JSON.stringify({
           content: messageInput.trim(),

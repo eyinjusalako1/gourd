@@ -146,6 +146,11 @@ export default function DevotionsPage() {
   const [reflection, setReflection] = useState('')
   const [prayer, setPrayer] = useState('')
   
+  // State for share modal
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('')
+  const [sharing, setSharing] = useState(false)
+  
   // Load stats from localStorage on mount
   useEffect(() => {
     const savedStreak = localStorage.getItem(STORAGE_KEYS.STREAK)
@@ -301,36 +306,79 @@ export default function DevotionsPage() {
     }
   }
   
-  const handleShareToGroup = async () => {
+  const handleShareToGroup = () => {
     if (userGroups.length === 0) {
       router.push('/fellowship')
       return
     }
     
-    // Build formatted message
-    let message = `📖 Today's Reading: ${todayReading.verse}\n`
-    
-    if (reflection.trim()) {
-      message += `Reflection: ${reflection.trim()}\n`
+    // Open share modal
+    if (userGroups.length > 0) {
+      setSelectedGroupId(userGroups[0].id)
     }
+    setShowShareModal(true)
+  }
+  
+  const handlePostToGroup = async () => {
+    if (!selectedGroupId || sharing) return
     
-    message += `Let's discuss this together on Gathered 🙌`
-    
+    setSharing(true)
     try {
-      await navigator.clipboard.writeText(message)
+      // Build formatted message
+      let message = `📖 Today's Reading: ${todayReading.verse}\n`
+      
+      if (reflection.trim()) {
+        message += `Reflection: ${reflection.trim()}\n`
+      }
+      
+      message += `Let's discuss this together on Gathered 🙌`
+      
+      // Post to group chat
+      const response = await fetch(`/api/chat/group/${selectedGroupId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: message,
+          type: 'devotion_share',
+          metadata: {
+            passageRef: todayReading.verse,
+            reflection: reflection.trim() || undefined,
+          },
+        }),
+      })
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('You must be a member of this group to share')
+        }
+        throw new Error('Failed to post message')
+      }
+      
       toast({
-        title: 'Copied!',
-        description: 'Paste into your group chat',
+        title: 'Shared!',
+        description: 'Your devotion has been posted to the group chat.',
         variant: 'success',
         duration: 3000,
       })
-    } catch (error) {
+      
+      setShowShareModal(false)
+      
+      // Optional: navigate to chat after a short delay
+      setTimeout(() => {
+        router.push(`/chat/${selectedGroupId}`)
+      }, 1500)
+    } catch (error: any) {
+      console.error('Error sharing to group:', error)
       toast({
-        title: 'Failed to copy',
-        description: 'Please try again.',
+        title: 'Failed to share',
+        description: error.message || 'Please try again.',
         variant: 'error',
-        duration: 2000,
+        duration: 3000,
       })
+    } finally {
+      setSharing(false)
     }
   }
 
@@ -510,6 +558,65 @@ export default function DevotionsPage() {
             </div>
           )}
         </div>
+        
+        {/* Share Modal */}
+        {showShareModal && userGroups.length > 0 && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-navy-800 border border-white/10 rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <h3 className="text-lg font-semibold text-slate-50 mb-4">Share to Group</h3>
+              
+              {/* Group Selection */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Select Group
+                </label>
+                <select
+                  value={selectedGroupId}
+                  onChange={(e) => setSelectedGroupId(e.target.value)}
+                  className="w-full px-4 py-2 border border-white/10 rounded-lg bg-navy-900/60 text-slate-50 focus:ring-2 focus:ring-gold-500 focus:border-gold-500"
+                >
+                  {userGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name} {group.location ? `- ${group.location}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Message Preview */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Message Preview
+                </label>
+                <div className="bg-navy-900/50 rounded-lg p-4 border border-white/5">
+                  <p className="text-slate-200 text-sm whitespace-pre-wrap">
+                    📖 Today&apos;s Reading: {todayReading.verse}
+                    {reflection.trim() && `\nReflection: ${reflection.trim()}`}
+                    {'\n'}Let&apos;s discuss this together on Gathered 🙌
+                  </p>
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setShowShareModal(false)}
+                  className="flex-1 border border-white/10 text-slate-300 hover:bg-navy-700/50 px-4 py-2 rounded-lg font-medium transition-colors"
+                  disabled={sharing}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePostToGroup}
+                  disabled={sharing || !selectedGroupId}
+                  className="flex-1 bg-gold-500 hover:bg-gold-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-navy-900 px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  {sharing ? 'Posting...' : 'Post to group'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Verse of the Day */}
         <div className="mb-8 bg-gradient-to-br from-navy-800/40 to-indigo-800/40 border border-gold-500/30 rounded-xl p-6">

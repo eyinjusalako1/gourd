@@ -547,7 +547,7 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
                 <span>Leave Group</span>
               </button>
               <button
-                onClick={() => router.push(`/chat`)}
+                onClick={() => router.push(`/chat/${groupId}`)}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-gold-600/40 text-gold-500 px-6 py-3 text-sm font-medium hover:bg-gold-500/10 transition-colors"
               >
                 <MessageCircle className="w-5 h-5" />
@@ -788,7 +788,7 @@ export default function FellowshipDetailPage({ params }: { params: Promise<{ id:
                   You&apos;ll be able to chat with your group members. For now, you can still explore and RSVP to hangouts.
                 </p>
                 <button
-                  onClick={() => router.push('/chat')}
+                  onClick={() => router.push(`/chat/${groupId}`)}
                   className="inline-flex items-center gap-2 rounded-full border border-gold-600/40 text-gold-500 px-4 py-2 text-sm font-medium hover:bg-gold-500/10 transition-colors"
                 >
                   Go to chats

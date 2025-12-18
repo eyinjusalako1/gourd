@@ -56,6 +56,25 @@ export interface JoinRequest {
   reviewed_by?: string
 }
 
+// Group chat message types
+export interface GroupChatMessage {
+  id: string
+  group_id: string
+  user_id: string
+  content: string
+  type: 'text' | 'devotion_share'
+  metadata?: {
+    passageRef?: string
+    reflection?: string
+  } | null
+  created_at: string
+  user: {
+    id: string
+    name: string
+    avatar_url?: string | null
+  }
+}
+
 // Event types
 export interface Event {
   id: string

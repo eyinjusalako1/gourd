@@ -1,89 +1,115 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageCircle, Users } from 'lucide-react'
-import AppHeader from '@/components/AppHeader'
+import { useAuth } from '@/lib/auth-context'
+import { FellowshipService } from '@/lib/fellowship-service'
+import { FellowshipGroup } from '@/types'
+import { MessageCircle, Users, Loader2, MapPin } from 'lucide-react'
+import { getGradientFromName } from '@/utils/gradient'
 
 export default function ChatPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  const [groups, setGroups] = useState<FellowshipGroup[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Mock fellowship with chat
-  const fellowships = [
-    {
-      id: '1',
-      name: 'Young Adults Bible Study',
-      lastMessage: 'Let\'s discuss chapter 3 this week.',
-      lastMessageTime: '2h ago',
-      unreadCount: 2
-    },
-    {
-      id: '2',
-      name: 'Women\'s Prayer Circle',
-      lastMessage: 'Prayer meeting this Wednesday',
-      lastMessageTime: '1d ago',
-      unreadCount: 0
-    },
-    {
-      id: '3',
-      name: 'Men\'s Accountability Group',
-      lastMessage: 'Great discussion last week!',
-      lastMessageTime: '3d ago',
-      unreadCount: 5
+  useEffect(() => {
+    if (user?.id) {
+      loadGroups()
     }
-  ]
+  }, [user?.id])
+
+  const loadGroups = async () => {
+    if (!user?.id) return
+    try {
+      setLoading(true)
+      const userGroups = await FellowshipService.getUserJoinedGroups(user.id)
+      setGroups(userGroups)
+    } catch (error) {
+      console.error('Error loading groups:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-navy-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-gold-500 animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Loading groups...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <>
-      <AppHeader title="Chats" backHref="/dashboard" />
-
-      {/* Fellowship Chats List */}
-      <div className="max-w-md mx-auto px-4 py-6 space-y-3">
-        {fellowships.map(fellowship => (
-          <button
-            key={fellowship.id}
-            onClick={() => router.push(`/fellowships/${fellowship.id}/chat`)}
-            className="w-full bg-white/5 border border-[#D4AF37] rounded-2xl p-4 relative overflow-hidden hover:bg-white/10 transition-colors text-left"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F5C451]/5 to-transparent pointer-events-none"></div>
-            <div className="flex items-center space-x-3 relative z-10">
-              <div className="w-12 h-12 bg-[#F5C451] rounded-full flex items-center justify-center text-lg font-bold text-[#0F1433]">
-                {fellowship.name.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-semibold text-white truncate">{fellowship.name}</h3>
-                  {fellowship.unreadCount > 0 && (
-                    <div className="bg-[#F5C451] text-[#0F1433] text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                      {fellowship.unreadCount}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-white/80 truncate">{fellowship.lastMessage}</p>
-                  <span className="text-xs text-white/60 ml-2">{fellowship.lastMessageTime}</span>
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {/* Empty State for No Chats */}
-      {fellowships.length === 0 && (
-        <div className="max-w-md mx-auto px-4 py-12 text-center">
-          <MessageCircle className="w-16 h-16 text-white/40 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">No chats yet</h3>
-          <p className="text-white/80 mb-6">Join a fellowship to start chatting!</p>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="bg-[#F5C451] text-[#0F1433] px-6 py-3 rounded-lg font-semibold hover:bg-[#D4AF37] transition-colors"
-          >
-            Browse Fellowships
-          </button>
+    <div className="min-h-screen bg-navy-900 pb-20">
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-50 mb-2">Chats</h1>
+          <p className="text-slate-400">Group conversations</p>
         </div>
-      )}
-    </>
+
+        {/* Groups List */}
+        {groups.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 bg-navy-800/40 border border-gold-500/20 rounded-full flex items-center justify-center mb-4">
+              <MessageCircle className="w-8 h-8 text-gold-500/50" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-50 mb-2">No groups yet</h3>
+            <p className="text-slate-400 text-sm text-center max-w-sm mb-6">
+              Join a fellowship group to start chatting with members.
+            </p>
+            <button
+              onClick={() => router.push('/fellowship')}
+              className="px-4 py-2 bg-gold-500 hover:bg-gold-600 text-navy-900 rounded-lg font-medium transition-colors"
+            >
+              Browse Groups
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {groups.map((group) => (
+              <button
+                key={group.id}
+                onClick={() => router.push(`/chat/${group.id}`)}
+                className="w-full bg-navy-800/30 border border-white/10 rounded-xl p-4 hover:border-gold-500/30 transition-colors text-left"
+              >
+                <div className="flex items-center space-x-3">
+                  {/* Group Avatar with gradient */}
+                  <div className={`w-12 h-12 rounded-xl ${getGradientFromName(group.name)} flex items-center justify-center text-lg font-bold text-slate-50 flex-shrink-0`}>
+                    {group.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-semibold text-slate-50 truncate">{group.name}</h3>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-slate-400">
+                      {group.location && (
+                        <>
+                          <MapPin className="w-3 h-3" />
+                          <span className="truncate">{group.location}</span>
+                        </>
+                      )}
+                      {group.member_count > 0 && (
+                        <>
+                          <span>•</span>
+                          <Users className="w-3 h-3" />
+                          <span>{group.member_count} members</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 

@@ -152,9 +152,9 @@ function getMockResponse(agentName: string, body: any) {
         suggested_time_hint: timeHint,
       };
 
-    case "GroupPlanner":
+    case "GroupPlanner": {
       const goal = (body?.goal || "").toLowerCase();
-      const locationHint = body?.location_hint || "";
+      const groupLocationHint = body?.location_hint || "";
       const audience = body?.audience || "";
       const meetingFreq = body?.meeting_frequency || "weekly";
       const tone = body?.tone || "chill";
@@ -162,17 +162,17 @@ function getMockResponse(agentName: string, body: any) {
       // Generate name based on goal and context
       let groupName = "Fellowship Group";
       if (goal.includes("bible") || goal.includes("study")) {
-        if (locationHint) {
-          groupName = `${locationHint.split(',')[0]} Bible Study`;
+        if (groupLocationHint) {
+          groupName = `${groupLocationHint.split(',')[0]} Bible Study`;
         } else if (audience) {
           groupName = `${audience} Bible Study`;
         } else {
           groupName = "Word & Worship";
         }
       } else if (goal.includes("prayer")) {
-        groupName = locationHint ? `${locationHint.split(',')[0]} Prayer Circle` : "Prayer Circle";
+        groupName = groupLocationHint ? `${groupLocationHint.split(',')[0]} Prayer Circle` : "Prayer Circle";
       } else if (goal.includes("young adults") || goal.includes("youth")) {
-        groupName = locationHint ? `${locationHint.split(',')[0]} Young Adults` : "Young Adults Fellowship";
+        groupName = groupLocationHint ? `${groupLocationHint.split(',')[0]} Young Adults` : "Young Adults Fellowship";
       } else if (goal.includes("worship")) {
         groupName = "Worship & Fellowship";
       } else {
@@ -231,6 +231,7 @@ function getMockResponse(agentName: string, body: any) {
         suggested_group_rules: rules,
         suggested_welcome_message: welcomeMsg,
       };
+    }
 
     default:
       return { note: "No mock defined for this agent yet." };
